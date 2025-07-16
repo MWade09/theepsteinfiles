@@ -1,13 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ChevronDown, Map, FileText, Clock, Users, Search, BookOpen } from 'lucide-react';
+import { ChevronDown, Map, FileText, Clock, Users, Search, BookOpen, DollarSign } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import HeroSection from '@/components/HeroSection';
 import AdvancedTimeline from '@/components/AdvancedTimeline';
 import NetworkAnalysis from '@/components/NetworkAnalysis';
+import FinancialFlowAnalysis from '@/components/FinancialFlowAnalysis';
 import EvidenceGrid from '@/components/EvidenceGrid';
 import InteractiveMap from '@/components/InteractiveMap';
+import EnhancedGeographicMapping from '@/components/EnhancedGeographicMapping';
 import DocumentLibrary from '@/components/DocumentLibrary';
 
 export default function HomePage() {
@@ -27,6 +29,7 @@ export default function HomePage() {
     { id: 'hero', title: 'Introduction', icon: FileText },
     { id: 'timeline', title: 'Timeline', icon: Clock },
     { id: 'connections', title: 'Network', icon: Users },
+    { id: 'financial', title: 'Financial', icon: DollarSign },
     { id: 'documents', title: 'Documents', icon: BookOpen },
     { id: 'evidence', title: 'Evidence', icon: Search },
     { id: 'map', title: 'Locations', icon: Map },
@@ -46,12 +49,12 @@ export default function HomePage() {
       </section>
 
       {/* Introduction */}
-      <section className="story-section bg-white dark:bg-dark-800">
+      <section className="story-section bg-gray-900">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-8 text-gray-900 dark:text-gray-100">
+          <h2 className="text-3xl md:text-4xl font-bold mb-8 text-gray-100">
             Uncovering the Truth
           </h2>
-          <div className="prose prose-lg max-w-3xl mx-auto text-gray-700 dark:text-gray-300">
+          <div className="prose prose-lg max-w-3xl mx-auto text-gray-300">
             <p className="mb-6">
               The Jeffrey Epstein case represents one of the most significant scandals of our time, 
               involving a complex network of powerful individuals, financial institutions, and 
@@ -64,41 +67,50 @@ export default function HomePage() {
             </p>
             <p>
               Navigate through the evidence chronologically, explore connections between key figures, 
-              examine original documents with annotation capabilities, and investigate the geographical 
-              scope of Epstein's operations through our interactive tools.
+              analyze financial flows and suspicious transactions, examine original documents with 
+              annotation capabilities, and investigate the geographical scope of Epstein's operations 
+              through our interactive tools.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mt-16">
             <div className="evidence-card p-6 text-center">
               <Clock className="w-12 h-12 mx-auto mb-4 text-primary-600" />
-              <h3 className="text-xl font-semibold mb-2">Advanced Timeline</h3>
+              <h3 className="text-lg font-semibold mb-2">Advanced Timeline</h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Multi-modal timeline with chronological, thematic, and statistical analysis of 40+ key events
+                Multi-modal timeline with 40+ key events and cross-referencing
               </p>
             </div>
             
             <div className="evidence-card p-6 text-center">
               <Users className="w-12 h-12 mx-auto mb-4 text-primary-600" />
-              <h3 className="text-xl font-semibold mb-2">Network Analysis</h3>
+              <h3 className="text-lg font-semibold mb-2">Network Analysis</h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Interactive visualization of complex relationships and connections between key figures
+                Interactive visualization of complex relationships and connections
+              </p>
+            </div>
+            
+            <div className="evidence-card p-6 text-center">
+              <DollarSign className="w-12 h-12 mx-auto mb-4 text-primary-600" />
+              <h3 className="text-lg font-semibold mb-2">Financial Flows</h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Comprehensive analysis of $100M+ in suspicious financial activity
               </p>
             </div>
             
             <div className="evidence-card p-6 text-center">
               <BookOpen className="w-12 h-12 mx-auto mb-4 text-primary-600" />
-              <h3 className="text-xl font-semibold mb-2">Document Library</h3>
+              <h3 className="text-lg font-semibold mb-2">Document Library</h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Comprehensive document viewer with annotations, cross-referencing, and citation tracking
+                Searchable documents with annotations and cross-referencing
               </p>
             </div>
             
             <div className="evidence-card p-6 text-center">
               <Map className="w-12 h-12 mx-auto mb-4 text-primary-600" />
-              <h3 className="text-xl font-semibold mb-2">Geographic Mapping</h3>
+              <h3 className="text-lg font-semibold mb-2">Enhanced Geographic Mapping</h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Comprehensive mapping of properties, travels, and operations worldwide
+                Property ownership timelines, travel patterns, and financial connections
               </p>
             </div>
           </div>
@@ -135,8 +147,23 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Financial Flow Analysis */}
+      <section id="financial" className="story-section bg-gray-50 dark:bg-dark-900">
+        <div className="w-full">
+          <div className="text-center mb-12 max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+              Financial Flow Analysis
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400">
+              Comprehensive tracking and visualization of over $100 million in suspicious financial transactions
+            </p>
+          </div>
+          <FinancialFlowAnalysis />
+        </div>
+      </section>
+
       {/* Document Library */}
-      <section id="documents" className="story-section bg-gray-50 dark:bg-dark-900">
+      <section id="documents" className="story-section bg-white dark:bg-dark-800">
         <div className="w-full h-screen">
           <div className="text-center pb-8 max-w-4xl mx-auto pt-8">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100">
@@ -153,22 +180,22 @@ export default function HomePage() {
       </section>
 
       {/* Evidence Grid */}
-      <section id="evidence" className="story-section bg-white dark:bg-dark-800">
+      <section id="evidence" className="story-section bg-gray-50 dark:bg-dark-900">
         <EvidenceGrid />
       </section>
 
-      {/* Interactive Map */}
-      <section id="map" className="story-section bg-gray-50 dark:bg-dark-900">
-        <div className="w-full max-w-7xl mx-auto">
-          <div className="text-center mb-12">
+      {/* Enhanced Geographic Mapping */}
+      <section id="map" className="story-section bg-white dark:bg-dark-800">
+        <div className="w-full">
+          <div className="text-center mb-12 max-w-4xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-              Global Network
+              Enhanced Geographic Mapping
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Explore the geographical scope of Epstein's operations, properties, and connections across the world
+            <p className="text-lg text-gray-600 dark:text-gray-400">
+              Comprehensive property ownership analysis, travel patterns, and financial connections across global operations
             </p>
           </div>
-          <InteractiveMap />
+          <EnhancedGeographicMapping />
         </div>
       </section>
 
@@ -180,32 +207,39 @@ export default function HomePage() {
           </h2>
           <p className="text-xl mb-8 text-primary-100">
             This comprehensive investigation platform provides advanced tools for researchers, journalists, 
-            and the public to examine evidence, analyze documents, and explore connections in this complex case.
+            and the public to examine evidence, analyze financial flows, explore documents, and investigate 
+            connections in this complex case.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <button 
               onClick={() => document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth' })}
-              className="bg-white text-primary-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+              className="bg-white text-primary-600 px-4 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
             >
               Explore Timeline
             </button>
             <button 
               onClick={() => document.getElementById('connections')?.scrollIntoView({ behavior: 'smooth' })}
-              className="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors"
+              className="border-2 border-white text-white px-4 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors"
             >
-              Analyze Networks
+              Network Analysis
+            </button>
+            <button 
+              onClick={() => document.getElementById('financial')?.scrollIntoView({ behavior: 'smooth' })}
+              className="bg-white text-primary-600 px-4 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+            >
+              Financial Flows
             </button>
             <button 
               onClick={() => document.getElementById('documents')?.scrollIntoView({ behavior: 'smooth' })}
-              className="bg-white text-primary-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+              className="border-2 border-white text-white px-4 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors"
             >
               Browse Documents
             </button>
             <button 
               onClick={() => document.getElementById('map')?.scrollIntoView({ behavior: 'smooth' })}
-              className="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors"
+              className="bg-white text-primary-600 px-4 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
             >
-              View Locations
+              Enhanced Mapping
             </button>
           </div>
         </div>

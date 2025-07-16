@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Menu, X, Moon, Sun } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 interface NavigationProps {
   sections: Array<{
@@ -15,12 +15,6 @@ interface NavigationProps {
 
 export default function Navigation({ sections, currentSection, isScrolled }: NavigationProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isDark, setIsDark] = useState(false);
-
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-    document.documentElement.classList.toggle('dark');
-  };
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -33,7 +27,7 @@ export default function Navigation({ sections, currentSection, isScrolled }: Nav
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
       isScrolled 
-        ? 'bg-white/90 dark:bg-dark-900/90 backdrop-blur-md shadow-lg' 
+        ? 'bg-black/90 backdrop-blur-md shadow-lg border-b border-cyan-500/30' 
         : 'bg-transparent'
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -42,7 +36,7 @@ export default function Navigation({ sections, currentSection, isScrolled }: Nav
           <div className="flex-shrink-0">
             <button 
               onClick={() => scrollToSection('hero')}
-              className="text-xl font-bold text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+              className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent hover:from-cyan-300 hover:to-purple-300 transition-all duration-300"
             >
               The Epstein Files
             </button>
@@ -57,10 +51,10 @@ export default function Navigation({ sections, currentSection, isScrolled }: Nav
                   <button
                     key={section.id}
                     onClick={() => scrollToSection(section.id)}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 ${
                       currentSection === index
-                        ? 'bg-primary-600 text-white'
-                        : 'text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
+                        ? 'bg-gradient-to-r from-cyan-600 to-purple-600 text-white shadow-neon-cyan'
+                        : 'text-gray-300 hover:text-cyan-400 hover:bg-gray-800/50'
                     }`}
                   >
                     <div className="flex items-center gap-2">
@@ -73,31 +67,21 @@ export default function Navigation({ sections, currentSection, isScrolled }: Nav
             </div>
           </div>
 
-          {/* Theme Toggle & Mobile Menu Button */}
-          <div className="flex items-center gap-2">
+          {/* Mobile Menu Button */}
+          <div className="md:hidden">
             <button
-              onClick={toggleTheme}
-              className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-              aria-label="Toggle theme"
+              onClick={() => setIsOpen(!isOpen)}
+              className="p-2 rounded-md text-gray-300 hover:text-cyan-400 hover:bg-gray-800/50 transition-colors"
+              aria-label="Toggle menu"
             >
-              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
-
-            <div className="md:hidden">
-              <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-                aria-label="Toggle menu"
-              >
-                {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </button>
-            </div>
           </div>
         </div>
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden bg-white dark:bg-dark-800 border-t border-gray-200 dark:border-dark-700">
+          <div className="md:hidden bg-gray-900/95 backdrop-blur-md border-t border-cyan-500/30">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {sections.map((section, index) => {
                 const Icon = section.icon;
@@ -105,10 +89,10 @@ export default function Navigation({ sections, currentSection, isScrolled }: Nav
                   <button
                     key={section.id}
                     onClick={() => scrollToSection(section.id)}
-                    className={`w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                    className={`w-full text-left px-3 py-2 rounded-md text-base font-medium transition-all duration-300 ${
                       currentSection === index
-                        ? 'bg-primary-600 text-white'
-                        : 'text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
+                        ? 'bg-gradient-to-r from-cyan-600 to-purple-600 text-white shadow-neon-cyan'
+                        : 'text-gray-300 hover:text-cyan-400 hover:bg-gray-800/50'
                     }`}
                   >
                     <div className="flex items-center gap-3">

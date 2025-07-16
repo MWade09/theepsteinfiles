@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   html {
@@ -10,46 +10,305 @@
   }
   
   body {
-    @apply bg-white dark:bg-dark-900 text-gray-900 dark:text-gray-100 transition-colors duration-300;
+    @apply bg-gradient-to-br from-black via-gray-900 to-gray-800 text-gray-100 transition-all duration-500;
+    font-family: 'Inter', system-ui, sans-serif;
+    overflow-x: hidden;
   }
   
   * {
-    @apply border-gray-200 dark:border-dark-700;
+    @apply border-gray-700;
   }
+
+
 }
 
 @layer components {
+  /* Investigation Card Styling */
   .evidence-card {
-    @apply bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-300;
+    @apply bg-gradient-to-br from-gray-900/80 to-gray-800/60 border border-cyan-500/30 rounded-xl shadow-2xl hover:shadow-cyan-500/20 transition-all duration-500 backdrop-blur-md;
+    position: relative;
+  }
+
+  .evidence-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(0, 255, 255, 0.1) 0%, transparent 50%, rgba(255, 0, 100, 0.1) 100%);
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  .evidence-card:hover::before {
+    opacity: 1;
   }
   
+  /* Enhanced Timeline Styling */
   .timeline-item {
-    @apply relative pl-8 pb-8 border-l-2 border-gray-200 dark:border-dark-700;
+    @apply relative pl-12 pb-12 border-l-2 border-cyan-400/50;
+    position: relative;
   }
   
   .timeline-item::before {
     content: '';
-    @apply absolute -left-2 top-0 w-4 h-4 bg-primary-500 rounded-full border-4 border-white dark:border-dark-900;
+    @apply absolute -left-3 top-0 w-6 h-6 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full border-4 border-gray-900;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+    animation: pulse-glow 2s infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { 
+      transform: scale(1);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+    }
+    50% { 
+      transform: scale(1.1);
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
+    }
   }
   
+  /* Enhanced Connection Line Styling */
   .connection-line {
-    @apply opacity-60 stroke-2 stroke-primary-500 dark:stroke-primary-400;
+    @apply opacity-80 stroke-2;
+    stroke: url(#connectionGradient);
+    filter: drop-shadow(0 0 6px rgba(0, 255, 255, 0.6));
+    animation: data-flow 3s linear infinite;
+  }
+
+  @keyframes data-flow {
+    0% { stroke-dashoffset: 0; }
+    100% { stroke-dashoffset: 20; }
   }
   
+  /* Adventure-Style Scroll Indicator */
   .scroll-indicator {
-    @apply fixed bottom-8 right-8 z-50 w-12 h-12 bg-primary-600 text-white rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:bg-primary-700 transition-colors;
+    @apply fixed bottom-8 right-8 z-50 w-14 h-14 bg-gradient-to-r from-cyan-600 to-purple-600 text-white rounded-full flex items-center justify-center shadow-2xl cursor-pointer transition-all duration-300;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.4);
+  }
+
+  .scroll-indicator:hover {
+    @apply scale-110;
+    box-shadow: 0 0 40px rgba(0, 255, 255, 0.8);
   }
   
+  /* Enhanced Story Section */
   .story-section {
-    @apply min-h-screen flex items-center justify-center px-4 py-16;
+    @apply min-h-screen flex items-center justify-center px-4 py-16 relative;
+    background: radial-gradient(ellipse at center, rgba(0, 255, 255, 0.03) 0%, transparent 70%);
+  }
+
+  .story-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(circle at 20% 20%, rgba(0, 255, 255, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(255, 0, 100, 0.05) 0%, transparent 50%);
+    pointer-events: none;
   }
   
+  /* Investigation-Style Fade-in */
   .fade-in-view {
-    @apply opacity-0 translate-y-8 transition-all duration-700 ease-out;
+    @apply opacity-0 translate-y-12 transition-all duration-1000 ease-out;
+    filter: blur(4px);
   }
   
   .fade-in-view.in-view {
     @apply opacity-100 translate-y-0;
+    filter: blur(0px);
+  }
+
+  /* Noir-Style Headers */
+  .noir-header {
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.1) 0%, rgba(255, 0, 100, 0.1) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.3));
+  }
+
+  /* Enhanced Button Styling */
+  .adventure-btn {
+    @apply relative px-6 py-3 bg-gradient-to-r from-cyan-600 to-purple-600 text-white font-bold rounded-lg transition-all duration-300 overflow-hidden;
+    box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+  }
+
+  .adventure-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  .adventure-btn:hover::before {
+    left: 100%;
+  }
+
+  .adventure-btn:hover {
+    @apply scale-105;
+    box-shadow: 0 6px 25px rgba(0, 255, 255, 0.5);
+  }
+
+  /* Discovery Badge Styling */
+  .discovery-badge {
+    @apply inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-sm font-bold rounded-full;
+    box-shadow: 0 0 20px rgba(255, 193, 7, 0.5);
+    animation: discovery-glow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes discovery-glow {
+    from { box-shadow: 0 0 20px rgba(255, 193, 7, 0.5); }
+    to { box-shadow: 0 0 30px rgba(255, 193, 7, 0.8); }
+  }
+
+  /* Progress Bar Styling */
+  .progress-bar {
+    @apply h-2 bg-gray-800 rounded-full overflow-hidden relative;
+  }
+
+  .progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #00ffff, #ff0066, #00ffff);
+    border-radius: inherit;
+    transition: width 0.5s ease;
+  }
+
+  /* Network Node Styling */
+  .network-node {
+    @apply relative transition-all duration-300;
+    filter: drop-shadow(0 0 6px rgba(0, 255, 255, 0.4));
+  }
+
+  .network-node:hover {
+    @apply scale-110;
+    filter: drop-shadow(0 0 12px rgba(0, 255, 255, 0.8));
+  }
+
+  /* Investigation Stats */
+  .investigation-stat {
+    @apply p-4 bg-gradient-to-br from-gray-900/80 to-gray-800/60 border border-cyan-500/30 rounded-lg text-center backdrop-blur-md;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .investigation-stat:hover {
+    @apply border-cyan-400/60;
+    box-shadow: 
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 0 20px rgba(0, 255, 255, 0.2);
+  }
+
+  /* Scanning Effect */
+  .scanning-line {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00ffff, transparent);
+    animation: scan 3s linear infinite;
+  }
+
+  @keyframes scan {
+    0% { transform: translateY(-100%); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(600px); opacity: 0; }
+  }
+
+  /* Achievement Animation */
+  .achievement-unlock {
+    animation: achievement-pop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  @keyframes achievement-pop {
+    0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+    50% { transform: scale(1.2) rotate(-90deg); opacity: 0.8; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+
+  /* Cyberpunk Grid Background */
+  .cyber-grid {
+    background-image: 
+      linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: grid-move 20s linear infinite;
+  }
+
+  @keyframes grid-move {
+    0% { background-position: 0 0; }
+    100% { background-position: 50px 50px; }
+  }
+
+  /* Enhanced Modal Styling */
+  .investigation-modal {
+    @apply bg-gradient-to-br from-gray-900/95 to-black/95 border border-cyan-500/50 rounded-xl backdrop-blur-xl;
+    box-shadow: 
+      0 25px 50px rgba(0, 0, 0, 0.8),
+      inset 0 1px 0 rgba(0, 255, 255, 0.2);
+  }
+
+  /* Glitch Text Effect */
+  .glitch-text {
+    position: relative;
+    animation: glitch 2s infinite;
+  }
+
+  .glitch-text::before,
+  .glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .glitch-text::before {
+    animation: glitch-1 0.5s infinite;
+    color: #ff0066;
+    z-index: -1;
+  }
+
+  .glitch-text::after {
+    animation: glitch-2 0.5s infinite;
+    color: #00ffff;
+    z-index: -2;
+  }
+
+  @keyframes glitch {
+    0%, 100% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+  }
+
+  @keyframes glitch-1 {
+    0%, 100% { transform: translate(0); }
+    25% { transform: translate(-1px, 1px); }
+    50% { transform: translate(1px, -1px); }
+    75% { transform: translate(-1px, -1px); }
+  }
+
+  @keyframes glitch-2 {
+    0%, 100% { transform: translate(0); }
+    25% { transform: translate(1px, -1px); }
+    50% { transform: translate(-1px, 1px); }
+    75% { transform: translate(1px, 1px); }
   }
 }
 
@@ -69,34 +328,225 @@
   .backface-hidden {
     backface-visibility: hidden;
   }
+
+  .text-neon-cyan {
+    color: #00ffff;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  }
+
+  .text-neon-pink {
+    color: #ff0066;
+    text-shadow: 0 0 10px rgba(255, 0, 102, 0.5);
+  }
+
+  .text-neon-yellow {
+    color: #ffff00;
+    text-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
+  }
+
+  .border-neon-cyan {
+    border-color: #00ffff;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+  }
+
+  .bg-neon-glow {
+    background: radial-gradient(circle, rgba(0, 255, 255, 0.1) 0%, transparent 70%);
+  }
+
+  .shadow-neon-cyan {
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+  }
+
+  .shadow-neon-pink {
+    box-shadow: 0 0 20px rgba(255, 0, 102, 0.4);
+  }
+
+  .shadow-neon-yellow {
+    box-shadow: 0 0 20px rgba(255, 255, 0, 0.4);
+  }
 }
 
-/* Custom scrollbar */
+/* Enhanced Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 12px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-100 dark:bg-dark-800;
+  @apply bg-gray-900 border-l border-gray-700;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-400 dark:bg-dark-600 rounded-full;
+  @apply bg-gradient-to-b from-cyan-600 to-purple-600 rounded-full;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-500 dark:bg-dark-500;
+  @apply bg-gradient-to-b from-cyan-500 to-purple-500;
+  box-shadow: 
+    inset 0 0 6px rgba(0, 0, 0, 0.3),
+    0 0 10px rgba(0, 255, 255, 0.4);
 }
 
-/* Map styles */
+/* Selection Styling */
+::selection {
+  background: rgba(0, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+::-moz-selection {
+  background: rgba(0, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+/* Map styles with Noir Theme */
 .leaflet-container {
-  @apply bg-gray-100 dark:bg-dark-800;
+  @apply bg-gradient-to-br from-gray-900 to-black;
+  filter: hue-rotate(180deg) saturate(0.8);
 }
 
 .leaflet-popup-content-wrapper {
-  @apply bg-white dark:bg-dark-800 text-gray-900 dark:text-gray-100;
+  @apply bg-gradient-to-br from-gray-900/95 to-black/95 text-gray-100 border border-cyan-500/50;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 15px 35px rgba(0, 255, 255, 0.2);
 }
 
 .leaflet-popup-tip {
-  @apply bg-white dark:bg-dark-800;
+  @apply bg-gray-900;
+}
+
+/* Investigation Theme Overrides */
+.dark .leaflet-control-zoom a {
+  @apply bg-gray-800 border-gray-600 text-cyan-400;
+}
+
+.dark .leaflet-control-zoom a:hover {
+  @apply bg-gray-700 border-cyan-500;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+/* Loading Animation */
+.investigation-loading {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(0, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #00ffff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Typewriter Effect */
+.typewriter {
+  overflow: hidden;
+  border-right: 2px solid #00ffff;
+  white-space: nowrap;
+  animation: 
+    typewriter 3s steps(40, end),
+    blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent; }
+  50% { border-color: #00ffff; }
+}
+
+/* Console Log Styling */
+.console-log {
+  @apply font-mono text-sm p-4 bg-black border border-green-500/50 rounded;
+  color: #00ff00;
+  text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+}
+
+.console-log::before {
+  content: '> ';
+  color: #00ffff;
+}
+
+/* Matrix Rain Effect (for backgrounds) */
+.matrix-rain {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.matrix-rain::before {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: 0;
+  width: 100%;
+  height: 200%;
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 255, 0.03) 2px,
+    rgba(0, 255, 255, 0.03) 4px
+  );
+  animation: matrix-fall 20s linear infinite;
+}
+
+@keyframes matrix-fall {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(0%); }
+}
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+  .story-section {
+    @apply px-2 py-12;
+  }
+  
+  .timeline-item {
+    @apply pl-8 pb-8;
+  }
+  
+  .adventure-btn {
+    @apply px-4 py-2 text-sm;
+  }
+}
+
+/* High contrast mode for accessibility */
+@media (prefers-contrast: high) {
+  .evidence-card {
+    @apply border-white;
+  }
+  
+  .connection-line {
+    @apply stroke-white;
+  }
+  
+  .adventure-btn {
+    @apply bg-white text-black;
+  }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .cyber-grid {
+    animation: none;
+  }
+  
+  .scanning-line {
+    animation: none;
+  }
 } 

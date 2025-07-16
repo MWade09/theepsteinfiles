@@ -86,34 +86,255 @@ export interface Relationship {
 export interface FinancialEntity {
   id: string;
   name: string;
-  type: 'bank' | 'trust' | 'foundation' | 'corporation' | 'llc' | 'partnership' | 'other';
-  jurisdiction: string;
-  registrationDate?: string;
+  type: 'individual' | 'corporation' | 'trust' | 'foundation' | 'bank' | 'investment_fund' | 'shell_company' | 'government' | 'other';
+  subtype?: string; // e.g., 'offshore_entity', 'charitable_foundation', 'hedge_fund'
+  registrationCountry: string;
+  registrationState?: string;
+  parentCompany?: string;
+  subsidiaries: string[]; // IDs of subsidiary entities
+  controllers: string[]; // IDs of controlling persons/entities
+  legalStructure: 'llc' | 'corporation' | 'partnership' | 'trust' | 'foundation' | 'sole_proprietorship' | 'other';
+  taxHaven: boolean;
+  publiclyTraded: boolean;
+  ticker?: string;
+  industry?: string;
   description: string;
-  owners: string[]; // Person or Organization IDs
-  significance: 'critical' | 'high' | 'medium' | 'low';
-  verificationStatus: 'verified' | 'pending' | 'disputed';
+  establishedDate?: string;
+  dissolutionDate?: string;
+  currentStatus: 'active' | 'inactive' | 'dissolved' | 'unknown';
+  addresses: Address[];
+  relatedPersons: string[]; // Person IDs
+  suspiciousActivity: SuspiciousActivityFlag[];
   sources: Source[];
   tags: string[];
   lastUpdated: string;
 }
 
+export interface Address {
+  id: string;
+  type: 'headquarters' | 'registered' | 'mailing' | 'operational' | 'residential' | 'other';
+  streetAddress: string;
+  city: string;
+  state?: string;
+  postalCode?: string;
+  country: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
+  dateFrom?: string;
+  dateTo?: string;
+  current: boolean;
+}
+
 export interface FinancialTransaction {
   id: string;
-  fromEntityId: string;
-  fromEntityType: 'person' | 'organization' | 'financial';
-  toEntityId: string;
-  toEntityType: 'person' | 'organization' | 'financial';
-  amount?: number;
+  transactionDate: string;
+  amount: number;
   currency: string;
-  date: string;
-  type: 'payment' | 'transfer' | 'loan' | 'investment' | 'gift' | 'purchase' | 'other';
-  description: string;
+  exchangeRate?: number; // To USD if not USD
+  amountUSD: number; // Standardized amount
+  fromEntity: string; // FinancialEntity ID
+  toEntity: string; // FinancialEntity ID
+  transactionType: 'payment' | 'transfer' | 'loan' | 'investment' | 'donation' | 'purchase' | 'salary' | 'consulting_fee' | 'gift' | 'settlement' | 'other';
+  method: 'wire_transfer' | 'check' | 'cash' | 'cryptocurrency' | 'credit_card' | 'money_order' | 'other';
   purpose?: string;
-  significance: 'critical' | 'high' | 'medium' | 'low';
+  description: string;
+  relatedProperty?: string; // Property ID if related to real estate
+  relatedPerson?: string; // Person ID if personal transaction
+  relatedEvent?: string; // Timeline Event ID
+  bankDetails?: BankingDetails;
+  suspiciousActivity: SuspiciousActivityFlag[];
   verificationStatus: 'verified' | 'pending' | 'disputed';
+  confidenceLevel: 'high' | 'medium' | 'low';
   sources: Source[];
   tags: string[];
+  lastUpdated: string;
+}
+
+export interface BankingDetails {
+  fromBank?: string;
+  fromAccount?: string;
+  fromRoutingNumber?: string;
+  toBank?: string;
+  toAccount?: string;
+  toRoutingNumber?: string;
+  intermediaryBanks?: string[];
+  transactionFee?: number;
+  transactionId?: string;
+}
+
+export interface SuspiciousActivityFlag {
+  id: string;
+  type: 'large_cash_transaction' | 'unusual_pattern' | 'round_dollar_amount' | 'offshore_transfer' | 'shell_company_involvement' | 'timing_suspicious' | 'lack_of_documentation' | 'structuring' | 'other';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  description: string;
+  automaticFlag: boolean; // True if flagged by algorithm
+  reviewedBy?: string;
+  reviewDate?: string;
+  status: 'flagged' | 'under_review' | 'cleared' | 'confirmed_suspicious';
+  notes?: string;
+}
+
+export interface PropertyTransaction {
+  id: string;
+  propertyId: string;
+  transactionDate: string;
+  transactionType: 'purchase' | 'sale' | 'transfer' | 'gift' | 'inheritance' | 'foreclosure' | 'other';
+  purchasePrice?: number;
+  salePrice?: number;
+  currency: string;
+  buyer: string; // FinancialEntity ID
+  seller: string; // FinancialEntity ID
+  financingDetails?: FinancingDetails;
+  legalRepresentation?: LegalRepresentation;
+  suspiciousActivity: SuspiciousActivityFlag[];
+  sources: Source[];
+  tags: string[];
+  lastUpdated: string;
+}
+
+export interface FinancingDetails {
+  mortgageAmount?: number;
+  downPayment?: number;
+  lender?: string;
+  interestRate?: number;
+  loanTerm?: number; // in years
+  mortgageType?: string;
+  cashPurchase: boolean;
+}
+
+export interface LegalRepresentation {
+  buyerAttorney?: string;
+  sellerAttorney?: string;
+  closingAgent?: string;
+  titleCompany?: string;
+}
+
+export interface FinancialAnalytics {
+  entityId: string;
+  period: {
+    start: string;
+    end: string;
+  };
+  totalInflow: number;
+  totalOutflow: number;
+  netFlow: number;
+  transactionCount: number;
+  averageTransactionSize: number;
+  largestTransaction: number;
+  suspiciousTransactionCount: number;
+  suspiciousTransactionPercent: number;
+  topCounterparties: FinancialCounterparty[];
+  flowsByType: FlowByType[];
+  riskScore: number; // 0-100
+  riskFactors: string[];
+  lastCalculated: string;
+}
+
+export interface FinancialCounterparty {
+  entityId: string;
+  entityName: string;
+  transactionCount: number;
+  totalAmount: number;
+  relationship: 'inflow' | 'outflow' | 'bidirectional';
+}
+
+export interface FlowByType {
+  type: string;
+  count: number;
+  totalAmount: number;
+  percentage: number;
+}
+
+export interface FinancialNetwork {
+  nodes: FinancialNetworkNode[];
+  edges: FinancialNetworkEdge[];
+  totalValue: number;
+  timeRange: {
+    start: string;
+    end: string;
+  };
+  lastUpdated: string;
+}
+
+export interface FinancialNetworkNode {
+  id: string;
+  name: string;
+  type: 'individual' | 'corporation' | 'trust' | 'foundation' | 'bank' | 'other';
+  totalTransactions: number;
+  totalValue: number;
+  riskScore: number;
+  size: number; // For visualization
+  color: string; // For visualization
+  x?: number;
+  y?: number;
+  suspicious: boolean;
+}
+
+export interface FinancialNetworkEdge {
+  id: string;
+  source: string;
+  target: string;
+  transactionCount: number;
+  totalValue: number;
+  averageValue: number;
+  timespan: {
+    start: string;
+    end: string;
+  };
+  suspicious: boolean;
+  width: number; // For visualization
+  color: string; // For visualization
+}
+
+// Financial Search and Filter Types
+export interface FinancialFilters {
+  entityTypes: string[];
+  transactionTypes: string[];
+  dateRange: {
+    start: string;
+    end: string;
+  };
+  amountRange: {
+    min: number;
+    max: number;
+  };
+  currencies: string[];
+  countries: string[];
+  suspiciousOnly: boolean;
+  verificationStatus: string[];
+  riskLevel: string[];
+}
+
+export interface FinancialSearch {
+  query: string;
+  filters: FinancialFilters;
+  sortBy: 'date' | 'amount' | 'risk_score' | 'relevance';
+  sortOrder: 'asc' | 'desc';
+  limit: number;
+  offset: number;
+}
+
+export interface FinancialPattern {
+  id: string;
+  name: string;
+  type: 'money_laundering' | 'structuring' | 'round_tripping' | 'layering' | 'smurfing' | 'other';
+  description: string;
+  entities: string[]; // Involved entity IDs
+  transactions: string[]; // Involved transaction IDs
+  timeframe: {
+    start: string;
+    end: string;
+  };
+  totalAmount: number;
+  confidenceScore: number; // 0-100
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
+  status: 'detected' | 'under_investigation' | 'confirmed' | 'dismissed';
+  detectionMethod: 'automatic' | 'manual' | 'tip';
+  investigator?: string;
+  notes?: string;
+  sources: Source[];
   lastUpdated: string;
 }
 
@@ -255,6 +476,262 @@ export interface DocumentReview {
   comments: string;
   reviewDate: string;
   significance: 'critical' | 'high' | 'medium' | 'low';
+}
+
+// Advanced Financial Flow Analysis Types
+export interface FinancialEntity {
+  id: string;
+  name: string;
+  type: 'individual' | 'corporation' | 'trust' | 'foundation' | 'bank' | 'investment_fund' | 'shell_company' | 'government' | 'other';
+  subtype?: string; // e.g., 'offshore_entity', 'charitable_foundation', 'hedge_fund'
+  registrationCountry: string;
+  registrationState?: string;
+  parentCompany?: string;
+  subsidiaries: string[]; // IDs of subsidiary entities
+  controllers: string[]; // IDs of controlling persons/entities
+  legalStructure: 'llc' | 'corporation' | 'partnership' | 'trust' | 'foundation' | 'sole_proprietorship' | 'other';
+  taxHaven: boolean;
+  publiclyTraded: boolean;
+  ticker?: string;
+  industry?: string;
+  description: string;
+  establishedDate?: string;
+  dissolutionDate?: string;
+  currentStatus: 'active' | 'inactive' | 'dissolved' | 'unknown';
+  addresses: Address[];
+  relatedPersons: string[]; // Person IDs
+  suspiciousActivity: SuspiciousActivityFlag[];
+  sources: Source[];
+  tags: string[];
+  lastUpdated: string;
+}
+
+export interface Address {
+  id: string;
+  type: 'headquarters' | 'registered' | 'mailing' | 'operational' | 'residential' | 'other';
+  streetAddress: string;
+  city: string;
+  state?: string;
+  postalCode?: string;
+  country: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
+  dateFrom?: string;
+  dateTo?: string;
+  current: boolean;
+}
+
+export interface FinancialTransaction {
+  id: string;
+  transactionDate: string;
+  amount: number;
+  currency: string;
+  exchangeRate?: number; // To USD if not USD
+  amountUSD: number; // Standardized amount
+  fromEntity: string; // FinancialEntity ID
+  toEntity: string; // FinancialEntity ID
+  transactionType: 'payment' | 'transfer' | 'loan' | 'investment' | 'donation' | 'purchase' | 'salary' | 'consulting_fee' | 'gift' | 'settlement' | 'other';
+  method: 'wire_transfer' | 'check' | 'cash' | 'cryptocurrency' | 'credit_card' | 'money_order' | 'other';
+  purpose?: string;
+  description: string;
+  relatedProperty?: string; // Property ID if related to real estate
+  relatedPerson?: string; // Person ID if personal transaction
+  relatedEvent?: string; // Timeline Event ID
+  bankDetails?: BankingDetails;
+  suspiciousActivity: SuspiciousActivityFlag[];
+  verificationStatus: 'verified' | 'pending' | 'disputed';
+  confidenceLevel: 'high' | 'medium' | 'low';
+  sources: Source[];
+  tags: string[];
+  lastUpdated: string;
+}
+
+export interface BankingDetails {
+  fromBank?: string;
+  fromAccount?: string;
+  fromRoutingNumber?: string;
+  toBank?: string;
+  toAccount?: string;
+  toRoutingNumber?: string;
+  intermediaryBanks?: string[];
+  transactionFee?: number;
+  transactionId?: string;
+}
+
+export interface SuspiciousActivityFlag {
+  id: string;
+  type: 'large_cash_transaction' | 'unusual_pattern' | 'round_dollar_amount' | 'offshore_transfer' | 'shell_company_involvement' | 'timing_suspicious' | 'lack_of_documentation' | 'structuring' | 'other';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  description: string;
+  automaticFlag: boolean; // True if flagged by algorithm
+  reviewedBy?: string;
+  reviewDate?: string;
+  status: 'flagged' | 'under_review' | 'cleared' | 'confirmed_suspicious';
+  notes?: string;
+}
+
+export interface PropertyTransaction {
+  id: string;
+  propertyId: string;
+  transactionDate: string;
+  transactionType: 'purchase' | 'sale' | 'transfer' | 'gift' | 'inheritance' | 'foreclosure' | 'other';
+  purchasePrice?: number;
+  salePrice?: number;
+  currency: string;
+  buyer: string; // FinancialEntity ID
+  seller: string; // FinancialEntity ID
+  financingDetails?: FinancingDetails;
+  legalRepresentation?: LegalRepresentation;
+  suspiciousActivity: SuspiciousActivityFlag[];
+  sources: Source[];
+  tags: string[];
+  lastUpdated: string;
+}
+
+export interface FinancingDetails {
+  mortgageAmount?: number;
+  downPayment?: number;
+  lender?: string;
+  interestRate?: number;
+  loanTerm?: number; // in years
+  mortgageType?: string;
+  cashPurchase: boolean;
+}
+
+export interface LegalRepresentation {
+  buyerAttorney?: string;
+  sellerAttorney?: string;
+  closingAgent?: string;
+  titleCompany?: string;
+}
+
+export interface FinancialAnalytics {
+  entityId: string;
+  period: {
+    start: string;
+    end: string;
+  };
+  totalInflow: number;
+  totalOutflow: number;
+  netFlow: number;
+  transactionCount: number;
+  averageTransactionSize: number;
+  largestTransaction: number;
+  suspiciousTransactionCount: number;
+  suspiciousTransactionPercent: number;
+  topCounterparties: FinancialCounterparty[];
+  flowsByType: FlowByType[];
+  riskScore: number; // 0-100
+  riskFactors: string[];
+  lastCalculated: string;
+}
+
+export interface FinancialCounterparty {
+  entityId: string;
+  entityName: string;
+  transactionCount: number;
+  totalAmount: number;
+  relationship: 'inflow' | 'outflow' | 'bidirectional';
+}
+
+export interface FlowByType {
+  type: string;
+  count: number;
+  totalAmount: number;
+  percentage: number;
+}
+
+export interface FinancialNetwork {
+  nodes: FinancialNetworkNode[];
+  edges: FinancialNetworkEdge[];
+  totalValue: number;
+  timeRange: {
+    start: string;
+    end: string;
+  };
+  lastUpdated: string;
+}
+
+export interface FinancialNetworkNode {
+  id: string;
+  name: string;
+  type: 'individual' | 'corporation' | 'trust' | 'foundation' | 'bank' | 'other';
+  totalTransactions: number;
+  totalValue: number;
+  riskScore: number;
+  size: number; // For visualization
+  color: string; // For visualization
+  x?: number;
+  y?: number;
+  suspicious: boolean;
+}
+
+export interface FinancialNetworkEdge {
+  id: string;
+  source: string;
+  target: string;
+  transactionCount: number;
+  totalValue: number;
+  averageValue: number;
+  timespan: {
+    start: string;
+    end: string;
+  };
+  suspicious: boolean;
+  width: number; // For visualization
+  color: string; // For visualization
+}
+
+// Financial Search and Filter Types
+export interface FinancialFilters {
+  entityTypes: string[];
+  transactionTypes: string[];
+  dateRange: {
+    start: string;
+    end: string;
+  };
+  amountRange: {
+    min: number;
+    max: number;
+  };
+  currencies: string[];
+  countries: string[];
+  suspiciousOnly: boolean;
+  verificationStatus: string[];
+  riskLevel: string[];
+}
+
+export interface FinancialSearch {
+  query: string;
+  filters: FinancialFilters;
+  sortBy: 'date' | 'amount' | 'risk_score' | 'relevance';
+  sortOrder: 'asc' | 'desc';
+  limit: number;
+  offset: number;
+}
+
+export interface FinancialPattern {
+  id: string;
+  name: string;
+  type: 'money_laundering' | 'structuring' | 'round_tripping' | 'layering' | 'smurfing' | 'other';
+  description: string;
+  entities: string[]; // Involved entity IDs
+  transactions: string[]; // Involved transaction IDs
+  timeframe: {
+    start: string;
+    end: string;
+  };
+  totalAmount: number;
+  confidenceScore: number; // 0-100
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
+  status: 'detected' | 'under_investigation' | 'confirmed' | 'dismissed';
+  detectionMethod: 'automatic' | 'manual' | 'tip';
+  investigator?: string;
+  notes?: string;
+  sources: Source[];
+  lastUpdated: string;
 }
 
 // Source and Verification Types

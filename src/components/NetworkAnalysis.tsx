@@ -91,6 +91,23 @@ export default function NetworkAnalysis({
     return baseColors[type as keyof typeof baseColors] || baseColors.person;
   };
 
+  // Deterministic positioning based on person ID to avoid hydration mismatch
+  const getNodePosition = (personId: string, maxX: number = 800, maxY: number = 600) => {
+    // Simple hash function to generate consistent positions
+    let hash = 0;
+    for (let i = 0; i < personId.length; i++) {
+      const char = personId.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    
+    // Ensure positive values and map to desired range
+    const x = Math.abs(hash % maxX);
+    const y = Math.abs((hash >> 16) % maxY);
+    
+    return { x, y };
+  };
+
   // Generate network data from relationships
   const networkData = useMemo(() => {
     const nodes = new Map<string, NetworkNode>();
@@ -123,6 +140,8 @@ export default function NetworkAnalysis({
 
       if (connectionCount === 0 && !focusEntityId) return;
 
+      const position = getNodePosition(person.id);
+
       nodes.set(person.id, {
         id: person.id,
         type: 'person',
@@ -133,8 +152,8 @@ export default function NetworkAnalysis({
           layoutSettings.nodeSize + (connectionCount * 2)
         ),
         color: getNodeColor(person.significance, 'person'),
-        x: Math.random() * 800,
-        y: Math.random() * 600
+        x: position.x,
+        y: position.y
       });
     });
 
