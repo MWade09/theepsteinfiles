@@ -1,369 +1,461 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { MapPin, Home, Building, Plane, Users } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, Circle, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import { 
+  MapPin, 
+  Building, 
+  Plane, 
+  Star, 
+  AlertTriangle,
+  DollarSign,
+  Activity,
+  Eye
+} from 'lucide-react';
+import { enhancedProperties as properties } from '@/data/geographic/properties';
+import { flightLogs as flights, travelPatterns } from '@/data/geographic/travelPatterns';
 
-// Types for our map data
-interface MapLocation {
-  id: string;
-  name: string;
-  type: 'residence' | 'office' | 'island' | 'ranch' | 'airport' | 'other';
-  coordinates: [number, number];
-  description: string;
-  significance: 'high' | 'medium' | 'low';
-  dateRange: string;
-  details: string[];
-  verified: boolean;
+// Fix for default markers in react-leaflet (safer approach)
+const initializeLeafletIcons = () => {
+  try {
+    if (typeof window !== 'undefined' && L && L.Icon && L.Icon.Default) {
+      delete (L.Icon.Default.prototype as any)._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+      });
+    }
+  } catch (error) {
+    console.error('Failed to initialize Leaflet icons:', error);
+  }
+};
+
+interface InteractiveMapProps {
+  selectedProperty: string | null;
+  onPropertySelect: (propertyId: string) => void;
+  activeLayers: {
+    flightPaths: boolean;
+    travelPatterns: boolean;
+    financialConnections: boolean;
+  };
+  className?: string;
 }
 
-const mapLocations: MapLocation[] = [
-  {
-    id: '1',
-    name: 'Little Saint James Island',
-    type: 'island',
-    coordinates: [18.3009, -64.8257],
-    description: 'Private island in the U.S. Virgin Islands, often referred to as "Epstein Island"',
-    significance: 'high',
-    dateRange: '1998-2019',
-    details: [
-      'Purchased for $7.95 million in 1998',
-      'Site of alleged trafficking activities',
-      'Featured temple-like structure',
-      'Multiple guest accommodations'
-    ],
-    verified: true
-  },
-  {
-    id: '2',
-    name: 'Manhattan Mansion',
-    type: 'residence',
-    coordinates: [40.7736, -73.9566],
-    description: 'Upper East Side townhouse, one of the largest private homes in Manhattan',
-    significance: 'high',
-    dateRange: '1996-2019',
-    details: [
-      'Nine-story, 21,000 square foot mansion',
-      'Located at 9 East 71st Street',
-      'Site of alleged activities',
-      'Purchased from Les Wexner'
-    ],
-    verified: true
-  },
-  {
-    id: '3',
-    name: 'Palm Beach Estate',
-    type: 'residence',
-    coordinates: [26.6612, -80.0350],
-    description: 'Waterfront mansion in Palm Beach, Florida',
-    significance: 'high',
-    dateRange: '1990-2019',
-    details: [
-      'Located at 358 El Brillo Way',
-      'Site of initial 2005 investigation',
-      'Multiple staff quarters',
-      'Private dock and beach access'
-    ],
-    verified: true
-  },
-  {
-    id: '4',
-    name: 'Zorro Ranch',
-    type: 'ranch',
-    coordinates: [35.8411, -105.4758],
-    description: 'Large ranch property in New Mexico',
-    significance: 'medium',
-    dateRange: '1993-2019',
-    details: [
-      '8,000-acre property near Santa Fe',
-      'Main residence and guest facilities',
-      'Private airstrip',
-      'Alleged site of activities'
-    ],
-    verified: true
-  },
-  {
-    id: '5',
-    name: 'Paris Apartment',
-    type: 'residence',
-    coordinates: [48.8632, 2.3126],
-    description: 'Luxury apartment in the 7th arrondissement',
-    significance: 'medium',
-    dateRange: '2000-2019',
-    details: [
-      'Located near the Eiffel Tower',
-      'High-end neighborhood',
-      'European base of operations',
-      'Multiple bedrooms and entertainment areas'
-    ],
-    verified: true
-  },
-  {
-    id: '6',
-    name: 'Teterboro Airport',
-    type: 'airport',
-    coordinates: [40.8501, -74.0606],
-    description: 'Private aviation hub used for flights',
-    significance: 'medium',
-    dateRange: '1990s-2019',
-    details: [
-      'Primary departure point for private jet',
-      'Frequent destination in flight logs',
-      'New Jersey location',
-      'Connected to transportation network'
-    ],
-    verified: true
-  }
+interface DiscoveryPoint {
+  id: string;
+  name: string;
+  category: 'property' | 'flight' | 'pattern' | 'financial';
+  points: number;
+  discovered: boolean;
+}
+
+// Custom marker icons based on property significance and type
+const createCustomIcon = (
+  type: string, 
+  significance: string, 
+  isSelected: boolean,
+  hasDiscovery: boolean
+) => {
+  const getColor = () => {
+    switch (significance) {
+      case 'critical': return '#ef4444'; // red
+      case 'high': return '#f59e0b'; // orange
+      default: return '#3b82f6'; // blue
+    }
+  };
+
+  const getTypeSymbol = () => {
+    switch (type) {
+      case 'island': return '🏝️';
+      case 'mansion': case 'estate': return '🏛️';
+      case 'ranch': return '🏡';
+      case 'apartment': return '🏢';
+      default: return '📍';
+    }
+  };
+
+  const color = getColor();
+  const symbol = getTypeSymbol();
+  const size = isSelected ? 40 : 32;
+  
+  return L.divIcon({
+    html: `
+      <div style="
+        position: relative;
+        width: ${size}px;
+        height: ${size}px;
+        background: radial-gradient(circle, ${color}22 0%, ${color}11 70%);
+        border: 3px solid ${color};
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: ${size * 0.4}px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(${significance === 'critical' ? '239, 68, 68' : significance === 'high' ? '245, 158, 11' : '59, 130, 246'}, 0.4);
+        ${isSelected ? `
+          animation: pulse 2s infinite;
+          transform: scale(1.1);
+        ` : ''}
+      ">
+        ${symbol}
+        ${hasDiscovery ? `
+          <div style="
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            border: 2px solid #000;
+          ">⭐</div>
+        ` : ''}
+      </div>
+      <style>
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.7; }
+        }
+      </style>
+    `,
+    className: 'custom-marker',
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+    popupAnchor: [0, -size / 2]
+  });
+};
+
+// Discovery points system (same as before)
+const discoveryPoints: DiscoveryPoint[] = [
+  { id: 'property_little_saint_james', name: 'Little Saint James', category: 'property', points: 500, discovered: true },
+  { id: 'property_manhattan_mansion', name: 'Manhattan Mansion', category: 'property', points: 400, discovered: true },
+  { id: 'property_palm_beach_estate', name: 'Palm Beach Estate', category: 'property', points: 350, discovered: true },
+  { id: 'property_zorro_ranch', name: 'Zorro Ranch', category: 'property', points: 300, discovered: false },
+  { id: 'property_paris_apartment', name: 'Paris Apartment', category: 'property', points: 250, discovered: true },
 ];
 
-export default function InteractiveMap() {
-  const [selectedLocation, setSelectedLocation] = useState<MapLocation | null>(null);
-  const [mapFilter, setMapFilter] = useState<string>('all');
+// Flight path calculation
+const getFlightPaths = () => {
+  if (!flights) return [];
+  
+  return flights.map(flight => {
+    // Find matching properties for departure and arrival
+    const depProperty = properties.find(p => 
+      flight.departure?.propertyId === p.id || 
+      p.name.toLowerCase().includes(flight.departure?.location?.toLowerCase() || '')
+    );
+    const arrProperty = properties.find(p => 
+      flight.arrival?.propertyId === p.id || 
+      p.name.toLowerCase().includes(flight.arrival?.location?.toLowerCase() || '')
+    );
+
+    if (!depProperty || !arrProperty) {
+      // Use flight coordinates if available
+      const depCoords = flight.departure?.coordinates;
+      const arrCoords = flight.arrival?.coordinates;
+      if (depCoords && arrCoords) {
+        return {
+          id: flight.id,
+          positions: [depCoords, arrCoords] as [number, number][],
+          significance: flight.significance,
+          flightInfo: flight
+        };
+      }
+      return null;
+    }
+
+    return {
+      id: flight.id,
+      positions: [depProperty.coordinates, arrProperty.coordinates] as [number, number][],
+      significance: flight.significance,
+      flightInfo: flight
+    };
+  }).filter(Boolean);
+};
+
+// Travel pattern paths
+const getTravelPatternPaths = () => {
+  if (!travelPatterns) return [];
+  
+  return travelPatterns.map(pattern => {
+    const routeCoordinates = pattern.primaryRoute
+      .map(route => {
+        const property = properties.find(p => 
+          p.name.toLowerCase().includes(route.location?.toLowerCase() || '')
+        );
+        return property ? property.coordinates : null;
+      })
+      .filter(Boolean) as [number, number][];
+
+    if (routeCoordinates.length < 2) return null;
+
+    return {
+      id: pattern.id,
+      positions: routeCoordinates,
+      frequency: pattern.frequency,
+      description: pattern.description
+    };
+  }).filter(Boolean);
+};
+
+export default function InteractiveMap({ 
+  selectedProperty, 
+  onPropertySelect, 
+  activeLayers, 
+  className = '' 
+}: InteractiveMapProps) {
   const [isClient, setIsClient] = useState(false);
+  const [isMapReady, setIsMapReady] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
 
   useEffect(() => {
-    setIsClient(true);
+    // Check if we're in browser environment
+    if (typeof window !== 'undefined') {
+      setIsClient(true);
+      
+      // Add a small delay to ensure all libraries are loaded
+      const timer = setTimeout(() => {
+        try {
+          initializeLeafletIcons();
+          setIsMapReady(true);
+        } catch (error) {
+          console.error('Map initialization failed:', error);
+          setMapError(error instanceof Error ? error.message : 'Unknown error');
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
   }, []);
 
-  const filteredLocations = mapLocations.filter(location => 
-    mapFilter === 'all' || location.type === mapFilter
-  );
-
-  const getLocationIcon = (type: string) => {
-    switch (type) {
-      case 'residence': return <Home className="w-5 h-5" />;
-      case 'office': return <Building className="w-5 h-5" />;
-      case 'island': return <MapPin className="w-5 h-5" />;
-      case 'ranch': return <Home className="w-5 h-5" />;
-      case 'airport': return <Plane className="w-5 h-5" />;
-      default: return <MapPin className="w-5 h-5" />;
-    }
-  };
-
-  const getSignificanceColor = (significance: string) => {
-    switch (significance) {
-      case 'high': return 'bg-red-500 border-red-600';
-      case 'medium': return 'bg-yellow-500 border-yellow-600';
-      case 'low': return 'bg-blue-500 border-blue-600';
-      default: return 'bg-gray-500 border-gray-600';
-    }
-  };
-
-  // For now, we'll show a static representation since Leaflet requires client-side rendering
-  // In a production environment, you would dynamically import the Map component
-  return (
-    <div className="w-full">
-      {/* Filter Controls */}
-      <div className="mb-6 flex flex-wrap gap-4 justify-center">
-        <button
-          onClick={() => setMapFilter('all')}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            mapFilter === 'all' 
-              ? 'bg-primary-600 text-white' 
-              : 'bg-gray-200 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-dark-600'
-          }`}
-        >
-          All Locations
-        </button>
-        <button
-          onClick={() => setMapFilter('residence')}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            mapFilter === 'residence' 
-              ? 'bg-primary-600 text-white' 
-              : 'bg-gray-200 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-dark-600'
-          }`}
-        >
-          Residences
-        </button>
-        <button
-          onClick={() => setMapFilter('island')}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            mapFilter === 'island' 
-              ? 'bg-primary-600 text-white' 
-              : 'bg-gray-200 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-dark-600'
-          }`}
-        >
-          Islands
-        </button>
-        <button
-          onClick={() => setMapFilter('airport')}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            mapFilter === 'airport' 
-              ? 'bg-primary-600 text-white' 
-              : 'bg-gray-200 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-dark-600'
-          }`}
-        >
-          Transportation
-        </button>
-      </div>
-
-      {/* Map Placeholder - In production, this would be the actual Leaflet map */}
-      <div className="relative bg-gray-100 dark:bg-dark-800 rounded-lg overflow-hidden mb-8" style={{ height: '600px' }}>
-        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 dark:from-dark-700 dark:to-dark-600">
-          <div className="text-center">
-            <MapPin className="w-16 h-16 mx-auto mb-4 text-primary-600" />
-            <p className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-              Interactive Map Loading...
-            </p>
-            <p className="text-gray-600 dark:text-gray-400">
-              Click on a location below to explore details
-            </p>
-          </div>
-        </div>
-        
-        {/* Floating location markers - Static representation */}
-        <div className="absolute top-20 left-1/4 transform -translate-x-1/2">
-          <button 
-            onClick={() => setSelectedLocation(mapLocations[1])}
-            className={`w-8 h-8 rounded-full border-2 ${getSignificanceColor('high')} text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform`}
-            title="Manhattan Mansion"
-          >
-            <Home className="w-4 h-4" />
-          </button>
-        </div>
-        
-        <div className="absolute bottom-32 right-1/3 transform translate-x-1/2">
-          <button 
-            onClick={() => setSelectedLocation(mapLocations[0])}
-            className={`w-8 h-8 rounded-full border-2 ${getSignificanceColor('high')} text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform`}
-            title="Little Saint James Island"
-          >
-            <MapPin className="w-4 h-4" />
-          </button>
-        </div>
-        
-        <div className="absolute bottom-40 left-1/3 transform -translate-x-1/2">
-          <button 
-            onClick={() => setSelectedLocation(mapLocations[2])}
-            className={`w-8 h-8 rounded-full border-2 ${getSignificanceColor('high')} text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform`}
-            title="Palm Beach Estate"
-          >
-            <Home className="w-4 h-4" />
-          </button>
+  if (!isClient || !isMapReady) {
+    return (
+      <div className={`w-full h-[600px] bg-gradient-to-br from-gray-900 via-gray-800 to-black rounded-xl border border-cyan-500/30 flex items-center justify-center ${className}`}>
+        <div className="text-center text-cyan-400">
+          <div className="w-12 h-12 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-lg font-bold">Loading Interactive Map</p>
+          <p className="text-sm opacity-60">
+            {!isClient ? 'Initializing client environment...' : 'Loading map components...'}
+          </p>
+          {mapError && (
+            <div className="mt-4 text-red-400 text-sm">
+              Error: {mapError}
+            </div>
+          )}
         </div>
       </div>
+    );
+  }
 
-      {/* Location Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredLocations.map((location) => (
-          <div
-            key={location.id}
-            className="evidence-card p-6 cursor-pointer transform hover:scale-105 transition-all duration-300"
-            onClick={() => setSelectedLocation(location)}
-          >
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg text-white ${getSignificanceColor(location.significance).split(' ')[0]}`}>
-                  {getLocationIcon(location.type)}
-                </div>
-                <div>
-                  <span className={`px-2 py-1 rounded text-xs font-medium uppercase ${
-                    location.significance === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
-                    location.significance === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
-                    'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                  }`}>
-                    {location.significance}
-                  </span>
-                </div>
-              </div>
-              {location.verified && (
-                <span className="text-green-600 font-bold">✓</span>
+  const flightPaths = getFlightPaths();
+  const travelPatternPaths = getTravelPatternPaths();
+
+  // Map center (Caribbean region to show Little Saint James prominently)
+  const mapCenter: [number, number] = [18.3, -64.8];
+  const mapZoom = 6;
+
+  try {
+    return (
+      <div className={`relative w-full h-[600px] rounded-xl overflow-hidden border border-cyan-500/30 ${className}`}>
+        <MapContainer
+          center={mapCenter}
+          zoom={mapZoom}
+          style={{ height: '100%', width: '100%' }}
+          className="z-10"
+          scrollWheelZoom={true}
+          doubleClickZoom={true}
+          dragging={true}
+          zoomControl={true}
+          whenReady={() => {
+            // Map is ready for interaction
+          }}
+        >
+        {/* Base Map Layer */}
+        <TileLayer
+          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          subdomains={['a', 'b', 'c', 'd']}
+        />
+
+        {/* Property Markers */}
+        {properties && properties.map((property) => {
+          const discovery = discoveryPoints.find(d => d.id === property.id);
+          const isSelected = selectedProperty === property.id;
+          
+          return (
+            <Marker
+              key={property.id}
+              position={property.coordinates}
+              icon={createCustomIcon(
+                property.type, 
+                property.significance, 
+                isSelected,
+                discovery?.discovered || false
               )}
-            </div>
+              eventHandlers={{
+                click: () => onPropertySelect(property.id),
+              }}
+            >
+              <Popup>
+                <div className="bg-gray-900 text-white p-4 rounded-lg min-w-[250px]">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="font-bold text-lg">{property.name}</h3>
+                    {discovery?.discovered && (
+                      <span className="bg-yellow-500 text-black px-2 py-1 rounded text-xs font-bold">
+                        +{discovery.points} pts
+                      </span>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2 text-sm">
+                    <p className="text-gray-300">{property.description}</p>
+                    
+                    <div className="flex items-center gap-4">
+                      <span className={`px-2 py-1 rounded text-xs font-bold ${
+                        property.significance === 'critical' ? 'bg-red-900/50 text-red-400' :
+                        property.significance === 'high' ? 'bg-orange-900/50 text-orange-400' :
+                        'bg-blue-900/50 text-blue-400'
+                      }`}>
+                        {property.significance.toUpperCase()}
+                      </span>
+                      
+                      <span className="text-green-400 font-bold">
+                        ${property.financials.purchasePrice.toLocaleString()}
+                      </span>
+                    </div>
+                    
+                    <div className="text-cyan-400">
+                      Owner: {property.ownershipHistory[0]?.ownerName}
+                    </div>
+                    
+                    {property.flightLogReferences && property.flightLogReferences.length > 0 && (
+                      <div className="text-purple-400">
+                        {property.flightLogReferences.length} documented flights
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })}
 
-            <h3 className="text-lg font-bold mb-2 text-gray-900 dark:text-gray-100">
-              {location.name}
-            </h3>
+        {/* Flight Paths */}
+        {activeLayers.flightPaths && flightPaths.map((path) => {
+          if (!path) return null;
+          
+          const color = path.significance === 'critical' ? '#ef4444' : 
+                       path.significance === 'high' ? '#f59e0b' : '#3b82f6';
+          
+          return (
+            <Polyline
+              key={path.id}
+              positions={path.positions}
+              color={color}
+              weight={3}
+              opacity={0.8}
+              dashArray="10, 10"
+            />
+          );
+        })}
 
-            <p className="text-gray-600 dark:text-gray-400 mb-3 text-sm">
-              {location.description}
-            </p>
+        {/* Travel Patterns */}
+        {activeLayers.travelPatterns && travelPatternPaths.map((pattern) => {
+          if (!pattern) return null;
+          
+          return (
+            <Polyline
+              key={pattern.id}
+              positions={pattern.positions}
+              color="#a855f7"
+              weight={2}
+              opacity={0.6}
+              dashArray="15, 8"
+            />
+          );
+        })}
 
-            <div className="text-sm text-gray-500 dark:text-gray-500">
-              <div className="mb-1">
-                <strong>Type:</strong> {location.type.charAt(0).toUpperCase() + location.type.slice(1)}
-              </div>
-              <div>
-                <strong>Active:</strong> {location.dateRange}
-              </div>
-            </div>
-          </div>
-        ))}
+        {/* Financial Connections (Circles around suspicious properties) */}
+        {activeLayers.financialConnections && properties
+          .filter(p => p.financials.suspiciousTransactions.length > 0)
+          .map((property) => (
+            <Circle
+              key={`financial-${property.id}`}
+              center={property.coordinates}
+              radius={50000} // 50km radius
+              color="#f97316"
+              fillColor="#f97316"
+              fillOpacity={0.1}
+              weight={2}
+              opacity={0.6}
+              dashArray="8, 8"
+            />
+          ))
+        }
+      </MapContainer>
+
+      {/* Map Controls Overlay */}
+      <div className="absolute top-4 left-4 z-20 bg-gray-900/90 backdrop-blur-sm rounded-lg p-3 border border-cyan-500/30">
+        <div className="flex items-center gap-2 text-cyan-400 text-sm">
+          <Eye className="w-4 h-4" />
+          <span className="font-medium">Interactive Investigation Map</span>
+        </div>
+        <div className="text-xs text-gray-400 mt-1">
+          Zoom, pan, and click markers to explore
+        </div>
       </div>
 
-      {/* Location Detail Modal */}
-      {selectedLocation && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-dark-800 rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className={`p-3 rounded-lg text-white ${getSignificanceColor(selectedLocation.significance).split(' ')[0]}`}>
-                    {getLocationIcon(selectedLocation.type)}
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                      {selectedLocation.name}
-                    </h2>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      {selectedLocation.type.charAt(0).toUpperCase() + selectedLocation.type.slice(1)}
-                    </p>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => setSelectedLocation(null)}
-                  className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-2xl"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className="mb-6">
-                <p className="text-gray-700 dark:text-gray-300 mb-4">
-                  {selectedLocation.description}
-                </p>
-                
-                <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
-                  <div>
-                    <strong>Coordinates:</strong><br />
-                    {selectedLocation.coordinates[0].toFixed(4)}, {selectedLocation.coordinates[1].toFixed(4)}
-                  </div>
-                  <div>
-                    <strong>Active Period:</strong><br />
-                    {selectedLocation.dateRange}
-                  </div>
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <h3 className="font-semibold mb-3 text-gray-900 dark:text-gray-100">Key Details:</h3>
-                <ul className="space-y-2">
-                  {selectedLocation.details.map((detail, index) => (
-                    <li key={index} className="flex items-start gap-2 text-gray-700 dark:text-gray-300">
-                      <span className="text-primary-600 mt-1">•</span>
-                      {detail}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className={`px-3 py-1 rounded text-sm font-medium ${
-                    selectedLocation.significance === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
-                    selectedLocation.significance === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
-                    'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                  }`}>
-                    {selectedLocation.significance.toUpperCase()} SIGNIFICANCE
-                  </span>
-                  {selectedLocation.verified && (
-                    <span className="text-green-600 font-semibold">✓ Verified</span>
-                  )}
-                </div>
-              </div>
-            </div>
+      {/* Legend */}
+      <div className="absolute bottom-4 right-4 z-20 bg-gray-900/90 backdrop-blur-sm rounded-lg p-3 border border-cyan-500/30">
+        <div className="text-xs text-gray-300 space-y-1">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-red-500"></div>
+            <span>Critical Significance</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+            <span>High Significance</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-1 bg-blue-500"></div>
+            <span>Flight Paths</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-1 bg-purple-500"></div>
+            <span>Travel Patterns</span>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
+  } catch (error) {
+    console.error('InteractiveMap rendering error:', error);
+    return (
+      <div className={`relative w-full h-[600px] rounded-xl overflow-hidden border border-red-500/30 ${className}`}>
+        <div className="flex items-center justify-center h-full bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+          <div className="text-center text-red-400">
+            <AlertTriangle className="w-16 h-16 mx-auto mb-4" />
+            <p className="text-lg font-bold mb-2">Map Loading Failed</p>
+            <p className="text-sm opacity-60 mb-4">
+              {error instanceof Error ? error.message : 'Unknown error occurred'}
+            </p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors text-white"
+            >
+              Reload Page
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 } 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { 
   Map, 
   Clock, 
@@ -68,6 +69,9 @@ export default function EnhancedGeographicMapping() {
     achievements: ['First Discovery', 'Financial Detective', 'Pattern Hunter', 'Property Sleuth']
   });
 
+  // Data validation and loading state
+  const isDataLoaded = properties && properties.length > 0 && flights && flights.length > 0;
+
   // Gamification: Discovery points system
   const discoveryPoints: DiscoveryPoint[] = [
     { id: 'lsj', name: 'Little Saint James', category: 'property', points: 500, discovered: true },
@@ -87,36 +91,31 @@ export default function EnhancedGeographicMapping() {
     return () => clearInterval(timer);
   }, []);
 
-  const getPropertyPosition = (propertyId: string) => {
-    const positions: Record<string, { x: number; y: number }> = {
-      'little_saint_james': { x: 480, y: 280 },
-      'cyril_e._king_airport': { x: 480, y: 280 }, // Virgin Islands airport
-      'manhattan_mansion': { x: 420, y: 180 },
-      'teterboro_airport': { x: 420, y: 180 }, // New York area
-      'palm_beach_estate': { x: 450, y: 320 },
-      'palm_beach_international_airport': { x: 450, y: 320 }, // Florida
-      'zorro_ranch': { x: 280, y: 220 },
-      'santa_fe_regional_airport': { x: 280, y: 220 }, // New Mexico
-      'paris_apartment': { x: 580, y: 160 },
-      'le_bourget_airport': { x: 580, y: 160 }, // Paris
-      'victoria_international_airport': { x: 200, y: 100 }, // Canada
-      'unknown': { x: 400, y: 250 }
-    };
-    return positions[propertyId] || { x: 400, y: 250 };
-  };
+  // Log data loading status
+  useEffect(() => {
+    if (isDataLoaded) {
+      console.log('Enhanced Geographic Mapping - Data loaded successfully:', {
+        properties: properties?.length,
+        flights: flights?.length,
+        travelPatterns: travelPatterns?.length
+      });
+    } else {
+      console.warn('Enhanced Geographic Mapping - Data loading issues:', {
+        properties: properties?.length || 0,
+        flights: flights?.length || 0,
+        travelPatterns: travelPatterns?.length || 0
+      });
+    }
+  }, [isDataLoaded]);
 
-  const getPropertyIcon = (type: string, isSelected: boolean, isHovered: boolean) => {
-    const baseClass = `w-8 h-8 transition-all duration-300 ${
-      isSelected || isHovered ? 'scale-125 drop-shadow-lg' : ''
-    }`;
-    
+  // Icon helper function for timeline and financial views
+  const getPropertyIcon = (type: string) => {
     switch (type) {
-      case 'island': return <MapPin className={`${baseClass} text-red-400`} />;
-      case 'mansion': return <Building className={`${baseClass} text-yellow-400`} />;
-      case 'estate': return <Building className={`${baseClass} text-purple-400`} />;
-      case 'ranch': return <Building className={`${baseClass} text-green-400`} />;
-      case 'apartment': return <Building className={`${baseClass} text-blue-400`} />;
-      default: return <MapPin className={`${baseClass} text-gray-400`} />;
+      case 'island': return <MapPin className="w-5 h-5 text-red-400" />;
+      case 'mansion': case 'estate': return <Building className="w-5 h-5 text-yellow-400" />;
+      case 'ranch': return <Building className="w-5 h-5 text-green-400" />;
+      case 'apartment': return <Building className="w-5 h-5 text-blue-400" />;
+      default: return <MapPin className="w-5 h-5 text-gray-400" />;
     }
   };
 
@@ -129,220 +128,29 @@ export default function EnhancedGeographicMapping() {
     }
   };
 
-  const renderOverviewView = () => (
-    <div className="relative w-full h-[600px] bg-gradient-to-br from-gray-900 via-gray-800 to-black rounded-xl border border-cyan-500/30 shadow-2xl overflow-hidden">
-      {/* Animated Grid Background */}
-      <div className="absolute inset-0 opacity-20">
-        <div 
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `
-              radial-gradient(circle at 25% 25%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
-              radial-gradient(circle at 75% 75%, rgba(255, 0, 100, 0.1) 0%, transparent 50%),
-              linear-gradient(0deg, transparent 24%, rgba(0, 255, 255, 0.05) 25%, rgba(0, 255, 255, 0.05) 26%, transparent 27%, transparent 74%, rgba(0, 255, 255, 0.05) 75%, rgba(0, 255, 255, 0.05) 76%, transparent 77%, transparent),
-              linear-gradient(90deg, transparent 24%, rgba(0, 255, 255, 0.05) 25%, rgba(0, 255, 255, 0.05) 26%, transparent 27%, transparent 74%, rgba(0, 255, 255, 0.05) 75%, rgba(0, 255, 255, 0.05) 76%, transparent 77%, transparent)
-            `,
-            backgroundSize: '50px 50px'
-          }}
-        />
-      </div>
-
-      {/* Scanning Line Effect */}
-      <div 
-        className="absolute w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-60 animate-pulse"
-        style={{ 
-          top: `${(animationProgress * 6) % 100}%`,
-          animation: 'scan 4s linear infinite'
-        }}
-      />
-
-             {/* Property Markers */}
-       {properties && properties.map((property) => {
-        const position = getPropertyPosition(property.id);
-        const isSelected = selectedProperty === property.id;
-        const isHovered = hoveredProperty === property.id;
-        const discovery = discoveryPoints.find(d => d.id === property.id?.split('_')[0]);
-        
-        return (
-          <div
-            key={property.id}
-            className={`absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ${
-              isSelected || isHovered ? 'z-30 scale-110' : 'z-20'
-            }`}
-            style={{ left: position.x, top: position.y }}
-            onMouseEnter={() => setHoveredProperty(property.id)}
-            onMouseLeave={() => setHoveredProperty(null)}
-            onClick={() => setSelectedProperty(property.id)}
-          >
-            {/* Pulse Ring */}
-            <div className={`absolute inset-0 rounded-full border-2 border-cyan-400 animate-ping ${
-              isSelected ? 'opacity-75' : 'opacity-0'
-            }`} style={{ width: '60px', height: '60px', left: '-14px', top: '-14px' }} />
-            
-            {/* Discovery Badge */}
-            {discovery?.discovered && (
-              <div className="absolute -top-2 -right-2 w-5 h-5 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center z-10">
-                <Star className="w-3 h-3 text-black" />
-              </div>
-            )}
-            
-            {/* Main Marker */}
-            <div className={`relative p-3 rounded-full border-2 transition-all duration-300 ${
-              property.significance === 'critical' 
-                ? 'bg-red-900/80 border-red-400 shadow-red-400/50' 
-                : property.significance === 'high'
-                ? 'bg-orange-900/80 border-orange-400 shadow-orange-400/50'
-                : 'bg-blue-900/80 border-blue-400 shadow-blue-400/50'
-            } shadow-lg backdrop-blur-sm ${
-              isSelected || isHovered ? 'shadow-2xl' : ''
-            }`}>
-              {getPropertyIcon(property.type, isSelected, isHovered)}
-              
-              {/* Activity Indicator */}
-              <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse border border-gray-900" />
-            </div>
-
-            {/* Flight Count Badge */}
-            {property.flightLogReferences && property.flightLogReferences.length > 0 && (
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-purple-600 text-white text-xs px-2 py-1 rounded-full border border-purple-400">
-                <Plane className="w-3 h-3 inline mr-1" />
-                {property.flightLogReferences.length}
-              </div>
-            )}
+  const renderOverviewView = () => {
+    // Real interactive map with Leaflet
+    const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
+      ssr: false,
+      loading: () => (
+        <div className="w-full h-[600px] bg-gradient-to-br from-gray-900 via-gray-800 to-black rounded-xl border border-cyan-500/30 flex items-center justify-center">
+          <div className="text-center text-cyan-400">
+            <div className="w-12 h-12 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-lg font-bold">Loading Interactive Map</p>
+            <p className="text-sm opacity-60">Initializing geographic visualization...</p>
           </div>
-        );
-      })}
-
-             {/* Flight Paths Layer */}
-       {activeLayers.flightPaths && flights && (
-         <svg className="absolute inset-0 w-full h-full pointer-events-none">
-           {flights.map((flight, index) => {
-            const start = getPropertyPosition(flight.departure?.location?.split(' ').join('_').toLowerCase() || 'unknown');
-            const end = getPropertyPosition(flight.arrival?.location?.split(' ').join('_').toLowerCase() || 'unknown');
-            const significance = flight.significance;
-            const strokeColor = significance === 'critical' ? '#ef4444' : significance === 'high' ? '#f59e0b' : '#3b82f6';
-            
-            return (
-              <g key={flight.id}>
-                <path
-                  d={`M ${start.x} ${start.y} Q ${(start.x + end.x) / 2} ${Math.min(start.y, end.y) - 50} ${end.x} ${end.y}`}
-                  stroke={strokeColor}
-                  strokeWidth="3"
-                  fill="none"
-                  strokeDasharray="5,5"
-                  className="animate-pulse opacity-70"
-                  style={{
-                    filter: `drop-shadow(0 0 6px ${strokeColor})`
-                  }}
-                />
-                <circle
-                  cx={start.x}
-                  cy={start.y}
-                  r="4"
-                  fill={strokeColor}
-                  className="animate-pulse"
-                />
-                <circle
-                  cx={end.x}
-                  cy={end.y}
-                  r="4"
-                  fill={strokeColor}
-                  className="animate-pulse"
-                />
-              </g>
-            );
-          })}
-        </svg>
-      )}
-
-             {/* Travel Patterns Layer */}
-       {activeLayers.travelPatterns && travelPatterns && (
-         <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                      {travelPatterns.map((pattern, index) => {
-             const primaryLocation = getPropertyPosition(pattern.primaryRoute[0]?.location?.split(' ').join('_').toLowerCase() || 'unknown');
-            
-                         return pattern.primaryRoute.slice(1).map((route, locIndex) => {
-               const connectedPos = getPropertyPosition(route.location?.split(' ').join('_').toLowerCase() || 'unknown');
-              
-              return (
-                <g key={`${pattern.id}-${locIndex}`}>
-                  <path
-                    d={`M ${primaryLocation.x} ${primaryLocation.y} Q ${(primaryLocation.x + connectedPos.x) / 2 + 30} ${(primaryLocation.y + connectedPos.y) / 2 - 30} ${connectedPos.x} ${connectedPos.y}`}
-                    stroke="#a855f7"
-                    strokeWidth="2"
-                    fill="none"
-                    strokeDasharray="8,4"
-                    className="opacity-60"
-                    style={{
-                      filter: 'drop-shadow(0 0 4px #a855f7)'
-                    }}
-                  />
-                  <text
-                    x={(primaryLocation.x + connectedPos.x) / 2}
-                    y={(primaryLocation.y + connectedPos.y) / 2 - 20}
-                    fill="#a855f7"
-                    fontSize="10"
-                    textAnchor="middle"
-                    className="font-bold"
-                  >
-                    {pattern.frequency}
-                  </text>
-                </g>
-              );
-            });
-          })}
-        </svg>
-      )}
-
-             {/* Financial Connections Layer */}
-       {activeLayers.financialConnections && properties && (
-         <svg className="absolute inset-0 w-full h-full pointer-events-none">
-           {properties
-             .filter(p => p.financials.suspiciousTransactions.length > 0)
-             .map((property) => {
-              const position = getPropertyPosition(property.id);
-              
-              return (
-                <g key={`financial-${property.id}`}>
-                  <circle
-                    cx={position.x}
-                    cy={position.y}
-                    r="50"
-                    stroke="#f97316"
-                    strokeWidth="2"
-                    fill="none"
-                    strokeDasharray="6,6"
-                    className="opacity-50 animate-pulse"
-                    style={{
-                      filter: 'drop-shadow(0 0 8px #f97316)'
-                    }}
-                  />
-                  <text
-                    x={position.x}
-                    y={position.y + 65}
-                    fill="#f97316"
-                    fontSize="10"
-                    textAnchor="middle"
-                    className="font-bold"
-                  >
-                    Suspicious Activity
-                  </text>
-                </g>
-              );
-            })}
-        </svg>
-      )}
-
-      {/* Center Info Display */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="text-center text-cyan-400 opacity-60">
-          <Activity className="w-16 h-16 mx-auto mb-2 animate-pulse" />
-          <p className="text-lg font-bold">Interactive Enhanced Mapping</p>
-          <p className="text-sm">Click properties to reveal evidence</p>
         </div>
-      </div>
-    </div>
-  );
+      )
+    });
+
+    return (
+      <InteractiveMap
+        selectedProperty={selectedProperty}
+        onPropertySelect={(propertyId) => setSelectedProperty(propertyId)}
+        activeLayers={activeLayers}
+      />
+    );
+  };
 
   const renderTimelineView = () => (
     <div className="space-y-6 bg-gradient-to-br from-gray-900 to-black p-6 rounded-xl border border-cyan-500/30">
@@ -369,7 +177,7 @@ export default function EnhancedGeographicMapping() {
                     ? 'bg-red-900/50 border-red-400' 
                     : 'bg-blue-900/50 border-blue-400'
                 }`}>
-                  {getPropertyIcon(property.type, false, false)}
+                  {getPropertyIcon(property.type)}
                 </div>
                 {discovery?.discovered && (
                   <div className="w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mt-1 mx-auto">
@@ -569,7 +377,7 @@ export default function EnhancedGeographicMapping() {
                      ? 'bg-red-900/50 border-red-400'
                      : 'bg-orange-900/50 border-orange-400'
                  }`}>
-                    {getPropertyIcon(property.type, false, false)}
+                    {getPropertyIcon(property.type)}
                   </div>
                   
                   <div>
@@ -584,7 +392,7 @@ export default function EnhancedGeographicMapping() {
                     </h4>
                     <p className="text-gray-400 text-sm">
                       Purchase: ${property.financials.purchasePrice.toLocaleString()} • 
-                      Current: ${property.financials.currentEstimatedValue.toLocaleString()}
+                      Current: ${property.financials.currentEstimatedValue?.toLocaleString() || 'N/A'}
                     </p>
                   </div>
                 </div>
@@ -628,6 +436,24 @@ export default function EnhancedGeographicMapping() {
       default: return renderOverviewView();
     }
   };
+
+  // Show loading screen if data is not loaded
+  if (!isDataLoaded) {
+    return (
+      <div className="w-full bg-gradient-to-br from-black via-gray-900 to-gray-800 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <h2 className="text-2xl font-bold text-cyan-400 mb-2">Loading Enhanced Geographic Mapping</h2>
+          <p className="text-gray-400">Initializing property data and flight patterns...</p>
+          <div className="mt-4 text-red-400 text-sm">
+            Warning: Data loading failed. Properties: {properties?.length || 0}, Flights: {flights?.length || 0}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+
 
   return (
     <div className="w-full bg-gradient-to-br from-black via-gray-900 to-gray-800 min-h-screen">

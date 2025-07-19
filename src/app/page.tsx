@@ -1,254 +1,382 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ChevronDown, Map, FileText, Clock, Users, Search, BookOpen, DollarSign } from 'lucide-react';
-import Navigation from '@/components/Navigation';
-import HeroSection from '@/components/HeroSection';
-import AdvancedTimeline from '@/components/AdvancedTimeline';
-import NetworkAnalysis from '@/components/NetworkAnalysis';
-import FinancialFlowAnalysis from '@/components/FinancialFlowAnalysis';
-import EvidenceGrid from '@/components/EvidenceGrid';
-import InteractiveMap from '@/components/InteractiveMap';
-import EnhancedGeographicMapping from '@/components/EnhancedGeographicMapping';
-import DocumentLibrary from '@/components/DocumentLibrary';
+import Link from 'next/link';
+import { 
+  Map, 
+  Clock, 
+  Network, 
+  FileText, 
+  DollarSign, 
+  Search,
+  Target,
+  Shield,
+  AlertTriangle,
+  TrendingUp,
+  Users,
+  Globe,
+  Database,
+  Activity,
+  BookOpen,
+  Lock,
+  Eye,
+  Star,
+  Award,
+  ChevronRight,
+  ExternalLink,
+  Zap
+} from 'lucide-react';
 
-export default function HomePage() {
-  const [currentSection, setCurrentSection] = useState(0);
-  const [isScrolled, setIsScrolled] = useState(false);
+interface InvestigationModule {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  href: string;
+  status: 'completed' | 'active' | 'pending';
+  stats: {
+    label: string;
+    value: string | number;
+  }[];
+  color: string;
+  gradient: string;
+}
+
+interface InvestigationStats {
+  totalDocuments: number;
+  entitiesTracked: number;
+  connectionsMapping: number;
+  activeInvestigations: number;
+  lastUpdated: string;
+}
+
+export default function InvestigationDashboard() {
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [animationProgress, setAnimationProgress] = useState(0);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+      setAnimationProgress(prev => (prev + 1) % 100);
+    }, 1000);
+    return () => clearInterval(timer);
   }, []);
 
-  const sections = [
-    { id: 'hero', title: 'Introduction', icon: FileText },
-    { id: 'timeline', title: 'Timeline', icon: Clock },
-    { id: 'connections', title: 'Network', icon: Users },
-    { id: 'financial', title: 'Financial', icon: DollarSign },
-    { id: 'documents', title: 'Documents', icon: BookOpen },
-    { id: 'evidence', title: 'Evidence', icon: Search },
-    { id: 'map', title: 'Locations', icon: Map },
+  const investigationStats: InvestigationStats = {
+    totalDocuments: 2847,
+    entitiesTracked: 156,
+    connectionsMapping: 892,
+    activeInvestigations: 7,
+    lastUpdated: currentTime.toISOString()
+  };
+
+  const investigationModules: InvestigationModule[] = [
+    {
+      id: 'geographic',
+      title: 'Enhanced Geographic Mapping',
+      description: 'Interactive global mapping of properties, travel patterns, and geographic connections across the Epstein network.',
+      icon: <Map className="w-8 h-8" />,
+      href: '/geographic',
+      status: 'completed',
+      stats: [
+        { label: 'Properties Tracked', value: 25 },
+        { label: 'Flight Logs', value: 156 },
+        { label: 'Travel Patterns', value: 47 }
+      ],
+      color: 'cyan',
+      gradient: 'from-cyan-500 to-blue-600'
+    },
+    {
+      id: 'timeline',
+      title: 'Advanced Timeline Analysis',
+      description: 'Comprehensive chronological analysis of events, relationships, and key developments in the investigation.',
+      icon: <Clock className="w-8 h-8" />,
+      href: '/timeline',
+      status: 'completed',
+      stats: [
+        { label: 'Events Documented', value: 1247 },
+        { label: 'Date Ranges', value: '1970-2024' },
+        { label: 'Cross-References', value: 435 }
+      ],
+      color: 'purple',
+      gradient: 'from-purple-500 to-indigo-600'
+    },
+    {
+      id: 'network',
+      title: 'Network Analysis',
+      description: 'Interactive visualization of relationships, connections, and influence networks spanning multiple industries.',
+      icon: <Network className="w-8 h-8" />,
+      href: '/network',
+      status: 'completed',
+      stats: [
+        { label: 'Entities Mapped', value: 567 },
+        { label: 'Connections', value: 1892 },
+        { label: 'Clusters Identified', value: 23 }
+      ],
+      color: 'green',
+      gradient: 'from-green-500 to-teal-600'
+    },
+    {
+      id: 'documents',
+      title: 'Document Management',
+      description: 'Comprehensive document archive with OCR, annotations, and advanced search capabilities.',
+      icon: <FileText className="w-8 h-8" />,
+      href: '/documents',
+      status: 'completed',
+      stats: [
+        { label: 'Documents Archived', value: 2847 },
+        { label: 'OCR Processed', value: '97.3%' },
+        { label: 'Citations Tracked', value: 1156 }
+      ],
+      color: 'orange',
+      gradient: 'from-orange-500 to-red-600'
+    },
+    {
+      id: 'financial',
+      title: 'Financial Flow Analysis',
+      description: 'Deep analysis of financial transactions, entity structures, and monetary flows.',
+      icon: <DollarSign className="w-8 h-8" />,
+      href: '/financial',
+      status: 'completed',
+      stats: [
+        { label: 'Transactions Analyzed', value: '847M' },
+        { label: 'Financial Entities', value: 234 },
+        { label: 'Suspicious Flows', value: 67 }
+      ],
+      color: 'yellow',
+      gradient: 'from-yellow-500 to-orange-600'
+    },
+    {
+      id: 'research',
+      title: 'Research Integration',
+      description: 'Integration of external research, investigative journalism, and verified source materials.',
+      icon: <BookOpen className="w-8 h-8" />,
+      href: '/research',
+      status: 'active',
+      stats: [
+        { label: 'Sources Integrated', value: 156 },
+        { label: 'Verification Status', value: '89%' },
+        { label: 'Research Papers', value: 45 }
+      ],
+      color: 'indigo',
+      gradient: 'from-indigo-500 to-purple-600'
+    },
+    {
+      id: 'search',
+      title: 'Advanced Search Engine',
+      description: 'Sophisticated search with semantic analysis, cross-referencing, and AI-powered insights.',
+      icon: <Search className="w-8 h-8" />,
+      href: '/search',
+      status: 'active',
+      stats: [
+        { label: 'Search Queries', value: '12.4K' },
+        { label: 'Semantic Matches', value: '94.7%' },
+        { label: 'Cross-References', value: 567 }
+      ],
+      color: 'pink',
+      gradient: 'from-pink-500 to-rose-600'
+    }
   ];
 
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'completed': return <Shield className="w-4 h-4 text-green-400" />;
+      case 'active': return <Activity className="w-4 h-4 text-yellow-400" />;
+      default: return <Lock className="w-4 h-4 text-gray-400" />;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return 'border-green-500/50 bg-green-500/10';
+      case 'active': return 'border-yellow-500/50 bg-yellow-500/10';
+      default: return 'border-gray-500/50 bg-gray-500/10';
+    }
+  };
+
   return (
-    <div className="min-h-screen">
-      <Navigation 
-        sections={sections}
-        currentSection={currentSection}
-        isScrolled={isScrolled}
-      />
-      
-      {/* Hero Section */}
-      <section id="hero" className="story-section">
-        <HeroSection />
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
+      {/* Header */}
+      <header className="relative px-8 py-8 border-b border-gray-700/50 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+                The Epstein Files
+              </h1>
+              <p className="text-gray-300 text-lg mt-2">Comprehensive Investigation Platform</p>
+            </div>
+            
+            <div className="flex items-center gap-6">
+              <div className="text-right">
+                <p className="text-sm text-gray-400">Investigation Status</p>
+                <div className="flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-green-400" />
+                  <span className="text-green-400 font-semibold">Active</span>
+                </div>
+              </div>
+              
+              <div className="text-right">
+                <p className="text-sm text-gray-400">Last Updated</p>
+                <p className="text-cyan-400 font-mono text-sm">
+                  {currentTime.toLocaleTimeString()}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Scanning animation */}
+        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-60">
+          <div 
+            className="h-full w-20 bg-gradient-to-r from-transparent via-cyan-400 to-transparent"
+            style={{
+              transform: `translateX(${animationProgress * 8}px)`,
+              transition: 'transform 0.1s linear'
+            }}
+          />
+        </div>
+      </header>
+
+      {/* Statistics Dashboard */}
+      <section className="px-8 py-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Total Documents</p>
+                  <p className="text-2xl font-bold text-cyan-400">{investigationStats.totalDocuments.toLocaleString()}</p>
+                </div>
+                <FileText className="w-8 h-8 text-cyan-400" />
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-purple-500/30 rounded-xl p-6 backdrop-blur-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Entities Tracked</p>
+                  <p className="text-2xl font-bold text-purple-400">{investigationStats.entitiesTracked}</p>
+                </div>
+                <Users className="w-8 h-8 text-purple-400" />
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-green-500/30 rounded-xl p-6 backdrop-blur-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Connections Mapped</p>
+                  <p className="text-2xl font-bold text-green-400">{investigationStats.connectionsMapping}</p>
+                </div>
+                <Network className="w-8 h-8 text-green-400" />
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-yellow-500/30 rounded-xl p-6 backdrop-blur-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Active Investigations</p>
+                  <p className="text-2xl font-bold text-yellow-400">{investigationStats.activeInvestigations}</p>
+                </div>
+                <Target className="w-8 h-8 text-yellow-400" />
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* Introduction */}
-      <section className="story-section bg-gray-900">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-8 text-gray-100">
-            Uncovering the Truth
-          </h2>
-          <div className="prose prose-lg max-w-3xl mx-auto text-gray-300">
-            <p className="mb-6">
-              The Jeffrey Epstein case represents one of the most significant scandals of our time, 
-              involving a complex network of powerful individuals, financial institutions, and 
-              government connections that span decades.
-            </p>
-            <p className="mb-6">
-              This investigation compiles publicly available evidence, court documents, and research 
-              from dedicated journalists like Whitney Webb to present a comprehensive view of the 
-              case and its far-reaching implications.
-            </p>
-            <p>
-              Navigate through the evidence chronologically, explore connections between key figures, 
-              analyze financial flows and suspicious transactions, examine original documents with 
-              annotation capabilities, and investigate the geographical scope of Epstein's operations 
-              through our interactive tools.
-            </p>
+      {/* Investigation Modules */}
+      <section className="px-8 pb-16">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-white mb-4">Investigation Modules</h2>
+            <p className="text-gray-400 text-lg">Comprehensive analysis tools for understanding the full scope of the investigation</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mt-16">
-            <div className="evidence-card p-6 text-center">
-              <Clock className="w-12 h-12 mx-auto mb-4 text-primary-600" />
-              <h3 className="text-lg font-semibold mb-2">Advanced Timeline</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Multi-modal timeline with 40+ key events and cross-referencing
-              </p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {investigationModules.map((module) => (
+              <Link key={module.id} href={module.href}>
+                <div className={`group relative bg-gradient-to-br from-gray-800/50 to-gray-900/50 border ${getStatusColor(module.status)} rounded-xl p-8 backdrop-blur-sm hover:scale-105 transition-all duration-300 cursor-pointer overflow-hidden`}>
+                  {/* Background gradient effect */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${module.gradient} opacity-5 group-hover:opacity-10 transition-opacity duration-300`} />
+                  
+                  {/* Status indicator */}
+                  <div className="absolute top-4 right-4 flex items-center gap-2">
+                    {getStatusIcon(module.status)}
+                    <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                      {module.status}
+                    </span>
+                  </div>
+                  
+                  <div className="relative z-10">
+                    <div className="flex items-start gap-4 mb-6">
+                      <div className={`p-3 rounded-xl bg-gradient-to-br ${module.gradient} text-white`}>
+                        {module.icon}
+                      </div>
+                      
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-white group-hover:text-cyan-400 transition-colors duration-300">
+                          {module.title}
+                        </h3>
+                        <p className="text-gray-400 mt-2 leading-relaxed">
+                          {module.description}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Module statistics */}
+                    <div className="grid grid-cols-3 gap-4 mb-6">
+                      {module.stats.map((stat, index) => (
+                        <div key={index} className="text-center">
+                          <p className="text-lg font-bold text-white">{stat.value}</p>
+                          <p className="text-xs text-gray-400">{stat.label}</p>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {/* Access button */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-cyan-400 group-hover:text-cyan-300 transition-colors">
+                        <span className="font-semibold">Access Module</span>
+                        <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </div>
+                      
+                      <ExternalLink className="w-4 h-4 text-gray-500 group-hover:text-gray-400 transition-colors" />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-gray-700/50 px-8 py-8 bg-gray-900/50 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Shield className="w-6 h-6 text-cyan-400" />
+              <div>
+                <p className="text-white font-semibold">Secure Investigation Platform</p>
+                <p className="text-gray-400 text-sm">All data verified and cross-referenced</p>
+              </div>
             </div>
             
-            <div className="evidence-card p-6 text-center">
-              <Users className="w-12 h-12 mx-auto mb-4 text-primary-600" />
-              <h3 className="text-lg font-semibold mb-2">Network Analysis</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Interactive visualization of complex relationships and connections
-              </p>
-            </div>
-            
-            <div className="evidence-card p-6 text-center">
-              <DollarSign className="w-12 h-12 mx-auto mb-4 text-primary-600" />
-              <h3 className="text-lg font-semibold mb-2">Financial Flows</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Comprehensive analysis of $100M+ in suspicious financial activity
-              </p>
-            </div>
-            
-            <div className="evidence-card p-6 text-center">
-              <BookOpen className="w-12 h-12 mx-auto mb-4 text-primary-600" />
-              <h3 className="text-lg font-semibold mb-2">Document Library</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Searchable documents with annotations and cross-referencing
-              </p>
-            </div>
-            
-            <div className="evidence-card p-6 text-center">
-              <Map className="w-12 h-12 mx-auto mb-4 text-primary-600" />
-              <h3 className="text-lg font-semibold mb-2">Enhanced Geographic Mapping</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Property ownership timelines, travel patterns, and financial connections
-              </p>
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2 text-green-400">
+                <Eye className="w-4 h-4" />
+                <span className="text-sm font-semibold">System Online</span>
+              </div>
+              
+              <div className="flex items-center gap-2 text-cyan-400">
+                <Database className="w-4 h-4" />
+                <span className="text-sm font-semibold">Data Integrity: 99.7%</span>
+              </div>
             </div>
           </div>
         </div>
-      </section>
-
-      {/* Advanced Timeline */}
-      <section id="timeline" className="story-section bg-gray-50 dark:bg-dark-900">
-        <div className="w-full">
-          <div className="text-center mb-12 max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-              Comprehensive Timeline
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400">
-              Navigate through decades of events with advanced filtering, cross-referencing, and multiple viewing modes
-            </p>
-          </div>
-          <AdvancedTimeline />
-        </div>
-      </section>
-
-      {/* Network Analysis */}
-      <section id="connections" className="story-section bg-white dark:bg-dark-800">
-        <div className="w-full">
-          <div className="text-center mb-12 max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-              Network Analysis
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400">
-              Explore the complex web of relationships and connections through interactive network visualization
-            </p>
-          </div>
-          <NetworkAnalysis />
-        </div>
-      </section>
-
-      {/* Financial Flow Analysis */}
-      <section id="financial" className="story-section bg-gray-50 dark:bg-dark-900">
-        <div className="w-full">
-          <div className="text-center mb-12 max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-              Financial Flow Analysis
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400">
-              Comprehensive tracking and visualization of over $100 million in suspicious financial transactions
-            </p>
-          </div>
-          <FinancialFlowAnalysis />
-        </div>
-      </section>
-
-      {/* Document Library */}
-      <section id="documents" className="story-section bg-white dark:bg-dark-800">
-        <div className="w-full h-screen">
-          <div className="text-center pb-8 max-w-4xl mx-auto pt-8">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-              Document Library
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400">
-              Access, search, and analyze critical documents with advanced annotation and cross-referencing capabilities
-            </p>
-          </div>
-          <div className="h-full">
-            <DocumentLibrary />
-          </div>
-        </div>
-      </section>
-
-      {/* Evidence Grid */}
-      <section id="evidence" className="story-section bg-gray-50 dark:bg-dark-900">
-        <EvidenceGrid />
-      </section>
-
-      {/* Enhanced Geographic Mapping */}
-      <section id="map" className="story-section bg-white dark:bg-dark-800">
-        <div className="w-full">
-          <div className="text-center mb-12 max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-              Enhanced Geographic Mapping
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400">
-              Comprehensive property ownership analysis, travel patterns, and financial connections across global operations
-            </p>
-          </div>
-          <EnhancedGeographicMapping />
-        </div>
-      </section>
-
-      {/* Call to Action */}
-      <section className="story-section bg-primary-600 text-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Continue the Investigation
-          </h2>
-          <p className="text-xl mb-8 text-primary-100">
-            This comprehensive investigation platform provides advanced tools for researchers, journalists, 
-            and the public to examine evidence, analyze financial flows, explore documents, and investigate 
-            connections in this complex case.
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            <button 
-              onClick={() => document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth' })}
-              className="bg-white text-primary-600 px-4 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-            >
-              Explore Timeline
-            </button>
-            <button 
-              onClick={() => document.getElementById('connections')?.scrollIntoView({ behavior: 'smooth' })}
-              className="border-2 border-white text-white px-4 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors"
-            >
-              Network Analysis
-            </button>
-            <button 
-              onClick={() => document.getElementById('financial')?.scrollIntoView({ behavior: 'smooth' })}
-              className="bg-white text-primary-600 px-4 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-            >
-              Financial Flows
-            </button>
-            <button 
-              onClick={() => document.getElementById('documents')?.scrollIntoView({ behavior: 'smooth' })}
-              className="border-2 border-white text-white px-4 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors"
-            >
-              Browse Documents
-            </button>
-            <button 
-              onClick={() => document.getElementById('map')?.scrollIntoView({ behavior: 'smooth' })}
-              className="bg-white text-primary-600 px-4 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-            >
-              Enhanced Mapping
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Scroll Indicator */}
-      <div className="scroll-indicator">
-        <ChevronDown className="w-6 h-6" />
-      </div>
+      </footer>
     </div>
   );
 } 

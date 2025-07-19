@@ -436,6 +436,195 @@ export const corePeople: Person[] = [
     tags: ['lawyer', 'harvard', 'accused', 'defender', 'controversial'],
     profileImage: '/images/people/alan-dershowitz.jpg',
     lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'robert-maxwell',
+    name: 'Ian Robert Maxwell',
+    aliases: ['Robert Maxwell', 'Bob Maxwell', 'Ján Ludvík Hyman Binyamin Hoch'],
+    dateOfBirth: '1923-06-10',
+    dateOfDeath: '1991-11-05',
+    nationality: ['United Kingdom', 'Czechoslovakia'],
+    occupations: [
+      'Media Proprietor',
+      'Member of Parliament',
+      'Publisher',
+      'Businessman'
+    ],
+    organizations: [
+      'Maxwell Communications Corporation',
+      'Mirror Group Newspapers',
+      'Pergamon Press',
+      'Labour Party'
+    ],
+    biography: `Robert Maxwell was a Czechoslovak-born British media proprietor and politician. He was the father of Ghislaine Maxwell and built a media empire before his mysterious death in 1991 when he fell from his yacht. His death left his business empire in ruins and his family financially devastated, which may have influenced Ghislaine's later association with Jeffrey Epstein.`,
+    significance: 'medium',
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'robert-maxwell-death-investigation',
+        title: 'The Death of Robert Maxwell',
+        type: 'news_article',
+        author: 'Gordon Thomas',
+        publication: 'The Guardian',
+        publicationDate: '1991-11-06',
+        reliability: 'high',
+        description: 'Investigation into Maxwell\'s mysterious death',
+        tags: ['death', 'investigation', 'media']
+      },
+      {
+        id: 'robert-maxwell-biography',
+        title: 'Maxwell: The Rise and Fall of Robert Maxwell and his Empire',
+        type: 'book',
+        author: 'Tom Bower',
+        publication: 'HarperCollins',
+        publicationDate: '1992-01-01',
+        reliability: 'high',
+        description: 'Comprehensive biography of Robert Maxwell',
+        tags: ['biography', 'business', 'empire']
+      }
+    ],
+    tags: ['media-mogul', 'maxwell-family', 'deceased', 'controversial', 'british'],
+    profileImage: '/images/people/robert-maxwell.jpg',
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'jean-luc-brunel',
+    name: 'Jean-Luc Brunel',
+    aliases: ['Jean Luc Brunel'],
+    dateOfBirth: '1946-12-25',
+    dateOfDeath: '2022-02-19',
+    nationality: ['France'],
+    occupations: [
+      'Modeling Agent',
+      'Businessman'
+    ],
+    organizations: [
+      'MC2 Model Management',
+      'Karin Models',
+      'Next Model Management'
+    ],
+    biography: `Jean-Luc Brunel was a French modeling agent who was closely associated with Jeffrey Epstein. He founded MC2 Model Management with Epstein's financial backing and was accused of sexual abuse and trafficking. He was found dead in his prison cell in 2022 while awaiting trial on charges of rape and sexual assault of minors.`,
+    significance: 'high',
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'brunel-death-prison',
+        title: 'Jean-Luc Brunel Found Dead in Prison Cell',
+        type: 'news_article',
+        author: 'Reuters',
+        publication: 'Reuters',
+        publicationDate: '2022-02-19',
+        reliability: 'high',
+        description: 'Report on Brunel\'s death in custody',
+        tags: ['death', 'prison', 'suicide']
+      },
+      {
+        id: 'brunel-mc2-connection',
+        title: 'The Epstein-Brunel Modeling Connection',
+        type: 'news_article',
+        author: 'Vanessa Grigoriadis',
+        publication: 'Vanity Fair',
+        publicationDate: '2019-07-16',
+        reliability: 'high',
+        description: 'Investigation into Brunel\'s modeling agency and Epstein ties',
+        tags: ['modeling', 'trafficking', 'investigation']
+      }
+    ],
+    tags: ['modeling-agent', 'epstein-associate', 'deceased', 'accused', 'mc2'],
+    profileImage: '/images/people/jean-luc-brunel.jpg',
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'maria-farmer',
+    name: 'Maria Farmer',
+    aliases: ['Maria K. Farmer'],
+    dateOfBirth: '1969-01-01', // Approximate
+    nationality: ['United States'],
+    occupations: [
+      'Artist',
+      'Victim Advocate',
+      'Whistleblower'
+    ],
+    organizations: [
+      'Survivors of Jeffrey Epstein'
+    ],
+    biography: `Maria Farmer is an American artist who was one of the first known victims to report Jeffrey Epstein and Ghislaine Maxwell to authorities in 1996. She worked for Epstein as an artist and alleged that both Epstein and Maxwell sexually abused her and her younger sister. Her early reports to the FBI went largely ignored for years.`,
+    significance: 'high',
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'maria-farmer-fbi-report-1996',
+        title: 'Maria Farmer FBI Report 1996',
+        type: 'government_document',
+        author: 'FBI',
+        publication: 'Federal Bureau of Investigation',
+        publicationDate: '1996-07-01',
+        reliability: 'high',
+        description: 'Early FBI report filed by Maria Farmer',
+        tags: ['fbi', 'report', 'early-victim']
+      },
+      {
+        id: 'maria-farmer-whitney-webb-interview',
+        title: 'Maria Farmer Interview',
+        type: 'interview',
+        author: 'Whitney Webb',
+        publication: 'The Last American Vagabond',
+        publicationDate: '2019-06-18',
+        reliability: 'high',
+        description: 'Detailed interview about Epstein experiences',
+        tags: ['interview', 'victim-testimony', 'investigation']
+      }
+    ],
+    tags: ['victim', 'artist', 'early-whistleblower', 'fbi-report', 'survivor'],
+    profileImage: '/images/people/maria-farmer.jpg',
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'whitney-webb',
+    name: 'Whitney Alyse Webb',
+    aliases: ['Whitney Webb'],
+    dateOfBirth: '1993-01-01', // Approximate
+    nationality: ['United States'],
+    occupations: [
+      'Investigative Journalist',
+      'Author',
+      'Researcher'
+    ],
+    organizations: [
+      'The Last American Vagabond',
+      'Unlimited Hangout',
+      'MintPress News'
+    ],
+    biography: `Whitney Webb is an American investigative journalist and author known for her extensive research into the Jeffrey Epstein case and intelligence connections. She authored "One Nation Under Blackmail," a two-volume investigation into organized crime, intelligence agencies, and political blackmail networks. Her work has been instrumental in exposing deeper connections in the Epstein case.`,
+    significance: 'high',
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'whitney-webb-one-nation-blackmail',
+        title: 'One Nation Under Blackmail',
+        type: 'book',
+        author: 'Whitney Webb',
+        publication: 'Trine Day',
+        publicationDate: '2022-02-01',
+        reliability: 'high',
+        description: 'Comprehensive investigation into Epstein and intelligence connections',
+        tags: ['book', 'investigation', 'intelligence', 'blackmail']
+      },
+      {
+        id: 'whitney-webb-epstein-series',
+        title: 'Government by Blackmail: Jeffrey Epstein Series',
+        type: 'news_article',
+        author: 'Whitney Webb',
+        publication: 'MintPress News',
+        publicationDate: '2019-06-01',
+        reliability: 'high',
+        description: 'Investigative series on Epstein intelligence connections',
+        tags: ['investigation', 'intelligence', 'series', 'blackmail']
+      }
+    ],
+    tags: ['investigative-journalist', 'researcher', 'author', 'intelligence-connections'],
+    profileImage: '/images/people/whitney-webb.jpg',
+    lastUpdated: '2024-01-15T00:00:00Z'
   }
 ];
 

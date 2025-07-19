@@ -196,6 +196,103 @@ export const comprehensiveTimeline: TimelineEvent[] = [
     lastUpdated: '2024-01-15T00:00:00Z'
   },
   {
+    id: 'wexner-manhattan-mansion-transfer',
+    title: 'Wexner Transfers $20M Manhattan Mansion to Epstein',
+    description: 'Leslie Wexner transfers his $20 million Manhattan mansion at 9 East 71st Street to Jeffrey Epstein for $0 - effectively a gift.',
+    date: '1996-07-01',
+    type: 'business',
+    category: 'financial',
+    significance: 'critical',
+    entities: [
+      { entityId: 'les-wexner', entityType: 'person', role: 'grantor', description: 'Transferred mansion ownership' },
+      { entityId: 'jeffrey-epstein', entityType: 'person', role: 'recipient', description: 'Received Manhattan mansion' },
+      { entityId: 'manhattan-mansion', entityType: 'location', role: 'property', description: '9 East 71st Street mansion' }
+    ],
+    relatedEvents: ['epstein-wexner-power-attorney', 'epstein-meets-wexner'],
+    consequences: ['Provided Epstein with prestigious Manhattan base', 'Raised questions about the nature of their relationship'],
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'mansion-transfer-records',
+        title: 'Property Transfer Records - 9 East 71st Street',
+        type: 'government_document',
+        author: 'NYC Department of Finance',
+        publication: 'New York City Property Records',
+        publicationDate: '1996-07-15',
+        reliability: 'high',
+        description: 'Official property transfer documentation',
+        tags: ['property-transfer', 'manhattan', 'gift']
+      }
+    ],
+    evidence: ['manhattan-mansion-deed-transfer'],
+    tags: ['property-gift', 'wexner', 'manhattan', 'wealth-transfer'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'epstein-meets-maxwell',
+    title: 'Epstein Begins Relationship with Ghislaine Maxwell',
+    description: 'Jeffrey Epstein meets Ghislaine Maxwell, daughter of media mogul Robert Maxwell, beginning a decades-long personal and business partnership.',
+    date: '1991-01-01',
+    type: 'meeting',
+    category: 'social',
+    significance: 'critical',
+    entities: [
+      { entityId: 'jeffrey-epstein', entityType: 'person', role: 'partner', description: 'Romantic and business partner' },
+      { entityId: 'ghislaine-maxwell', entityType: 'person', role: 'partner', description: 'Alleged accomplice and procurer' }
+    ],
+    relatedEvents: ['robert-maxwell-death', 'first-victim-allegations'],
+    consequences: ['Maxwell became key lieutenant in Epstein operations', 'Alleged recruitment of underage victims began'],
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'epstein-maxwell-relationship-vanity-fair',
+        title: 'The Mystery of Ghislaine Maxwell',
+        type: 'news_article',
+        author: 'Vicky Ward',
+        publication: 'Vanity Fair',
+        publicationDate: '2019-08-13',
+        reliability: 'high',
+        description: 'Investigation into the Epstein-Maxwell relationship',
+        tags: ['relationship', 'maxwell', 'investigation']
+      }
+    ],
+    evidence: ['epstein-maxwell-photos', 'maxwell-trial-testimony'],
+    tags: ['maxwell-relationship', 'accomplice', 'recruitment', 'key-partnership'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'robert-maxwell-death',
+    title: 'Robert Maxwell Dies Under Mysterious Circumstances',
+    description: 'Ghislaine Maxwell\'s father, media mogul Robert Maxwell, dies after falling from his yacht. His media empire collapses amid financial scandals.',
+    date: '1991-11-05',
+    type: 'other',
+    category: 'social',
+    significance: 'high',
+    entities: [
+      { entityId: 'robert-maxwell', entityType: 'person', role: 'deceased', description: 'Media mogul and Ghislaine\'s father' },
+      { entityId: 'ghislaine-maxwell', entityType: 'person', role: 'family', description: 'Daughter left financially devastated' }
+    ],
+    relatedEvents: ['epstein-meets-maxwell'],
+    consequences: ['Ghislaine Maxwell becomes financially dependent', 'Drives Maxwell closer to Epstein'],
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'robert-maxwell-death-investigation',
+        title: 'The Death of Robert Maxwell',
+        type: 'news_article',
+        author: 'Gordon Thomas',
+        publication: 'The Guardian',
+        publicationDate: '1991-11-06',
+        reliability: 'high',
+        description: 'Investigation into Robert Maxwell\'s mysterious death',
+        tags: ['death', 'investigation', 'maxwell-family']
+      }
+    ],
+    evidence: ['robert-maxwell-autopsy', 'yacht-lady-ghislaine-investigation'],
+    tags: ['maxwell-family', 'death', 'financial-scandal', 'yacht'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
     id: 'little-saint-james-purchase',
     title: 'Epstein Purchases Little Saint James Island',
     description: 'Jeffrey Epstein purchases Little Saint James Island in the U.S. Virgin Islands for $7.95 million.',

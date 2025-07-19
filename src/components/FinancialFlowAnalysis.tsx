@@ -154,15 +154,34 @@ export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowP
 
       const position = getNodePosition(entityId);
 
+      // Map entity types to network node types
+      const mapEntityTypeToNodeType = (entityType: string): 'individual' | 'corporation' | 'trust' | 'foundation' | 'bank' | 'other' => {
+        switch (entityType) {
+          case 'individual': return 'individual';
+          case 'corporation': return 'corporation';
+          case 'trust': return 'trust';
+          case 'foundation': return 'foundation';
+          case 'bank': return 'bank';
+          case 'investment_fund':
+          case 'shell_company':
+          case 'government':
+          case 'other':
+          default:
+            return 'other';
+        }
+      };
+
+      const nodeType = mapEntityTypeToNodeType(entity.type);
+
       nodes.set(entityId, {
         id: entityId,
         name: entity.name,
-        type: entity.type,
+        type: nodeType,
         totalTransactions: entityTransactions.length,
         totalValue: Math.abs(totalValue),
         riskScore: suspiciousActivity ? 75 : 25,
         size: Math.max(20, Math.min(80, Math.log(Math.abs(totalValue) + 1) * 8)),
-        color: getNodeColor(entity.type, suspiciousActivity),
+        color: getNodeColor(nodeType, suspiciousActivity),
         x: position.x,
         y: position.y,
         suspicious: suspiciousActivity
