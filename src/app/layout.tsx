@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import LayoutWrapper from '@/components/LayoutWrapper';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -40,7 +41,9 @@ export default function RootLayout({
     <html lang="en" className="scroll-smooth dark">
       <body className={`${inter.className} antialiased`}>
         <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800">
-          {children}
+          <LayoutWrapper>
+            {children}
+          </LayoutWrapper>
         </div>
       </body>
     </html>

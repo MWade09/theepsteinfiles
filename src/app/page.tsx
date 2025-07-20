@@ -11,21 +11,16 @@ import {
   Search,
   Target,
   Shield,
-  AlertTriangle,
-  TrendingUp,
   Users,
-  Globe,
   Database,
   Activity,
   BookOpen,
   Lock,
   Eye,
-  Star,
-  Award,
   ChevronRight,
-  ExternalLink,
-  Zap
+  ExternalLink
 } from 'lucide-react';
+import SearchModal from '@/components/SearchModal';
 
 interface InvestigationModule {
   id: string;
@@ -53,6 +48,7 @@ interface InvestigationStats {
 export default function InvestigationDashboard() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [animationProgress, setAnimationProgress] = useState(0);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -60,6 +56,20 @@ export default function InvestigationDashboard() {
       setAnimationProgress(prev => (prev + 1) % 100);
     }, 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  // Handle keyboard shortcut for search
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Ctrl+K or Cmd+K to open search
+      if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+        event.preventDefault();
+        setIsSearchOpen(true);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const investigationStats: InvestigationStats = {
@@ -208,6 +218,19 @@ export default function InvestigationDashboard() {
             </div>
             
             <div className="flex items-center gap-6">
+              {/* Search Button */}
+              <button
+                onClick={() => setIsSearchOpen(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-800/50 border border-gray-600 rounded-lg hover:border-cyan-400 transition-colors"
+                title="Search (Ctrl+K)"
+              >
+                <Search className="w-4 h-4 text-gray-400" />
+                <span className="text-sm text-gray-400">Search...</span>
+                <kbd className="px-2 py-1 text-xs text-gray-400 border border-gray-600 rounded">
+                  ⌘K
+                </kbd>
+              </button>
+
               <div className="text-right">
                 <p className="text-sm text-gray-400">Investigation Status</p>
                 <div className="flex items-center gap-2">
@@ -377,6 +400,12 @@ export default function InvestigationDashboard() {
           </div>
         </div>
       </footer>
+
+      {/* Search Modal */}
+      <SearchModal 
+        isOpen={isSearchOpen} 
+        onClose={() => setIsSearchOpen(false)} 
+      />
     </div>
   );
 } 

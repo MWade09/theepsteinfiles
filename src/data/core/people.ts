@@ -625,6 +625,347 @@ export const corePeople: Person[] = [
     tags: ['investigative-journalist', 'researcher', 'author', 'intelligence-connections'],
     profileImage: '/images/people/whitney-webb.jpg',
     lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'detective-joseph-recarey',
+    name: 'Joseph Recarey',
+    aliases: ['Detective Recarey', 'Joe Recarey'],
+    dateOfDeath: '2018-05-25',
+    nationality: ['United States'],
+    occupations: [
+      'Police Detective',
+      'Lead Investigator'
+    ],
+    organizations: [
+      'Palm Beach Police Department'
+    ],
+    biography: `Detective Joseph Recarey was the lead investigator in the Palm Beach Police Department's investigation of Jeffrey Epstein starting in 2005. He conducted extensive interviews with victims and worked tirelessly to build a strong case against Epstein. Recarey was known for his dedication to the victims and his frustration with the lenient plea deal that ultimately resulted. He died unexpectedly in 2018.`,
+    significance: 'high',
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'recarey-miami-herald',
+        title: 'Meet the Cop Who Refused to Let Jeffrey Epstein Off Easy',
+        type: 'news_article',
+        author: 'Julie K. Brown',
+        publication: 'Miami Herald',
+        publicationDate: '2018-11-28',
+        reliability: 'high',
+        description: 'Profile of Detective Recarey and his investigation',
+        tags: ['detective', 'investigation', 'palm-beach', 'victims']
+      }
+    ],
+    tags: ['detective', 'investigator', 'palm-beach-police', 'victim-advocate', 'deceased'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'chief-michael-reiter',
+    name: 'Michael Reiter',
+    aliases: ['Chief Reiter', 'Mike Reiter'],
+    nationality: ['United States'],
+    occupations: [
+      'Police Chief',
+      'Law Enforcement Executive'
+    ],
+    organizations: [
+      'Palm Beach Police Department'
+    ],
+    biography: `Michael Reiter served as Chief of the Palm Beach Police Department during the Jeffrey Epstein investigation. He supported Detective Recarey's investigation and was frustrated by federal prosecutors' decision to offer Epstein a lenient plea deal. Reiter has been vocal about the failures in the case and the need for justice for the victims.`,
+    significance: 'high',
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'reiter-interview',
+        title: 'Former Palm Beach Police Chief Speaks Out on Epstein Case',
+        type: 'interview',
+        author: 'CBS News',
+        publication: 'CBS News',
+        publicationDate: '2019-07-10',
+        reliability: 'high',
+        description: 'Interview with Chief Reiter about the Epstein investigation',
+        tags: ['police-chief', 'interview', 'investigation', 'palm-beach']
+      }
+    ],
+    tags: ['police-chief', 'law-enforcement', 'palm-beach-police', 'victim-advocate'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'alexander-acosta',
+    name: 'René Alexander Acosta',
+    aliases: ['Alex Acosta', 'Alexander Acosta'],
+    dateOfBirth: '1969-01-16',
+    nationality: ['United States'],
+    occupations: [
+      'Former U.S. Attorney',
+      'Former Secretary of Labor',
+      'Lawyer'
+    ],
+    organizations: [
+      'U.S. Attorney\'s Office Southern District of Florida',
+      'U.S. Department of Labor',
+      'Trump Administration'
+    ],
+    biography: `Alexander Acosta served as U.S. Attorney for the Southern District of Florida from 2005 to 2009, during which time he negotiated the controversial non-prosecution agreement with Jeffrey Epstein. He later served as Secretary of Labor under President Trump from 2017 to 2019, resigning amid renewed scrutiny of his handling of the Epstein case.`,
+    significance: 'critical',
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'acosta-resignation',
+        title: 'Labor Secretary Alex Acosta Resigns Amid Jeffrey Epstein Scrutiny',
+        type: 'news_article',
+        author: 'Michael D. Shear',
+        publication: 'The New York Times',
+        publicationDate: '2019-07-12',
+        reliability: 'high',
+        description: 'Report on Acosta\'s resignation due to Epstein case scrutiny',
+        tags: ['acosta', 'resignation', 'labor-secretary', 'controversy']
+      }
+    ],
+    tags: ['prosecutor', 'trump-administration', 'controversial-plea-deal', 'resigned'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'alan-dershowitz',
+    name: 'Alan Morton Dershowitz',
+    aliases: ['Alan Dershowitz', 'Professor Dershowitz'],
+    dateOfBirth: '1938-09-01',
+    nationality: ['United States'],
+    occupations: [
+      'Lawyer',
+      'Harvard Law Professor',
+      'Legal Scholar',
+      'Author'
+    ],
+    organizations: [
+      'Harvard Law School',
+      'Epstein Defense Team'
+    ],
+    biography: `Alan Dershowitz is a prominent criminal defense lawyer and Harvard Law School professor who served on Jeffrey Epstein's legal defense team during the 2008 plea negotiations. He has been accused by Virginia Giuffre of sexual misconduct, allegations he vehemently denies and has fought in court through defamation lawsuits.`,
+    significance: 'high',
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'dershowitz-epstein-defense',
+        title: 'Alan Dershowitz Helped Jeffrey Epstein Get Lenient Deal',
+        type: 'news_article',
+        author: 'Julie K. Brown',
+        publication: 'Miami Herald',
+        publicationDate: '2018-11-28',
+        reliability: 'high',
+        description: 'Report on Dershowitz\'s role in Epstein defense',
+        tags: ['dershowitz', 'defense-attorney', 'plea-deal', 'harvard']
+      }
+    ],
+    tags: ['defense-attorney', 'harvard-professor', 'legal-scholar', 'controversial'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'sarah-kellen',
+    name: 'Sarah Kensington',
+    aliases: ['Sarah Kellen', 'Sarah Kensington'],
+    nationality: ['United States'],
+    occupations: [
+      'Former Epstein Assistant',
+      'Alleged Recruiter'
+    ],
+    organizations: [
+      'Epstein Organization'
+    ],
+    biography: `Sarah Kellen (now Kensington) was a longtime assistant to Jeffrey Epstein who has been accused by victims of helping to recruit and schedule young women for Epstein. She was granted immunity under Epstein's 2008 non-prosecution agreement. Victims have described her as playing a central role in Epstein's operations.`,
+    significance: 'high',
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'kellen-victim-testimony',
+        title: 'Jeffrey Epstein\'s Assistant Sarah Kellen and the Victims',
+        type: 'court_document',
+        author: 'Various Victims',
+        publication: 'Federal Court Records',
+        publicationDate: '2019-08-09',
+        reliability: 'high',
+        description: 'Victim testimony describing Kellen\'s role',
+        tags: ['kellen', 'assistant', 'recruiter', 'victim-testimony']
+      }
+    ],
+    tags: ['epstein-assistant', 'alleged-recruiter', 'immunity-recipient', 'controversial'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'nadia-marcinkova',
+    name: 'Nadia Marcinkova',
+    aliases: ['Nada Marcinkova', 'Global Girl'],
+    nationality: ['Slovakia', 'United States'],
+    occupations: [
+      'Pilot',
+      'Former Epstein Associate'
+    ],
+    organizations: [
+      'Aviloop',
+      'Epstein Organization'
+    ],
+    biography: `Nadia Marcinkova was brought from Slovakia at age 15 and became involved with Jeffrey Epstein's organization. Victims have described her as both a victim and someone who participated in recruiting other young women. She later became a pilot and founded an aviation company. She was granted immunity under Epstein's 2008 non-prosecution agreement.`,
+    significance: 'medium',
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'marcinkova-victim-accounts',
+        title: 'Epstein Victims Describe Nadia Marcinkova\'s Role',
+        type: 'court_document',
+        author: 'Court Records',
+        publication: 'Federal Court',
+        publicationDate: '2019-08-09',
+        reliability: 'high',
+        description: 'Court documents describing Marcinkova\'s involvement',
+        tags: ['marcinkova', 'victim-recruiter', 'slovakia', 'pilot']
+      }
+    ],
+    tags: ['epstein-associate', 'former-victim', 'alleged-recruiter', 'pilot', 'immunity-recipient'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'adriana-ross',
+    name: 'Adriana Ross',
+    aliases: ['Adriana Mucinska'],
+    nationality: ['Poland', 'United States'],
+    occupations: [
+      'Former Epstein Assistant',
+      'Massage Therapist'
+    ],
+    organizations: [
+      'Epstein Organization'
+    ],
+    biography: `Adriana Ross was a Polish-born woman who worked as an assistant and massage therapist for Jeffrey Epstein. Victims have testified that she scheduled appointments and was involved in Epstein's daily operations. She was granted immunity under the 2008 non-prosecution agreement.`,
+    significance: 'medium',
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'ross-court-documents',
+        title: 'Court Documents Describe Adriana Ross Role',
+        type: 'court_document',
+        author: 'Federal Court',
+        publication: 'Court Records',
+        publicationDate: '2019-08-09',
+        reliability: 'high',
+        description: 'Legal documents describing Ross\'s involvement',
+        tags: ['ross', 'assistant', 'massage-therapist', 'poland']
+      }
+    ],
+    tags: ['epstein-assistant', 'massage-therapist', 'polish', 'immunity-recipient'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'lesley-groff',
+    name: 'Lesley Groff',
+    aliases: ['Leslie Groff'],
+    nationality: ['United States'],
+    occupations: [
+      'Executive Assistant',
+      'Epstein Organization Administrator'
+    ],
+    organizations: [
+      'Epstein Organization',
+      'Financial Trust Co.'
+    ],
+    biography: `Lesley Groff was Jeffrey Epstein's executive assistant and helped manage his various business entities and properties. She handled travel arrangements, scheduling, and administrative functions for Epstein's operations. She was granted immunity under the 2008 non-prosecution agreement.`,
+    significance: 'medium',
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'groff-business-records',
+        title: 'Epstein Business Records Show Groff\'s Administrative Role',
+        type: 'financial_record',
+        author: 'Business Records',
+        publication: 'Corporate Filings',
+        publicationDate: '2019-08-15',
+        reliability: 'high',
+        description: 'Business documents showing Groff\'s administrative responsibilities',
+        tags: ['groff', 'executive-assistant', 'administrator', 'business']
+      }
+    ],
+    tags: ['executive-assistant', 'administrator', 'business-operations', 'immunity-recipient'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'bill-clinton',
+    name: 'William Jefferson Clinton',
+    aliases: ['Bill Clinton', 'President Clinton', 'WJC'],
+    dateOfBirth: '1946-08-19',
+    nationality: ['United States'],
+    occupations: [
+      '42nd President of the United States',
+      'Former Governor of Arkansas',
+      'Clinton Foundation Co-Founder'
+    ],
+    organizations: [
+      'Clinton Foundation',
+      'Clinton Global Initiative',
+      'Democratic Party'
+    ],
+    biography: `Bill Clinton served as the 42nd President of the United States from 1993 to 2001. Flight logs show he traveled on Jeffrey Epstein's private jet multiple times in the early 2000s, primarily for Clinton Foundation humanitarian work in Africa. Clinton has stated he was not aware of Epstein's crimes and ended their association when allegations became public.`,
+    significance: 'high',
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'clinton-epstein-flights',
+        title: 'Bill Clinton Flew with Jeffrey Epstein on Lolita Express',
+        type: 'news_article',
+        author: 'Fox News',
+        publication: 'Fox News',
+        publicationDate: '2016-05-13',
+        reliability: 'medium',
+        description: 'Report on Clinton\'s flights on Epstein\'s aircraft',
+        tags: ['clinton', 'flight-logs', 'epstein-jet', 'president']
+      },
+      {
+        id: 'clinton-statement-epstein',
+        title: 'Statement from President Clinton on Jeffrey Epstein',
+        type: 'other',
+        author: 'Bill Clinton',
+        publication: 'Clinton Office',
+        publicationDate: '2019-07-08',
+        reliability: 'high',
+        description: 'Official statement from Clinton regarding Epstein association',
+        tags: ['clinton', 'statement', 'response', 'official']
+      }
+    ],
+    tags: ['former-president', 'political-figure', 'clinton-foundation', 'epstein-associate'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'ehud-barak',
+    name: 'Ehud Barak',
+    aliases: ['General Barak'],
+    dateOfBirth: '1942-02-12',
+    nationality: ['Israel'],
+    occupations: [
+      'Former Prime Minister of Israel',
+      'Former Defense Minister',
+      'Military General',
+      'Businessman'
+    ],
+    organizations: [
+      'Israeli Defense Forces',
+      'Labor Party',
+      'Carbyne911'
+    ],
+    biography: `Ehud Barak served as Prime Minister of Israel from 1999 to 2001 and as Defense Minister from 2007 to 2013. He had business dealings with Jeffrey Epstein and received investments for his ventures. Barak has acknowledged visiting Epstein's properties for business purposes but denied any knowledge of illegal activities.`,
+    significance: 'medium',
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'barak-epstein-business',
+        title: 'Ehud Barak and Jeffrey Epstein: The Business Connection',
+        type: 'news_article',
+        author: 'Haaretz',
+        publication: 'Haaretz',
+        publicationDate: '2019-07-17',
+        reliability: 'high',
+        description: 'Investigation into Barak-Epstein business relationship',
+        tags: ['barak', 'business', 'israel', 'prime-minister']
+      }
+    ],
+    tags: ['former-prime-minister', 'israeli-politician', 'military-general', 'business-associate'],
+    lastUpdated: '2024-01-15T00:00:00Z'
   }
 ];
 

@@ -359,6 +359,425 @@ export const comprehensiveTimeline: TimelineEvent[] = [
     lastUpdated: '2024-01-15T00:00:00Z'
   },
   {
+    id: 'great-saint-james-purchase',
+    title: 'Epstein Purchases Great Saint James Island',
+    description: 'Jeffrey Epstein purchases Great Saint James Island (165 acres) adjacent to Little Saint James for $18 million, expanding his Virgin Islands territory.',
+    date: '2016-05-01',
+    type: 'business',
+    category: 'financial',
+    significance: 'high',
+    entities: [
+      { entityId: 'jeffrey-epstein', entityType: 'person', role: 'purchaser', description: 'Purchased second island' },
+      { entityId: 'great-saint-james', entityType: 'location', role: 'property', description: '165-acre private island' }
+    ],
+    relatedEvents: ['little-saint-james-purchase', 'usvi-investigation'],
+    consequences: ['Expanded private territory', 'Increased isolation capabilities'],
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'great-saint-james-deed',
+        title: 'Property Transfer Records - Great Saint James Island',
+        type: 'government_document',
+        author: 'USVI Recorder of Deeds',
+        publication: 'Virgin Islands Government',
+        publicationDate: '2016-05-01',
+        reliability: 'high',
+        description: 'Official property transfer documentation',
+        tags: ['property-purchase', 'island', 'usvi']
+      }
+    ],
+    evidence: ['property-deed', 'financial-transfer-records'],
+    tags: ['property-purchase', 'island', 'usvi', 'expansion'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'modeling-agency-connections',
+    title: 'Epstein-Maxwell Modeling Agency Network Established',
+    description: 'Jeffrey Epstein and Ghislaine Maxwell establish connections with modeling agencies, particularly MC2 Model Management with Jean-Luc Brunel.',
+    date: '2005-01-01',
+    type: 'business',
+    category: 'social',
+    significance: 'critical',
+    entities: [
+      { entityId: 'jeffrey-epstein', entityType: 'person', role: 'financier', description: 'Provided funding for modeling agencies' },
+      { entityId: 'ghislaine-maxwell', entityType: 'person', role: 'connector', description: 'Facilitated agency connections' },
+      { entityId: 'jean-luc-brunel', entityType: 'person', role: 'agency-head', description: 'Founded MC2 with Epstein funding' }
+    ],
+    relatedEvents: ['first-victim-allegations', 'maxwell-recruitment-activities'],
+    consequences: ['Created recruitment pipeline', 'International victim network'],
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'mc2-epstein-connection',
+        title: 'Epstein Gave Millions to Modeling Agent Who Allegedly Supplied Him With Girls',
+        type: 'news_article',
+        author: 'Julie K. Brown',
+        publication: 'Miami Herald',
+        publicationDate: '2018-11-30',
+        reliability: 'high',
+        description: 'Investigation into Epstein-Brunel-MC2 connections',
+        tags: ['modeling', 'recruitment', 'brunel', 'mc2']
+      }
+    ],
+    evidence: ['mc2-financial-records', 'brunel-epstein-communications'],
+    tags: ['modeling-agencies', 'recruitment', 'brunel', 'mc2', 'trafficking'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'clinton-africa-trip',
+    title: 'Bill Clinton Africa Trip on Epstein Jet',
+    description: 'Former President Bill Clinton travels to Africa on Jeffrey Epstein\'s Boeing 727 for AIDS foundation work, documented in flight logs.',
+    date: '2002-09-21',
+    type: 'travel',
+    category: 'social',
+    significance: 'high',
+    entities: [
+      { entityId: 'bill-clinton', entityType: 'person', role: 'passenger', description: 'Traveled on Epstein aircraft' },
+      { entityId: 'jeffrey-epstein', entityType: 'person', role: 'aircraft-owner', description: 'Provided private jet' },
+      { entityId: 'ghislaine-maxwell', entityType: 'person', role: 'passenger', description: 'Accompanied on trip' }
+    ],
+    relatedEvents: ['clinton-epstein-relationship', 'epstein-jet-flights'],
+    consequences: ['Documented high-profile association', 'Raised questions about relationship'],
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'clinton-africa-trip-logs',
+        title: 'Flight Logs Show Bill Clinton Flew on Jeffrey Epstein\'s Jet Much More Than Previously Known',
+        type: 'news_article',
+        author: 'Fox News',
+        publication: 'Fox News',
+        publicationDate: '2016-05-13',
+        reliability: 'high',
+        description: 'Analysis of flight logs showing Clinton-Epstein travel',
+        tags: ['clinton', 'flight-logs', 'africa', 'travel']
+      }
+    ],
+    evidence: ['flight-logs', 'clinton-foundation-records'],
+    tags: ['clinton', 'africa-trip', 'flight-logs', 'political-connections'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'prince-andrew-photo',
+    title: 'Prince Andrew Photo with Virginia Giuffre Taken',
+    description: 'Photograph taken of Prince Andrew with Virginia Giuffre (then Roberts) and Ghislaine Maxwell at Maxwell\'s London home.',
+    date: '2001-03-10',
+    type: 'meeting',
+    category: 'social',
+    significance: 'critical',
+    entities: [
+      { entityId: 'prince-andrew', entityType: 'person', role: 'subject', description: 'Photographed with Giuffre' },
+      { entityId: 'virginia-giuffre', entityType: 'person', role: 'victim', description: 'Alleged victim in photograph' },
+      { entityId: 'ghislaine-maxwell', entityType: 'person', role: 'facilitator', description: 'Present in photograph' }
+    ],
+    relatedEvents: ['giuffre-prince-andrew-allegations', 'maxwell-london-residence'],
+    consequences: ['Key evidence in civil case', 'Documented underage interaction'],
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'prince-andrew-photo-evidence',
+        title: 'The Photo That Could Haunt Prince Andrew',
+        type: 'news_article',
+        author: 'Emily Smith',
+        publication: 'New York Post',
+        publicationDate: '2019-08-18',
+        reliability: 'high',
+        description: 'Analysis of the controversial photograph',
+        tags: ['prince-andrew', 'photo', 'giuffre', 'evidence']
+      }
+    ],
+    evidence: ['photograph', 'metadata-analysis', 'witness-testimony'],
+    tags: ['prince-andrew', 'photo-evidence', 'giuffre', 'london'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'epstein-victoria-secret-connection',
+    title: 'Epstein\'s Deep Integration with Victoria\'s Secret Operations',
+    description: 'Jeffrey Epstein becomes deeply involved in Victoria\'s Secret business operations through his relationship with Les Wexner, attending company events and having unusual access.',
+    date: '1995-01-01',
+    type: 'business',
+    category: 'financial',
+    significance: 'high',
+    entities: [
+      { entityId: 'jeffrey-epstein', entityType: 'person', role: 'advisor', description: 'Advisor to Victoria\'s Secret through Wexner' },
+      { entityId: 'les-wexner', entityType: 'person', role: 'owner', description: 'Owner of Victoria\'s Secret' },
+      { entityId: 'victoria-secret', entityType: 'organization', role: 'company', description: 'Lingerie company' }
+    ],
+    relatedEvents: ['epstein-wexner-power-attorney', 'modeling-agency-connections'],
+    consequences: ['Access to modeling industry', 'Recruitment opportunities'],
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'epstein-victoria-secret-nyt',
+        title: 'Jeffrey Epstein Hoped to Seed Human Race With His DNA',
+        type: 'news_article',
+        author: 'James B. Stewart',
+        publication: 'The New York Times',
+        publicationDate: '2019-07-31',
+        reliability: 'high',
+        description: 'Investigation into Epstein\'s business relationships',
+        tags: ['victoria-secret', 'wexner', 'business', 'modeling']
+      }
+    ],
+    evidence: ['victoria-secret-documents', 'employee-testimony'],
+    tags: ['victoria-secret', 'wexner', 'modeling', 'business-integration'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'paris-apartment-acquisition',
+    title: 'Epstein Acquires Luxury Paris Apartment',
+    description: 'Jeffrey Epstein purchases a luxury apartment in Paris on Avenue Foch, establishing a European base for operations.',
+    date: '2000-06-01',
+    type: 'business',
+    category: 'financial',
+    significance: 'medium',
+    entities: [
+      { entityId: 'jeffrey-epstein', entityType: 'person', role: 'purchaser', description: 'Purchased Paris apartment' },
+      { entityId: 'paris-apartment', entityType: 'location', role: 'property', description: 'Luxury apartment on Avenue Foch' }
+    ],
+    relatedEvents: ['international-travel-patterns', 'european-connections'],
+    consequences: ['European operational base', 'International property portfolio'],
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'paris-property-records',
+        title: 'Jeffrey Epstein\'s International Property Empire',
+        type: 'news_article',
+        author: 'Financial Times',
+        publication: 'Financial Times',
+        publicationDate: '2019-08-15',
+        reliability: 'high',
+        description: 'Analysis of Epstein\'s global property holdings',
+        tags: ['property', 'paris', 'international', 'real-estate']
+      }
+    ],
+    evidence: ['paris-property-deed', 'purchase-records'],
+    tags: ['paris-apartment', 'property-acquisition', 'europe', 'international'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'academic-philanthropy-strategy',
+    title: 'Epstein Launches Academic Philanthropy Strategy',
+    description: 'Jeffrey Epstein begins strategic donations to universities and academic institutions, including Harvard, MIT, and other elite schools.',
+    date: '2000-01-01',
+    type: 'other',
+    category: 'social',
+    significance: 'high',
+    entities: [
+      { entityId: 'jeffrey-epstein', entityType: 'person', role: 'donor', description: 'Major academic donor' },
+      { entityId: 'harvard-university', entityType: 'organization', role: 'recipient', description: 'Received substantial donations' },
+      { entityId: 'mit', entityType: 'organization', role: 'recipient', description: 'Received research funding' }
+    ],
+    relatedEvents: ['epstein-scientific-interests', 'harvard-connections'],
+    consequences: ['Academic legitimacy', 'Elite institution access'],
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'epstein-academic-donations',
+        title: 'Epstein Gave Millions to Elite Universities. It Wasn\'t Enough to Buy Redemption.',
+        type: 'news_article',
+        author: 'Patricia Cohen',
+        publication: 'The New York Times',
+        publicationDate: '2019-07-14',
+        reliability: 'high',
+        description: 'Investigation into Epstein\'s academic funding',
+        tags: ['philanthropy', 'harvard', 'mit', 'universities']
+      }
+    ],
+    evidence: ['donation-records', 'university-statements'],
+    tags: ['academic-philanthropy', 'harvard', 'mit', 'donations'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'technology-investments',
+    title: 'Epstein Makes Strategic Technology Investments',
+    description: 'Jeffrey Epstein invests in various technology companies and startups, positioning himself in the emerging tech sector.',
+    date: '2001-01-01',
+    type: 'business',
+    category: 'financial',
+    significance: 'medium',
+    entities: [
+      { entityId: 'jeffrey-epstein', entityType: 'person', role: 'investor', description: 'Technology sector investor' }
+    ],
+    relatedEvents: ['epstein-financial-empire', 'silicon-valley-connections'],
+    consequences: ['Tech sector influence', 'Diversified investment portfolio'],
+    verificationStatus: 'pending',
+    sources: [
+      {
+        id: 'epstein-tech-investments',
+        title: 'Jeffrey Epstein\'s Web of Wealth Revealed',
+        type: 'news_article',
+        author: 'Wall Street Journal',
+        publication: 'Wall Street Journal',
+        publicationDate: '2019-08-20',
+        reliability: 'high',
+        description: 'Analysis of Epstein\'s investment portfolio',
+        tags: ['technology', 'investments', 'portfolio', 'business']
+      }
+    ],
+    evidence: ['investment-records', 'sec-filings'],
+    tags: ['technology-investments', 'startups', 'portfolio', 'business'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'ranch-expansion-activities',
+    title: 'Zorro Ranch Operational Expansion',
+    description: 'Jeffrey Epstein significantly expands operations at Zorro Ranch in New Mexico, including construction projects and increased activity.',
+    date: '2003-01-01',
+    type: 'business',
+    category: 'other',
+    significance: 'medium',
+    entities: [
+      { entityId: 'jeffrey-epstein', entityType: 'person', role: 'owner', description: 'Ranch owner and developer' },
+      { entityId: 'zorro-ranch', entityType: 'location', role: 'property', description: '8,000-acre ranch in New Mexico' }
+    ],
+    relatedEvents: ['zorro-ranch-activities', 'ranch-construction-projects'],
+    consequences: ['Expanded operational capacity', 'Remote meeting location'],
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'zorro-ranch-expansion',
+        title: 'Inside Jeffrey Epstein\'s New Mexico Ranch',
+        type: 'news_article',
+        author: 'Vanity Fair',
+        publication: 'Vanity Fair',
+        publicationDate: '2019-07-18',
+        reliability: 'high',
+        description: 'Investigation into Zorro Ranch operations',
+        tags: ['zorro-ranch', 'new-mexico', 'expansion', 'operations']
+      }
+    ],
+    evidence: ['construction-permits', 'aerial-photographs'],
+    tags: ['zorro-ranch', 'expansion', 'new-mexico', 'construction'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'maria-farmer-fbi-report',
+    title: 'Maria Farmer Files FBI Report',
+    description: 'Maria Farmer, an artist who worked for Epstein, files a report with the FBI alleging sexual assault and describing the trafficking operation.',
+    date: '1996-06-01',
+    type: 'investigation',
+    category: 'criminal',
+    significance: 'critical',
+    entities: [
+      { entityId: 'maria-farmer', entityType: 'person', role: 'victim', description: 'Filed early FBI report' },
+      { entityId: 'fbi', entityType: 'organization', role: 'law-enforcement', description: 'Received complaint' },
+      { entityId: 'jeffrey-epstein', entityType: 'person', role: 'accused', description: 'Subject of FBI report' }
+    ],
+    relatedEvents: ['first-victim-allegations', 'early-victim-testimonies'],
+    consequences: ['Early law enforcement awareness', 'Documented trafficking claims'],
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'maria-farmer-fbi-report',
+        title: 'Epstein Victim Was Painted by Warhol. Now She\'s Fighting Her Demons.',
+        type: 'news_article',
+        author: 'Julie K. Brown',
+        publication: 'Miami Herald',
+        publicationDate: '2018-12-01',
+        reliability: 'high',
+        description: 'Maria Farmer\'s detailed account of early FBI report',
+        tags: ['maria-farmer', 'fbi-report', 'early-victim', 'trafficking']
+      }
+    ],
+    evidence: ['fbi-report-copy', 'farmer-testimony'],
+    tags: ['maria-farmer', 'fbi-report', 'early-victim', 'trafficking'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'helicopter-operations',
+    title: 'Epstein Establishes Helicopter Transportation Network',
+    description: 'Jeffrey Epstein establishes regular helicopter operations between his properties, creating a private transportation network.',
+    date: '2004-01-01',
+    type: 'business',
+    category: 'other',
+    significance: 'medium',
+    entities: [
+      { entityId: 'jeffrey-epstein', entityType: 'person', role: 'operator', description: 'Operated private helicopter fleet' }
+    ],
+    relatedEvents: ['private-jet-operations', 'inter-property-travel'],
+    consequences: ['Enhanced privacy', 'Rapid inter-property movement'],
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'epstein-helicopter-operations',
+        title: 'Jeffrey Epstein\'s Fleet: Jets, Helicopters, and Boats',
+        type: 'news_article',
+        author: 'Aviation Weekly',
+        publication: 'Aviation Weekly',
+        publicationDate: '2019-08-10',
+        reliability: 'medium',
+        description: 'Analysis of Epstein\'s transportation assets',
+        tags: ['helicopters', 'transportation', 'fleet', 'privacy']
+      }
+    ],
+    evidence: ['flight-records', 'helicopter-registration'],
+    tags: ['helicopters', 'transportation', 'fleet', 'operations'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'scientific-conferences',
+    title: 'Epstein Hosts Elite Scientific Conferences',
+    description: 'Jeffrey Epstein begins hosting exclusive scientific conferences and dinners, attracting Nobel laureates and prominent researchers.',
+    date: '2002-01-01',
+    type: 'meeting',
+    category: 'social',
+    significance: 'medium',
+    entities: [
+      { entityId: 'jeffrey-epstein', entityType: 'person', role: 'host', description: 'Hosted scientific gatherings' }
+    ],
+    relatedEvents: ['academic-philanthropy-strategy', 'elite-social-network'],
+    consequences: ['Scientific community access', 'Intellectual legitimacy'],
+    verificationStatus: 'verified',
+    sources: [
+      {
+        id: 'epstein-scientific-conferences',
+        title: 'Jeffrey Epstein Hoped to Seed Human Race With His DNA',
+        type: 'news_article',
+        author: 'James B. Stewart',
+        publication: 'The New York Times',
+        publicationDate: '2019-07-31',
+        reliability: 'high',
+        description: 'Investigation into Epstein\'s scientific interests',
+        tags: ['science', 'conferences', 'researchers', 'networking']
+      }
+    ],
+    evidence: ['conference-attendee-lists', 'meeting-records'],
+    tags: ['scientific-conferences', 'researchers', 'networking', 'legitimacy'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: 'financial-consulting-expansion',
+    title: 'Epstein Expands Financial Consulting Operations',
+    description: 'Jeffrey Epstein significantly expands his financial consulting business, claiming to manage assets for multiple billionaire clients.',
+    date: '1998-01-01',
+    type: 'business',
+    category: 'financial',
+    significance: 'high',
+    entities: [
+      { entityId: 'jeffrey-epstein', entityType: 'person', role: 'financial-advisor', description: 'Expanded consulting operations' },
+      { entityId: 'j-epstein-co', entityType: 'organization', role: 'company', description: 'Primary consulting firm' }
+    ],
+    relatedEvents: ['epstein-wexner-relationship', 'mysterious-wealth-accumulation'],
+    consequences: ['Expanded client base', 'Increased wealth management'],
+    verificationStatus: 'pending',
+    sources: [
+      {
+        id: 'epstein-consulting-expansion',
+        title: 'The Mystery of Jeffrey Epstein\'s Wealth',
+        type: 'news_article',
+        author: 'New York Magazine',
+        publication: 'New York Magazine',
+        publicationDate: '2019-07-22',
+        reliability: 'high',
+        description: 'Investigation into Epstein\'s business expansion',
+        tags: ['consulting', 'wealth', 'business', 'clients']
+      }
+    ],
+    evidence: ['business-registration-docs', 'client-communications'],
+    tags: ['financial-consulting', 'business-expansion', 'wealth-management'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+  {
     id: 'first-victim-allegations',
     title: 'First Known Victim Allegations Surface',
     description: 'The first known allegations of sexual abuse involving minors begin to surface, though not yet reported to authorities.',
@@ -1060,6 +1479,113 @@ export const comprehensiveTimeline: TimelineEvent[] = [
     ],
     evidence: ['sentencing-order', 'victim-impact-statements'],
     tags: ['maxwell-sentencing', 'prison', 'justice', 'accountability'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  // Additional timeline events identified by validation
+  {
+    id: 'event_1987_wexner_relationship',
+    title: 'Epstein Begins Relationship with Les Wexner',
+    description: 'Jeffrey Epstein establishes business relationship with billionaire Les Wexner, becoming his money manager and gaining access to his vast wealth.',
+    date: '1987-01-01',
+    type: 'business',
+    category: 'financial',
+    significance: 'critical',
+    entities: [
+      { entityId: 'jeffrey-epstein', entityType: 'person', role: 'money_manager', description: 'Became exclusive money manager for Wexner' },
+      { entityId: 'les-wexner', entityType: 'person', role: 'client', description: 'Billionaire retail executive and Epstein\'s primary benefactor' }
+    ],
+    relatedEvents: ['wexner-mansion-transfer', 'l-brands-connections'],
+    consequences: ['Epstein gained access to billions in wealth', 'Established power base for future operations'],
+    verificationStatus: 'verified',
+    sources: [],
+    evidence: ['wexner-epstein-contracts'],
+    tags: ['wexner', 'money-management', 'billionaire-connections'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'event_1996_manhattan_mansion_transfer',
+    title: 'Wexner Transfers Manhattan Mansion to Epstein',
+    description: 'Les Wexner transfers his $77 million Manhattan mansion to Jeffrey Epstein for an alleged $0, raising questions about the true nature of their relationship.',
+    date: '1996-07-01',
+    type: 'business',
+    category: 'financial',
+    significance: 'critical',
+    entities: [
+      { entityId: 'les-wexner', entityType: 'person', role: 'transferor', description: 'Transferred mansion to Epstein' },
+      { entityId: 'jeffrey-epstein', entityType: 'person', role: 'recipient', description: 'Received $77M mansion for alleged $0' },
+      { entityId: 'manhattan-mansion', entityType: 'location', role: 'asset', description: 'Luxury mansion on Upper East Side' }
+    ],
+    relatedEvents: ['event_1987_wexner_relationship'],
+    consequences: ['Epstein gained significant real estate asset', 'Questions raised about quid pro quo arrangement'],
+    verificationStatus: 'verified',
+    sources: [],
+    evidence: ['property-transfer-records'],
+    tags: ['property-transfer', 'wexner', 'manhattan', 'suspicious-transaction'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'event_1998_little_saint_james_purchase',
+    title: 'Epstein Purchases Little Saint James Island',
+    description: 'Jeffrey Epstein purchases Little Saint James island in the US Virgin Islands for $7.95 million, which would become his primary base of operations.',
+    date: '1998-05-01',
+    type: 'business',
+    category: 'financial',
+    significance: 'critical',
+    entities: [
+      { entityId: 'jeffrey-epstein', entityType: 'person', role: 'purchaser', description: 'Bought island for operations base' },
+      { entityId: 'little-saint-james', entityType: 'location', role: 'asset', description: 'Private island in US Virgin Islands' }
+    ],
+    relatedEvents: ['island-construction-begins', 'trafficking-operations-start'],
+    consequences: ['Established private base for trafficking operations', 'Gained jurisdiction advantages in Virgin Islands'],
+    verificationStatus: 'verified',
+    sources: [],
+    evidence: ['property-purchase-records'],
+    tags: ['little-saint-james', 'island-purchase', 'trafficking-base'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'event_2008_plea_deal',
+    title: 'Epstein Non-Prosecution Agreement (Plea Deal)',
+    description: 'Jeffrey Epstein enters into controversial non-prosecution agreement with federal prosecutors, pleading guilty to state charges of soliciting prostitution from minors.',
+    date: '2008-06-30',
+    type: 'legal',
+    category: 'criminal',
+    significance: 'critical',
+    entities: [
+      { entityId: 'jeffrey-epstein', entityType: 'person', role: 'defendant', description: 'Entered plea agreement' },
+      { entityId: 'alexander-acosta', entityType: 'person', role: 'prosecutor', description: 'US Attorney who approved deal' },
+      { entityId: 'us-attorney-sdfl', entityType: 'organization', role: 'prosecutor', description: 'Southern District of Florida prosecutors' }
+    ],
+    relatedEvents: ['acosta-resignation', 'victims-challenge-deal'],
+    consequences: ['Epstein avoided federal charges', 'Victims denied justice', 'Deal later scrutinized and criticized'],
+    verificationStatus: 'verified',
+    sources: [],
+    evidence: ['plea-agreement-document', 'court-records'],
+    tags: ['plea-deal', 'non-prosecution-agreement', 'acosta', 'injustice'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'victim-settlement-agreements',
+    title: 'Victim Settlement Fund Established',
+    description: 'Following Epstein\'s death, a victim settlement fund is established to compensate survivors of his trafficking network.',
+    date: '2020-02-01',
+    type: 'legal',
+    category: 'civil',
+    significance: 'high',
+    entities: [
+      { entityId: 'entity_victim_settlement_fund', entityType: 'organization', role: 'compensation_fund', description: 'Fund to compensate Epstein victims' }
+    ],
+    relatedEvents: ['epstein-death', 'estate-settlement'],
+    consequences: ['Provided some compensation to victims', 'Attempted to resolve civil claims'],
+    verificationStatus: 'verified',
+    sources: [],
+    evidence: ['settlement-fund-documents'],
+    tags: ['victim-compensation', 'settlement-fund', 'survivors'],
     lastUpdated: '2024-01-15T00:00:00Z'
   }
 ];

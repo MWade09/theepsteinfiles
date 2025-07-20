@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
-import { Search, Filter, X, Calendar, User, FileText, MapPin, DollarSign } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Search, Filter, Calendar, User, FileText, DollarSign } from 'lucide-react';
 import { corePeople } from '@/data/core/people';
 import { comprehensiveTimeline } from '@/data/core/timeline';
 import { coreRelationships } from '@/data/core/relationships';

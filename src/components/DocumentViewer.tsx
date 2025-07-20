@@ -12,13 +12,9 @@ import {
   Link,
   ZoomIn,
   ZoomOut,
-  RotateCw,
-  ChevronLeft,
-  ChevronRight,
   Eye,
   Calendar,
   User,
-  Tag,
   ExternalLink,
   Verified,
   AlertTriangle,
@@ -36,13 +32,11 @@ interface DocumentViewerProps {
 
 export default function DocumentViewer({ documentId, isEmbedded = false }: DocumentViewerProps) {
   const [selectedDoc, setSelectedDoc] = useState<Evidence | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const [zoom, setZoom] = useState(100);
   const [searchTerm, setSearchTerm] = useState('');
   const [highlightedText, setHighlightedText] = useState<string[]>([]);
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
-  const [showAnnotations, setShowAnnotations] = useState(true);
-  const [showCrossReferences, setShowCrossReferences] = useState(true);
+  const [showAnnotations] = useState(true);
   const [selectedText, setSelectedText] = useState('');
   const [annotationMode, setAnnotationMode] = useState<'highlight' | 'note' | 'cross-reference' | null>(null);
   const [sidebarTab, setSidebarTab] = useState<'info' | 'annotations' | 'references' | 'analysis'>('info');
@@ -217,7 +211,7 @@ export default function DocumentViewer({ documentId, isEmbedded = false }: Docum
             <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-blue-800">
-                  Selected: "{selectedText.length > 50 ? selectedText.substring(0, 50) + '...' : selectedText}"
+                  Selected: &quot;{selectedText.length > 50 ? selectedText.substring(0, 50) + '...' : selectedText}&quot;
                 </span>
                 <div className="flex items-center space-x-2">
                   <button
@@ -351,7 +345,7 @@ export default function DocumentViewer({ documentId, isEmbedded = false }: Docum
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setSidebarTab(tab.id as any)}
+                onClick={() => setSidebarTab(tab.id as 'info' | 'annotations' | 'references' | 'analysis')}
                 className={`flex-1 flex items-center justify-center space-x-1 px-3 py-3 text-sm font-medium ${
                   sidebarTab === tab.id
                     ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50 dark:bg-blue-900/20'
