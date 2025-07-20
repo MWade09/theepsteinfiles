@@ -6,10 +6,11 @@ import { corePeople } from '@/data/core/people';
 import { comprehensiveTimeline } from '@/data/core/timeline';
 import { coreRelationships } from '@/data/core/relationships';
 import { financialTransactions } from '@/data/financial/transactions';
+import { coreOrganizations } from '@/data/core/organizations';
 
 interface SearchResult {
   id: string;
-  type: 'person' | 'event' | 'relationship' | 'transaction' | 'document';
+  type: 'person' | 'event' | 'relationship' | 'transaction' | 'document' | 'organization';
   title: string;
   description: string;
   relevance: number;
@@ -148,6 +149,31 @@ const GlobalSearch = () => {
       }
     });
 
+    // Search Organizations
+    coreOrganizations.forEach(organization => {
+      let relevance = 0;
+      const nameMatch = organization.name.toLowerCase().includes(query);
+      const descMatch = organization.description.toLowerCase().includes(query);
+      const tagMatch = organization.tags.some(tag => tag.toLowerCase().includes(query));
+
+      if (nameMatch) relevance += 90;
+      if (descMatch) relevance += 50;
+      if (tagMatch) relevance += 40;
+
+      if (relevance > 0) {
+        results.push({
+          id: organization.id,
+          type: 'organization',
+          title: organization.name,
+          description: organization.description.substring(0, 200) + '...',
+          relevance,
+          tags: organization.tags,
+          significance: organization.significance,
+          url: `/organizations#${organization.id}`
+        });
+      }
+    });
+
     // Apply filters
     let filteredResults = results;
 
@@ -183,6 +209,7 @@ const GlobalSearch = () => {
       case 'relationship': return <User className="w-4 h-4" />;
       case 'transaction': return <DollarSign className="w-4 h-4" />;
       case 'document': return <FileText className="w-4 h-4" />;
+      case 'organization': return <Filter className="w-4 h-4" />;
       default: return <Search className="w-4 h-4" />;
     }
   };
@@ -194,6 +221,7 @@ const GlobalSearch = () => {
       case 'relationship': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
       case 'transaction': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
       case 'document': return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+      case 'organization': return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
     }
   };

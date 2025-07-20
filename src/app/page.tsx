@@ -21,6 +21,11 @@ import {
   ExternalLink
 } from 'lucide-react';
 import SearchModal from '@/components/SearchModal';
+import { corePeople } from '@/data/core/people';
+import { comprehensiveTimeline } from '@/data/core/timeline';
+import { coreRelationships } from '@/data/core/relationships';
+import { financialTransactions } from '@/data/financial/transactions';
+import { coreOrganizations } from '@/data/core/organizations';
 
 interface InvestigationModule {
   id: string;
@@ -73,9 +78,9 @@ export default function InvestigationDashboard() {
   }, []);
 
   const investigationStats: InvestigationStats = {
-    totalDocuments: 2847,
-    entitiesTracked: 156,
-    connectionsMapping: 892,
+    totalDocuments: comprehensiveTimeline.length + financialTransactions.length,
+    entitiesTracked: corePeople.length + coreOrganizations.length,
+    connectionsMapping: coreRelationships.length,
     activeInvestigations: 7,
     lastUpdated: currentTime.toISOString()
   };
@@ -104,9 +109,9 @@ export default function InvestigationDashboard() {
       href: '/timeline',
       status: 'completed',
       stats: [
-        { label: 'Events Documented', value: 1247 },
+        { label: 'Events Documented', value: comprehensiveTimeline.length },
         { label: 'Date Ranges', value: '1970-2024' },
-        { label: 'Cross-References', value: 435 }
+        { label: 'Cross-References', value: comprehensiveTimeline.reduce((acc, event) => acc + event.relatedEvents.length, 0) }
       ],
       color: 'purple',
       gradient: 'from-purple-500 to-indigo-600'
@@ -119,9 +124,9 @@ export default function InvestigationDashboard() {
       href: '/network',
       status: 'completed',
       stats: [
-        { label: 'Entities Mapped', value: 567 },
-        { label: 'Connections', value: 1892 },
-        { label: 'Clusters Identified', value: 23 }
+        { label: 'Entities Mapped', value: corePeople.length + coreOrganizations.length },
+        { label: 'Connections', value: coreRelationships.length },
+        { label: 'Clusters Identified', value: Array.from(new Set(coreRelationships.map(r => r.type))).length }
       ],
       color: 'green',
       gradient: 'from-green-500 to-teal-600'
@@ -149,9 +154,9 @@ export default function InvestigationDashboard() {
       href: '/financial',
       status: 'completed',
       stats: [
-        { label: 'Transactions Analyzed', value: '847M' },
-        { label: 'Financial Entities', value: 234 },
-        { label: 'Suspicious Flows', value: 67 }
+        { label: 'Transactions Analyzed', value: financialTransactions.length },
+        { label: 'Financial Entities', value: coreOrganizations.filter(org => org.type === 'financial').length },
+        { label: 'Total Value USD', value: `$${Math.round(financialTransactions.reduce((acc, tx) => acc + tx.amountUSD, 0) / 1000000)}M` }
       ],
       color: 'yellow',
       gradient: 'from-yellow-500 to-orange-600'
