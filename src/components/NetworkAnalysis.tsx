@@ -4,6 +4,9 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { NetworkNode, NetworkEdge, Person, Relationship } from '@/types/investigation';
 import { corePeople } from '@/data/core/people';
 import { coreRelationships } from '@/data/core/relationships';
+import { coreOrganizations } from '@/data/core/organizations';
+import { comprehensiveTimeline } from '@/data/core/timeline';
+import { financialTransactions } from '@/data/financial/transactions';
 import { 
   Filter, 
   ZoomIn, 
@@ -78,7 +81,8 @@ export default function NetworkAnalysis({
       person: '#3b82f6',
       organization: '#10b981', 
       location: '#f59e0b',
-      financial: '#8b5cf6'
+      financial: '#8b5cf6',
+      event: '#ef4444'
     };
     
     const significanceMultiplier = {
@@ -157,6 +161,71 @@ export default function NetworkAnalysis({
       });
     });
 
+    // Build nodes from organizations
+    coreOrganizations.forEach(org => {
+      if (searchTerm && !org.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+          !org.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))) {
+        return;
+      }
+
+      const connectionCount = filteredRelationships.filter(rel => 
+        rel.entity1Id === org.id || rel.entity2Id === org.id
+      ).length;
+
+      if (connectionCount === 0 && !focusEntityId) return;
+
+      const position = getNodePosition(org.id);
+
+      nodes.set(org.id, {
+        id: org.id,
+        type: 'organization',
+        name: org.name,
+        significance: org.significance,
+        size: Math.max(
+          layoutSettings.nodeSize, 
+          layoutSettings.nodeSize + (connectionCount * 2)
+        ),
+        color: getNodeColor(org.significance, 'organization'),
+        x: position.x,
+        y: position.y
+      });
+    });
+
+    // Build nodes from timeline events (major events only)
+    comprehensiveTimeline
+      .filter(event => event.significance === 'high' || event.significance === 'critical')
+      .forEach(event => {
+        if (searchTerm && !event.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
+            !event.description.toLowerCase().includes(searchTerm.toLowerCase())) {
+          return;
+        }
+
+        // Check if this event has connections to people/organizations already in the network
+        const hasConnections = event.entities.some(entity => 
+          nodes.has(entity.entityId) || 
+          (entity.entityType === 'person' && corePeople.some(p => p.id === entity.entityId)) ||
+          (entity.entityType === 'organization' && coreOrganizations.some(o => o.id === entity.entityId))
+        );
+
+        if (!hasConnections && !focusEntityId) return;
+
+        const position = getNodePosition(event.id);
+
+        nodes.set(event.id, {
+          id: event.id,
+          type: 'event',
+          name: event.title,
+          significance: event.significance,
+          size: Math.max(
+            layoutSettings.nodeSize, 
+            layoutSettings.nodeSize * 1.2 // Events slightly larger
+          ),
+          color: getNodeColor(event.significance, 'event'),
+          x: position.x,
+          y: position.y
+        });
+      });
+
     // Create edges from relationships
     filteredRelationships.forEach(rel => {
       if (nodes.has(rel.entity1Id) && nodes.has(rel.entity2Id)) {
@@ -174,6 +243,26 @@ export default function NetworkAnalysis({
         });
       }
     });
+
+    // Create edges from timeline events to their entities
+    comprehensiveTimeline
+      .filter(event => nodes.has(event.id))
+      .forEach(event => {
+        event.entities.forEach(entity => {
+          if (nodes.has(entity.entityId)) {
+            edges.push({
+              id: `${event.id}-${entity.entityId}`,
+              source: event.id,
+              target: entity.entityId,
+              relationshipType: entity.role || 'involved',
+              strength: event.significance === 'critical' ? 0.9 :
+                       event.significance === 'high' ? 0.7 : 0.5,
+              significance: event.significance,
+              verified: event.verificationStatus === 'verified'
+            });
+          }
+        });
+      });
 
     // If focusing on specific entity, filter to connections
     if (focusEntityId) {
@@ -217,7 +306,7 @@ export default function NetworkAnalysis({
 
     return {
       nodes: Array.from(nodes.values()).slice(0, maxConnections),
-      edges: edges
+      edges
     };
   }, [filters, searchTerm, focusEntityId, maxConnections, layoutSettings]);
 
@@ -578,6 +667,122 @@ export default function NetworkAnalysis({
                             <div>
                               <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Biography:</span>
                               <div className="text-sm mt-1 leading-relaxed">{person.biography}</div>
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+
+                  {/* Show related organization details if available */}
+                  {selectedNode.type === 'organization' && (
+                    <div>
+                      {(() => {
+                        const organization = coreOrganizations.find(o => o.id === selectedNode.id);
+                        if (!organization) return null;
+                        
+                        return (
+                          <div className="space-y-3">
+                            <div>
+                              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Type:</span>
+                              <div className="text-sm capitalize">{organization.type}</div>
+                            </div>
+                            
+                            {organization.established && (
+                              <div>
+                                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Established:</span>
+                                <div className="text-sm">{organization.established}</div>
+                              </div>
+                            )}
+
+                            <div>
+                              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Status:</span>
+                              <div className="text-sm capitalize">{organization.currentStatus}</div>
+                            </div>
+                            
+                            <div>
+                              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Tags:</span>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {organization.tags.map(tag => (
+                                  <span
+                                    key={tag}
+                                    className="px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 rounded text-xs"
+                                  >
+                                    {tag}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div>
+                              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Description:</span>
+                              <div className="text-sm mt-1 leading-relaxed">{organization.description}</div>
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+
+                  {/* Show related event details if available */}
+                  {selectedNode.type === 'event' && (
+                    <div>
+                      {(() => {
+                        const event = comprehensiveTimeline.find(e => e.id === selectedNode.id);
+                        if (!event) return null;
+                        
+                        return (
+                          <div className="space-y-3">
+                            <div>
+                              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Date:</span>
+                              <div className="text-sm">{new Date(event.date).toLocaleDateString()}</div>
+                            </div>
+
+                            <div>
+                              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Type:</span>
+                              <div className="text-sm capitalize">{event.type}</div>
+                            </div>
+
+                            <div>
+                              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Category:</span>
+                              <div className="text-sm capitalize">{event.category}</div>
+                            </div>
+                            
+                            <div>
+                              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Involved Entities:</span>
+                              <div className="text-sm space-y-1 mt-1">
+                                {event.entities.slice(0, 3).map(entity => (
+                                  <div key={entity.entityId} className="flex justify-between">
+                                    <span className="font-medium">{entity.role}</span>
+                                    <span className="text-gray-500">{entity.entityType}</span>
+                                  </div>
+                                ))}
+                                {event.entities.length > 3 && (
+                                  <div className="text-xs text-gray-500">
+                                    +{event.entities.length - 3} more entities
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            <div>
+                              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Description:</span>
+                              <div className="text-sm mt-1 leading-relaxed">{event.description}</div>
+                            </div>
+
+                            <div>
+                              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Status:</span>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                  event.verificationStatus === 'verified' 
+                                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                                    : event.verificationStatus === 'pending'
+                                    ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
+                                    : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                                }`}>
+                                  {event.verificationStatus}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         );

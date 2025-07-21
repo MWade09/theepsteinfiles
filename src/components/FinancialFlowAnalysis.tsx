@@ -27,6 +27,10 @@ import {
 import { FinancialTransaction, FinancialEntity, FinancialNetworkNode, FinancialNetworkEdge } from '@/types/investigation';
 import { financialTransactions, getTransactionsByEntity, getSuspiciousTransactions, getTotalTransactionValue } from '@/data/financial/transactions';
 import { financialEntities, getEntityById } from '@/data/financial/entities';
+import { corePeople } from '@/data/core/people';
+import { coreOrganizations } from '@/data/core/organizations';
+import { comprehensiveTimeline } from '@/data/core/timeline';
+import { coreRelationships } from '@/data/core/relationships';
 
 interface FinancialFlowProps {
   className?: string;
@@ -48,13 +52,16 @@ interface FlowFilters {
 }
 
 export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowProps) {
-  const [viewMode, setViewMode] = useState<'network' | 'timeline' | 'analytics'>('network');
+  const [viewMode, setViewMode] = useState<'network' | 'flow' | 'timeline' | 'analytics'>('flow');
   const [selectedTransaction, setSelectedTransaction] = useState<string | null>(null);
   const [selectedEntity, setSelectedEntity] = useState<string | null>(null);
   const [showSuspiciousOnly, setShowSuspiciousOnly] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [hoveredNode, setHoveredNode] = useState<FinancialNetworkNode | null>(null);
+  const [animationSpeed, setAnimationSpeed] = useState(1);
+  const [timelineDate, setTimelineDate] = useState<string>('2024-12-31');
+  const [flowAnimation, setFlowAnimation] = useState(true);
   
   const [filters, setFilters] = useState<FlowFilters>({
     dateRange: { start: '1980-01-01', end: '2024-12-31' },
@@ -537,6 +544,319 @@ export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowP
     );
   };
 
+  // Interactive Flow Visualization
+  const renderFlowView = () => {
+    const filteredTransactions = financialTransactions.filter(txn => {
+      if (showSuspiciousOnly && txn.suspiciousActivity.length === 0) return false;
+      if (searchTerm && 
+          !txn.purpose?.toLowerCase().includes(searchTerm.toLowerCase()) &&
+          !txn.description.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+      
+      const txnDate = new Date(txn.transactionDate);
+      const filterStartDate = new Date(filters.dateRange.start);
+      const filterEndDate = new Date(timelineDate);
+      
+      return txnDate >= filterStartDate && txnDate <= filterEndDate &&
+             txn.amountUSD >= filters.amountRange.min && txn.amountUSD <= filters.amountRange.max;
+    });
+
+    const entitiesMap = new Map();
+    filteredTransactions.forEach(txn => {
+      if (!entitiesMap.has(txn.fromEntity)) {
+        const entity = getEntityById(txn.fromEntity);
+        if (entity) entitiesMap.set(txn.fromEntity, entity);
+      }
+      if (!entitiesMap.has(txn.toEntity)) {
+        const entity = getEntityById(txn.toEntity);
+        if (entity) entitiesMap.set(txn.toEntity, entity);
+      }
+    });
+
+    const entities = Array.from(entitiesMap.values());
+    const maxAmount = Math.max(...filteredTransactions.map(t => t.amountUSD));
+
+    return (
+      <div className="bg-white dark:bg-dark-800 rounded-lg p-6 border border-gray-200 dark:border-dark-700">
+        {/* Flow Controls */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Clock className="w-4 h-4 text-gray-500" />
+              <span className="text-sm font-medium">Timeline</span>
+              <input
+                type="date"
+                value={timelineDate}
+                onChange={(e) => setTimelineDate(e.target.value)}
+                className="px-3 py-1 border border-gray-300 dark:border-dark-600 rounded text-sm dark:bg-dark-700"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm">Animation</span>
+              <button
+                onClick={() => setFlowAnimation(!flowAnimation)}
+                className={`px-3 py-1 rounded text-xs font-medium ${
+                  flowAnimation ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+                }`}
+              >
+                {flowAnimation ? 'ON' : 'OFF'}
+              </button>
+            </div>
+          </div>
+          <div className="text-sm text-gray-600">
+            {filteredTransactions.length} transactions • ${(filteredTransactions.reduce((sum, t) => sum + t.amountUSD, 0) / 1000000).toFixed(1)}M total
+          </div>
+        </div>
+
+        {/* Flow Diagram */}
+        <div className="relative h-96 border border-gray-200 dark:border-dark-600 rounded-lg overflow-hidden">
+          <svg width="100%" height="100%" className="bg-gray-50 dark:bg-dark-900">
+            {/* Entity Nodes */}
+            {entities.map((entity, index) => {
+              const x = 100 + (index % 4) * 200;
+              const y = 100 + Math.floor(index / 4) * 150;
+              const entityTransactions = filteredTransactions.filter(t => 
+                t.fromEntity === entity.id || t.toEntity === entity.id
+              );
+              const totalValue = entityTransactions.reduce((sum, t) => sum + t.amountUSD, 0);
+              const suspiciousCount = entityTransactions.filter(t => t.suspiciousActivity.length > 0).length;
+              const nodeSize = Math.max(20, Math.min(60, Math.log(totalValue + 1) * 5));
+
+              return (
+                <g key={entity.id}>
+                  <circle
+                    cx={x}
+                    cy={y}
+                    r={nodeSize}
+                    fill={getNodeColor(entity.type, suspiciousCount > 0)}
+                    stroke={suspiciousCount > 0 ? '#ef4444' : '#e5e7eb'}
+                    strokeWidth={suspiciousCount > 0 ? 3 : 1}
+                    className="cursor-pointer hover:opacity-80"
+                    onClick={() => setSelectedEntity(entity.id)}
+                  />
+                  {suspiciousCount > 0 && (
+                    <circle
+                      cx={x + nodeSize - 8}
+                      cy={y - nodeSize + 8}
+                      r="6"
+                      fill="#ef4444"
+                      className="animate-pulse"
+                    />
+                  )}
+                  <text
+                    x={x}
+                    y={y + nodeSize + 20}
+                    textAnchor="middle"
+                    className="text-xs font-medium fill-gray-700 dark:fill-gray-300"
+                  >
+                    {entity.name.length > 15 ? entity.name.substring(0, 15) + '...' : entity.name}
+                  </text>
+                  <text
+                    x={x}
+                    y={y + nodeSize + 35}
+                    textAnchor="middle"
+                    className="text-xs fill-gray-500"
+                  >
+                    ${(totalValue / 1000000).toFixed(1)}M
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* Transaction Flows */}
+            {filteredTransactions.slice(0, 20).map((txn, index) => {
+              const fromEntity = entities.find(e => e.id === txn.fromEntity);
+              const toEntity = entities.find(e => e.id === txn.toEntity);
+              if (!fromEntity || !toEntity) return null;
+
+              const fromIndex = entities.indexOf(fromEntity);
+              const toIndex = entities.indexOf(toEntity);
+              const x1 = 100 + (fromIndex % 4) * 200;
+              const y1 = 100 + Math.floor(fromIndex / 4) * 150;
+              const x2 = 100 + (toIndex % 4) * 200;
+              const y2 = 100 + Math.floor(toIndex / 4) * 150;
+
+              const strokeWidth = Math.max(1, Math.min(8, (txn.amountUSD / maxAmount) * 8));
+              const isSuspicious = txn.suspiciousActivity.length > 0;
+
+              return (
+                <g key={`flow-${txn.id}`}>
+                  <defs>
+                    <marker
+                      id={`arrowhead-${index}`}
+                      markerWidth="10"
+                      markerHeight="7"
+                      refX="9"
+                      refY="3.5"
+                      orient="auto"
+                    >
+                      <polygon
+                        points="0 0, 10 3.5, 0 7"
+                        fill={isSuspicious ? "#ef4444" : "#6b7280"}
+                      />
+                    </marker>
+                  </defs>
+                  <line
+                    x1={x1}
+                    y1={y1}
+                    x2={x2}
+                    y2={y2}
+                    stroke={isSuspicious ? "#ef4444" : "#6b7280"}
+                    strokeWidth={strokeWidth}
+                    strokeDasharray={isSuspicious ? "5,5" : "none"}
+                    markerEnd={`url(#arrowhead-${index})`}
+                    className={`cursor-pointer hover:opacity-80 ${flowAnimation ? 'animate-pulse' : ''}`}
+                    onClick={() => setSelectedTransaction(txn.id)}
+                  >
+                    {flowAnimation && (
+                      <animate
+                        attributeName="stroke-dashoffset"
+                        values="10;0"
+                        dur={`${2 / animationSpeed}s`}
+                        repeatCount="indefinite"
+                      />
+                    )}
+                  </line>
+                  
+                  {/* Amount Label */}
+                  <text
+                    x={(x1 + x2) / 2}
+                    y={(y1 + y2) / 2 - 5}
+                    textAnchor="middle"
+                    className="text-xs font-medium fill-gray-700 dark:fill-gray-300 pointer-events-none"
+                  >
+                    ${(txn.amountUSD / 1000000).toFixed(1)}M
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
+
+          {/* Flow Legend */}
+          <div className="absolute bottom-4 left-4 bg-white dark:bg-dark-800 p-3 rounded-lg shadow-lg border border-gray-200 dark:border-dark-700">
+            <div className="text-xs font-medium mb-2">Flow Thickness = Amount</div>
+            <div className="flex items-center space-x-4 text-xs">
+              <div className="flex items-center space-x-1">
+                <div className="w-4 h-0.5 bg-gray-500"></div>
+                <span>Normal</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <svg width="16" height="2" className="overflow-visible">
+                  <line 
+                    x1="0" 
+                    y1="1" 
+                    x2="16" 
+                    y2="1" 
+                    stroke="#ef4444" 
+                    strokeWidth="2"
+                    strokeDasharray="3,2"
+                  />
+                </svg>
+                <span>Suspicious</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Transaction Details */}
+        {selectedTransaction && (
+          <div className="mt-6 p-4 bg-gray-50 dark:bg-dark-700 rounded-lg">
+            {(() => {
+              const txn = filteredTransactions.find(t => t.id === selectedTransaction);
+              if (!txn) return null;
+              
+              return (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold">Transaction Details</h4>
+                    <button 
+                      onClick={() => setSelectedTransaction(null)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="font-medium">Amount:</span>
+                      <div>${txn.amountUSD.toLocaleString()}</div>
+                    </div>
+                    <div>
+                      <span className="font-medium">Date:</span>
+                      <div>{new Date(txn.transactionDate).toLocaleDateString()}</div>
+                    </div>
+                    <div>
+                      <span className="font-medium">Type:</span>
+                      <div className="capitalize">{txn.transactionType}</div>
+                    </div>
+                    <div>
+                      <span className="font-medium">Method:</span>
+                      <div className="capitalize">{txn.method.replace('_', ' ')}</div>
+                    </div>
+                  </div>
+                  <div>
+                    <span className="font-medium">Purpose:</span>
+                    <div className="text-sm">{txn.purpose}</div>
+                  </div>
+                  {txn.suspiciousActivity.length > 0 && (
+                    <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded border border-red-200 dark:border-red-800">
+                      <div className="font-medium text-red-800 dark:text-red-400 mb-1">Suspicious Activity</div>
+                      {txn.suspiciousActivity.map(activity => (
+                        <div key={activity.id} className="text-sm text-red-700 dark:text-red-300">
+                          {activity.description}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Timeline View
+  const renderTimelineView = () => {
+    const timelineTransactions = financialTransactions
+      .filter(txn => {
+        if (showSuspiciousOnly && txn.suspiciousActivity.length === 0) return false;
+        return true;
+      })
+      .sort((a, b) => new Date(a.transactionDate).getTime() - new Date(b.transactionDate).getTime());
+
+    return (
+      <div className="bg-white dark:bg-dark-800 rounded-lg p-6 border border-gray-200 dark:border-dark-700">
+        <div className="space-y-4">
+          {timelineTransactions.slice(0, 20).map((txn) => (
+            <div key={txn.id} className="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-dark-700 rounded-lg">
+              <div className="flex-shrink-0">
+                <div className={`w-3 h-3 rounded-full ${
+                  txn.suspiciousActivity.length > 0 ? 'bg-red-500' : 'bg-blue-500'
+                }`}></div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <div className="font-medium">${txn.amountUSD.toLocaleString()}</div>
+                  <div className="text-sm text-gray-500">{new Date(txn.transactionDate).toLocaleDateString()}</div>
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">{txn.purpose}</div>
+                <div className="text-xs text-gray-500">
+                  {getEntityById(txn.fromEntity)?.name} → {getEntityById(txn.toEntity)?.name}
+                </div>
+              </div>
+              {txn.suspiciousActivity.length > 0 && (
+                <div className="flex-shrink-0">
+                  <AlertTriangle className="w-4 h-4 text-red-500" />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className={`w-full space-y-6 ${className}`}>
       {/* Header */}
@@ -588,8 +908,18 @@ export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowP
 
         <div className="flex items-center border border-gray-300 dark:border-dark-600 rounded-lg">
           <button
+            onClick={() => setViewMode('flow')}
+            className={`px-4 py-2 text-sm font-medium transition-colors rounded-l-lg ${
+              viewMode === 'flow'
+                ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+                : 'text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100'
+            }`}
+          >
+            Flow
+          </button>
+          <button
             onClick={() => setViewMode('network')}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${
+            className={`px-4 py-2 text-sm font-medium transition-colors border-x border-gray-300 dark:border-dark-600 ${
               viewMode === 'network'
                 ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
                 : 'text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100'
@@ -598,8 +928,18 @@ export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowP
             Network
           </button>
           <button
-            onClick={() => setViewMode('analytics')}
+            onClick={() => setViewMode('timeline')}
             className={`px-4 py-2 text-sm font-medium transition-colors ${
+              viewMode === 'timeline'
+                ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+                : 'text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100'
+            }`}
+          >
+            Timeline
+          </button>
+          <button
+            onClick={() => setViewMode('analytics')}
+            className={`px-4 py-2 text-sm font-medium transition-colors rounded-r-lg ${
               viewMode === 'analytics'
                 ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
                 : 'text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100'
@@ -611,7 +951,9 @@ export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowP
       </div>
 
       {/* Main Content */}
+      {viewMode === 'flow' && renderFlowView()}
       {viewMode === 'network' && renderNetworkView()}
+      {viewMode === 'timeline' && renderTimelineView()}
       {viewMode === 'analytics' && renderAnalyticsView()}
 
       {/* Legend */}

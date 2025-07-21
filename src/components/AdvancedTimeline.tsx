@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
-import { TimelineEvent, EventEntity } from '@/types/investigation';
+import { useState, useMemo, useRef } from 'react';
+import { TimelineEvent, Evidence } from '@/types/investigation';
 import { comprehensiveTimeline } from '@/data/core/timeline';
 import { corePeople } from '@/data/core/people';
+import { coreDocuments } from '@/data/core/documents';
+import { enhancedProperties } from '@/data/geographic/properties';
 import { 
   Calendar, 
   Filter, 
@@ -22,7 +24,22 @@ import {
   ChevronRight,
   Info,
   Eye,
-  Download
+  Download,
+  MapPin,
+  Image as ImageIcon,
+  Video,
+  Play,
+  Pause,
+  Volume2,
+  Link2,
+  Star,
+  Bookmark,
+  Share,
+  Maximize2,
+  X,
+  Camera,
+  Mic,
+  Globe
 } from 'lucide-react';
 
 interface TimelineFilter {
@@ -35,12 +52,42 @@ interface TimelineFilter {
     end: string;
   };
   entities: string[];
+  multimedia: string[]; // Added for multimedia filtering
+  hasDocuments: boolean; // Filter events with linked documents
+  hasGeographic: boolean; // Filter events with geographic data
 }
 
 interface TimelineViewMode {
-  mode: 'chronological' | 'thematic' | 'network' | 'statistical';
+  mode: 'chronological' | 'thematic' | 'network' | 'statistical' | 'multimedia'; // Added multimedia mode
   groupBy: 'year' | 'month' | 'category' | 'significance';
   layout: 'vertical' | 'horizontal' | 'grid';
+}
+
+interface MultimediaAttachment {
+  id: string;
+  type: 'image' | 'video' | 'audio' | 'document';
+  url: string;
+  title: string;
+  description?: string;
+  thumbnail?: string;
+  duration?: number; // For video/audio
+  source?: string;
+  verified: boolean;
+}
+
+interface EnhancedTimelineEvent extends TimelineEvent {
+  multimedia?: MultimediaAttachment[];
+  linkedDocuments?: Evidence[];
+  geographicData?: {
+    propertyId?: string;
+    coordinates?: [number, number];
+    address?: string;
+  };
+  sourceDetails?: {
+    primarySource: string;
+    reliability: 'high' | 'medium' | 'low';
+    verificationLevel: 'verified' | 'corroborated' | 'reported' | 'alleged';
+  };
 }
 
 export default function AdvancedTimeline() {
@@ -51,6 +98,12 @@ export default function AdvancedTimeline() {
   const [showFilters, setShowFilters] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [currentDecade, setCurrentDecade] = useState(2000);
+  
+  // Multimedia states
+  const [selectedMediaItem, setSelectedMediaItem] = useState<MultimediaAttachment | null>(null);
+  const [showMediaViewer, setShowMediaViewer] = useState(false);
+  const [showDocumentPanel, setShowDocumentPanel] = useState(false);
+  const [showGeographicInfo, setShowGeographicInfo] = useState(false);
 
   const [viewMode, setViewMode] = useState<TimelineViewMode>({
     mode: 'chronological',
@@ -67,12 +120,149 @@ export default function AdvancedTimeline() {
       start: '1970-01-01',
       end: '2025-01-01'
     },
-    entities: []
+    entities: [],
+    multimedia: ['all'], // Added multimedia filter
+    hasDocuments: false, // Added document filter
+    hasGeographic: false // Added geographic filter
   });
+
+  // Helper function to generate multimedia attachments for events
+  const generateMultimediaForEvent = (event: TimelineEvent): MultimediaAttachment[] => {
+    const attachments: MultimediaAttachment[] = [];
+    
+    // Add document attachments based on evidence
+    if (event.evidence && event.evidence.length > 0) {
+      event.evidence.forEach((evidenceId, index) => {
+        const doc = coreDocuments.find(d => d.id === evidenceId);
+        if (doc) {
+          attachments.push({
+            id: `${event.id}-doc-${index}`,
+            type: 'document',
+            url: doc.content?.fileName || '#',
+            title: doc.title,
+            description: doc.description,
+            source: doc.sources?.[0]?.title || 'Unknown source',
+            verified: doc.verificationStatus === 'verified'
+          });
+        }
+      });
+    }
+
+    // Add mock media for high-significance events
+    if (event.significance === 'critical' || event.significance === 'high') {
+      // Mock photo for property-related events
+      if (event.tags.includes('property') || event.tags.includes('real-estate')) {
+        attachments.push({
+          id: `${event.id}-img-property`,
+          type: 'image',
+          url: '/images/timeline/property-placeholder.jpg',
+          title: `Property documentation for ${event.title}`,
+          description: 'Property records and documentation',
+          thumbnail: '/images/timeline/property-thumb.jpg',
+          verified: true
+        });
+      }
+
+      // Mock court documents for legal events
+      if (event.type === 'legal' || event.tags.includes('court')) {
+        attachments.push({
+          id: `${event.id}-doc-court`,
+          type: 'document',
+          url: '/documents/court-records.pdf',
+          title: `Court records for ${event.title}`,
+          description: 'Official court documentation',
+          verified: event.verificationStatus === 'verified'
+        });
+      }
+
+      // Mock news footage for major events
+      if (event.significance === 'critical') {
+        attachments.push({
+          id: `${event.id}-video-news`,
+          type: 'video',
+          url: '/videos/news-coverage.mp4',
+          title: `News coverage of ${event.title}`,
+          description: 'Contemporary news coverage',
+          thumbnail: '/images/timeline/news-thumb.jpg',
+          duration: 180,
+          verified: true
+        });
+      }
+    }
+
+    return attachments;
+  };
+
+  // Helper function to get geographic data for events
+  const getGeographicDataForEvent = (event: TimelineEvent): EnhancedTimelineEvent['geographicData'] => {
+    // Look for location references in event entities
+    const locationEntity = event.entities?.find(e => e.entityType === 'location');
+    if (locationEntity) {
+      const property = enhancedProperties.find(p => 
+        p.name.toLowerCase().includes(locationEntity.entityId.toLowerCase()) ||
+        locationEntity.entityId.includes(p.id)
+      );
+      if (property) {
+        return {
+          propertyId: property.id,
+          coordinates: property.coordinates,
+          address: property.address
+        };
+      }
+    }
+
+    // Default coordinates for key locations mentioned in events
+    const locationMapping: Record<string, [number, number]> = {
+      'palm-beach': [26.7056, -80.0364],
+      'new-york': [40.7128, -74.0060],
+      'little-st-james': [18.3001, -64.8251],
+      manhattan: [40.7831, -73.9712],
+      paris: [48.8566, 2.3522],
+      london: [51.5074, -0.1278]
+    };
+
+    // Check event description and tags for location references
+    const eventText = `${event.title} ${event.description} ${event.tags.join(' ')}`.toLowerCase();
+    for (const [location, coords] of Object.entries(locationMapping)) {
+      if (eventText.includes(location.replace('-', ' '))) {
+        return {
+          coordinates: coords,
+          address: location.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
+        };
+      }
+    }
+
+    return undefined;
+  };
+
+  // Enhanced event processing with multimedia integration
+  const enhancedEvents = useMemo(() => {
+    return comprehensiveTimeline.map(event => {
+      const enhanced: EnhancedTimelineEvent = {
+        ...event,
+        // Mock multimedia attachments based on event characteristics
+        multimedia: generateMultimediaForEvent(event),
+        // Link to related documents
+        linkedDocuments: coreDocuments.filter(doc => 
+          doc.tags.some(tag => event.tags.includes(tag)) ||
+          event.evidence?.includes(doc.id)
+        ),
+        // Geographic correlation
+        geographicData: getGeographicDataForEvent(event),
+        // Enhanced source attribution
+        sourceDetails: {
+          primarySource: event.sources?.[0]?.title || 'Multiple Sources',
+          reliability: event.sources?.[0]?.reliability as 'high' | 'medium' | 'low' || 'medium',
+          verificationLevel: event.verificationStatus as 'verified' | 'corroborated' | 'reported' | 'alleged'
+        }
+      };
+      return enhanced;
+    });
+  }, []);
 
   // Filter and process events
   const filteredEvents = useMemo(() => {
-    return comprehensiveTimeline.filter(event => {
+    return enhancedEvents.filter(event => {
       // Search filter
       if (searchTerm && !event.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
           !event.description.toLowerCase().includes(searchTerm.toLowerCase()) &&
@@ -100,6 +290,24 @@ export default function AdvancedTimeline() {
         return false;
       }
 
+      // Multimedia filter
+      if (filters.multimedia.length && !filters.multimedia.includes('all')) {
+        const hasRequestedMedia = event.multimedia?.some(media => 
+          filters.multimedia.includes(media.type)
+        );
+        if (!hasRequestedMedia) return false;
+      }
+
+      // Document filter
+      if (filters.hasDocuments && (!event.linkedDocuments || event.linkedDocuments.length === 0)) {
+        return false;
+      }
+
+      // Geographic filter
+      if (filters.hasGeographic && !event.geographicData) {
+        return false;
+      }
+
       // Date range filter
       const eventDate = new Date(event.date);
       const startDate = new Date(filters.dateRange.start);
@@ -118,7 +326,7 @@ export default function AdvancedTimeline() {
 
       return true;
     }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  }, [searchTerm, filters]);
+  }, [enhancedEvents, searchTerm, filters]);
 
   // Group events based on view mode
   const groupedEvents = useMemo(() => {
@@ -223,7 +431,10 @@ export default function AdvancedTimeline() {
         start: '1970-01-01',
         end: '2025-01-01'
       },
-      entities: []
+      entities: [],
+      multimedia: ['all'], // Added multimedia filter reset
+      hasDocuments: false, // Added document filter reset
+      hasGeographic: false // Added geographic filter reset
     });
     setSearchTerm('');
   };
@@ -295,6 +506,13 @@ export default function AdvancedTimeline() {
                 <Clock className="w-4 h-4" />
               </button>
               <button
+                onClick={() => setViewMode(prev => ({...prev, mode: 'multimedia'}))}
+                className={`p-2 ${viewMode.mode === 'multimedia' ? 'bg-primary-100 dark:bg-primary-900' : ''} hover:bg-gray-100 dark:hover:bg-dark-700 border-x border-gray-300 dark:border-dark-600`}
+                title="Multimedia View"
+              >
+                <ImageIcon className="w-4 h-4" />
+              </button>
+              <button
                 onClick={() => setViewMode(prev => ({...prev, mode: 'thematic'}))}
                 className={`p-2 ${viewMode.mode === 'thematic' ? 'bg-primary-100 dark:bg-primary-900' : ''} hover:bg-gray-100 dark:hover:bg-dark-700 border-x border-gray-300 dark:border-dark-600`}
                 title="Thematic View"
@@ -313,7 +531,7 @@ export default function AdvancedTimeline() {
             {/* Group By */}
             <select
               value={viewMode.groupBy}
-              onChange={(e) => setViewMode(prev => ({...prev, groupBy: e.target.value as any}))}
+              onChange={(e) => setViewMode(prev => ({...prev, groupBy: e.target.value as 'year' | 'month' | 'category' | 'significance'}))}
               className="px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-lg bg-white dark:bg-dark-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500"
             >
               <option value="year">Group by Year</option>
@@ -329,6 +547,20 @@ export default function AdvancedTimeline() {
               title="Toggle Filters"
             >
               <Filter className="w-4 h-4" />
+            </button>
+
+            {/* Filter Toggle */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`p-2 border rounded-lg flex items-center gap-2 ${
+                showFilters 
+                  ? 'bg-primary-600 text-white border-primary-600' 
+                  : 'border-gray-300 dark:border-dark-600 hover:bg-gray-100 dark:hover:bg-dark-700'
+              }`}
+              title="Toggle Filters"
+            >
+              <Filter className="w-4 h-4" />
+              <span className="text-sm">Filters</span>
             </button>
 
             <button
@@ -381,6 +613,151 @@ export default function AdvancedTimeline() {
         </div>
       </div>
 
+      {/* Enhanced Filters Panel */}
+      {showFilters && (
+        <div className="border-b border-gray-200 dark:border-dark-700 p-4 bg-gray-50 dark:bg-dark-800">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Multimedia Filters */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Multimedia Type
+              </label>
+              <div className="space-y-2">
+                {['all', 'image', 'video', 'document', 'audio'].map(type => (
+                  <label key={type} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={filters.multimedia.includes(type)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setFilters(prev => ({
+                            ...prev,
+                            multimedia: type === 'all' ? ['all'] : prev.multimedia.filter(m => m !== 'all').concat(type)
+                          }));
+                        } else {
+                          setFilters(prev => ({
+                            ...prev,
+                            multimedia: prev.multimedia.filter(m => m !== type)
+                          }));
+                        }
+                      }}
+                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                    />
+                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300 capitalize">
+                      {type === 'all' ? 'All Types' : type}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Content Filters */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Content Features
+              </label>
+              <div className="space-y-2">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={filters.hasDocuments}
+                    onChange={(e) => setFilters(prev => ({ ...prev, hasDocuments: e.target.checked }))}
+                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  />
+                  <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                    Has Linked Documents
+                  </span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={filters.hasGeographic}
+                    onChange={(e) => setFilters(prev => ({ ...prev, hasGeographic: e.target.checked }))}
+                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  />
+                  <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                    Has Geographic Data
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            {/* Significance Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Significance Level
+              </label>
+              <div className="space-y-2">
+                {['critical', 'high', 'medium', 'low'].map(level => (
+                  <label key={level} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={filters.significance.includes(level)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setFilters(prev => ({
+                            ...prev,
+                            significance: [...prev.significance, level]
+                          }));
+                        } else {
+                          setFilters(prev => ({
+                            ...prev,
+                            significance: prev.significance.filter(s => s !== level)
+                          }));
+                        }
+                      }}
+                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                    />
+                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300 capitalize">
+                      {level}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Date Range Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Date Range
+              </label>
+              <div className="space-y-2">
+                <input
+                  type="date"
+                  value={filters.dateRange.start}
+                  onChange={(e) => setFilters(prev => ({
+                    ...prev,
+                    dateRange: { ...prev.dateRange, start: e.target.value }
+                  }))}
+                  className="w-full px-3 py-1 border border-gray-300 dark:border-dark-600 rounded text-sm bg-white dark:bg-dark-800 text-gray-900 dark:text-gray-100"
+                />
+                <input
+                  type="date"
+                  value={filters.dateRange.end}
+                  onChange={(e) => setFilters(prev => ({
+                    ...prev,
+                    dateRange: { ...prev.dateRange, end: e.target.value }
+                  }))}
+                  className="w-full px-3 py-1 border border-gray-300 dark:border-dark-600 rounded text-sm bg-white dark:bg-dark-800 text-gray-900 dark:text-gray-100"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200 dark:border-dark-600">
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              Showing {filteredEvents.length} of {enhancedEvents.length} events
+            </div>
+            <button
+              onClick={resetFilters}
+              className="text-sm text-primary-600 hover:text-primary-800 font-medium"
+            >
+              Clear All Filters
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="flex">
         {/* Timeline Content */}
         <div className="flex-1 overflow-y-auto" style={{ maxHeight: '80vh' }}>
@@ -403,7 +780,9 @@ export default function AdvancedTimeline() {
                     {/* Timeline line */}
                     <div className="absolute left-6 top-0 bottom-0 w-px bg-gray-300 dark:bg-dark-600"></div>
 
-                    {events.map((event, index) => (
+                    {events.map((event, _index) => {
+                      const enhancedEvent = enhancedEvents.find(e => e.id === event.id) as EnhancedTimelineEvent;
+                      return (
                       <div key={event.id} className="relative flex items-start mb-8">
                         {/* Timeline node */}
                         <div className={`relative z-10 w-12 h-12 rounded-full border-4 border-white dark:border-dark-900 ${getSignificanceColor(event.significance)} flex items-center justify-center text-white font-bold shadow-lg`}>
@@ -434,9 +813,49 @@ export default function AdvancedTimeline() {
                                 {event.verificationStatus === 'verified' && (
                                   <span className="text-green-600 font-bold">✓</span>
                                 )}
+                                
+                                {/* Multimedia indicators */}
+                                <div className="flex items-center gap-1">
+                                  {enhancedEvent?.multimedia?.some(m => m.type === 'image') && (
+                                    <div title="Contains images">
+                                      <ImageIcon className="w-4 h-4 text-purple-600" />
+                                    </div>
+                                  )}
+                                  {enhancedEvent?.multimedia?.some(m => m.type === 'video') && (
+                                    <div title="Contains video">
+                                      <Video className="w-4 h-4 text-red-600" />
+                                    </div>
+                                  )}
+                                  {enhancedEvent?.multimedia?.some(m => m.type === 'document') && (
+                                    <div title="Contains documents">
+                                      <FileText className="w-4 h-4 text-blue-600" />
+                                    </div>
+                                  )}
+                                  {enhancedEvent?.geographicData && (
+                                    <div title="Has geographic data">
+                                      <MapPin className="w-4 h-4 text-green-600" />
+                                    </div>
+                                  )}
+                                  {enhancedEvent?.linkedDocuments && enhancedEvent.linkedDocuments.length > 0 && (
+                                    <div title={`${enhancedEvent.linkedDocuments.length} linked documents`}>
+                                      <Link2 className="w-4 h-4 text-orange-600" />
+                                    </div>
+                                  )}
+                                </div>
                               </div>
-                              <div className="text-sm text-gray-500 dark:text-gray-500">
-                                {formatDate(event.date)}
+                              <div className="flex items-center gap-2">
+                                <div className="text-sm text-gray-500 dark:text-gray-500">
+                                  {formatDate(event.date)}
+                                </div>
+                                
+                                {/* Source reliability indicator */}
+                                {enhancedEvent?.sourceDetails && (
+                                  <div className={`w-3 h-3 rounded-full ${
+                                    enhancedEvent.sourceDetails.reliability === 'high' ? 'bg-green-500' :
+                                    enhancedEvent.sourceDetails.reliability === 'medium' ? 'bg-yellow-500' :
+                                    'bg-red-500'
+                                  }`} title={`Source reliability: ${enhancedEvent.sourceDetails.reliability}`} />
+                                )}
                               </div>
                             </div>
 
@@ -447,6 +866,94 @@ export default function AdvancedTimeline() {
                             <p className="text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
                               {event.description}
                             </p>
+
+                            {/* Enhanced multimedia preview */}
+                            {enhancedEvent?.multimedia && enhancedEvent.multimedia.length > 0 && (
+                              <div className="mb-4">
+                                <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                                  Media ({enhancedEvent.multimedia.length}):
+                                </div>
+                                <div className="flex gap-2 overflow-x-auto">
+                                  {enhancedEvent.multimedia.slice(0, 3).map(media => (
+                                    <div
+                                      key={media.id}
+                                      className="flex-shrink-0 w-16 h-16 bg-gray-100 dark:bg-dark-700 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-200 dark:hover:bg-dark-600 transition-colors"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedMediaItem(media);
+                                        setShowMediaViewer(true);
+                                      }}
+                                      title={media.title}
+                                    >
+                                      {media.type === 'image' && <ImageIcon className="w-6 h-6 text-purple-600" />}
+                                      {media.type === 'video' && <Video className="w-6 h-6 text-red-600" />}
+                                      {media.type === 'document' && <FileText className="w-6 h-6 text-blue-600" />}
+                                      {media.type === 'audio' && <Mic className="w-6 h-6 text-green-600" />}
+                                    </div>
+                                  ))}
+                                  {enhancedEvent.multimedia.length > 3 && (
+                                    <div className="flex-shrink-0 w-16 h-16 bg-gray-100 dark:bg-dark-700 rounded-lg flex items-center justify-center text-xs font-medium text-gray-600 dark:text-gray-400">
+                                      +{enhancedEvent.multimedia.length - 3}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Geographic information */}
+                            {enhancedEvent?.geographicData && (
+                              <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <MapPin className="w-4 h-4 text-green-600" />
+                                  <span className="text-sm font-medium text-green-800 dark:text-green-300">
+                                    Location Data
+                                  </span>
+                                </div>
+                                <div className="text-sm text-green-700 dark:text-green-400">
+                                  {enhancedEvent.geographicData.address}
+                                  {enhancedEvent.geographicData.coordinates && (
+                                    <span className="ml-2 text-xs opacity-70">
+                                      ({enhancedEvent.geographicData.coordinates.join(', ')})
+                                    </span>
+                                  )}
+                                </div>
+                                <button 
+                                  className="text-xs text-green-600 hover:text-green-800 mt-1 flex items-center gap-1"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowGeographicInfo(true);
+                                  }}
+                                >
+                                  <Globe className="w-3 h-3" />
+                                  View on map
+                                </button>
+                              </div>
+                            )}
+
+                            {/* Enhanced source attribution */}
+                            {enhancedEvent?.sourceDetails && (
+                              <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <ExternalLink className="w-4 h-4 text-blue-600" />
+                                  <span className="text-sm font-medium text-blue-800 dark:text-blue-300">
+                                    Primary Source
+                                  </span>
+                                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                                    enhancedEvent.sourceDetails.reliability === 'high' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                                    enhancedEvent.sourceDetails.reliability === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
+                                    'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                                  }`}>
+                                    {enhancedEvent.sourceDetails.reliability}
+                                  </span>
+                                </div>
+                                <div className="text-sm text-blue-700 dark:text-blue-400">
+                                  {enhancedEvent.sourceDetails.primarySource}
+                                </div>
+                                <div className="text-xs text-blue-600 dark:text-blue-500 mt-1">
+                                  Verification: {enhancedEvent.sourceDetails.verificationLevel}
+                                </div>
+                              </div>
+                            )}
 
                             {/* Entities involved */}
                             {event.entities.length > 0 && (
@@ -476,9 +983,41 @@ export default function AdvancedTimeline() {
                               </div>
                             )}
 
+                            {/* Linked documents */}
+                            {enhancedEvent?.linkedDocuments && enhancedEvent.linkedDocuments.length > 0 && (
+                              <div className="mb-4">
+                                <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                                  Linked Documents ({enhancedEvent.linkedDocuments.length}):
+                                </div>
+                                <div className="space-y-1">
+                                  {enhancedEvent.linkedDocuments.slice(0, 2).map(doc => (
+                                    <div 
+                                      key={doc.id} 
+                                      className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 cursor-pointer"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowDocumentPanel(true);
+                                      }}
+                                    >
+                                      <FileText className="w-4 h-4" />
+                                      <span className="truncate">{doc.title}</span>
+                                      {doc.verificationStatus === 'verified' && (
+                                        <span className="text-green-600 text-xs">✓</span>
+                                      )}
+                                    </div>
+                                  ))}
+                                  {enhancedEvent.linkedDocuments.length > 2 && (
+                                    <div className="text-sm text-gray-500">
+                                      +{enhancedEvent.linkedDocuments.length - 2} more documents
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
                             {/* Related events preview */}
                             {event.relatedEvents.length > 0 && (
-                              <div className="text-sm text-gray-500 dark:text-gray-500">
+                              <div className="text-sm text-gray-500 dark:text-gray-500 mb-3">
                                 <strong>Related events:</strong> {event.relatedEvents.length}
                               </div>
                             )}
@@ -499,10 +1038,60 @@ export default function AdvancedTimeline() {
                                 </span>
                               )}
                             </div>
+
+                            {/* Action buttons */}
+                            <div className="flex items-center gap-2 mt-4 pt-3 border-t border-gray-200 dark:border-dark-700">
+                              <button 
+                                className="flex items-center gap-1 px-3 py-1 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedEvent(event);
+                                }}
+                              >
+                                <Eye className="w-4 h-4" />
+                                Details
+                              </button>
+                              {enhancedEvent?.multimedia && enhancedEvent.multimedia.length > 0 && (
+                                <button 
+                                  className="flex items-center gap-1 px-3 py-1 text-sm text-purple-600 hover:text-purple-800 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded transition-colors"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedMediaItem(enhancedEvent.multimedia![0]);
+                                    setShowMediaViewer(true);
+                                  }}
+                                >
+                                  <ImageIcon className="w-4 h-4" />
+                                  Media
+                                </button>
+                              )}
+                              {enhancedEvent?.geographicData && (
+                                <button 
+                                  className="flex items-center gap-1 px-3 py-1 text-sm text-green-600 hover:text-green-800 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowGeographicInfo(true);
+                                  }}
+                                >
+                                  <MapPin className="w-4 h-4" />
+                                  Map
+                                </button>
+                              )}
+                              <button 
+                                className="flex items-center gap-1 px-3 py-1 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded transition-colors"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // Copy event link to clipboard
+                                  navigator.clipboard.writeText(`${window.location.origin}/timeline#${event.id}`);
+                                }}
+                              >
+                                <Share className="w-4 h-4" />
+                                Share
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    ))}
+                    )})}
                   </div>
                 </div>
               ))}
@@ -521,6 +1110,233 @@ export default function AdvancedTimeline() {
                   >
                     Reset filters
                   </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {viewMode.mode === 'multimedia' && (
+            <div className="p-6">
+              <div className="mb-6">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                  Multimedia Timeline View
+                </h3>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  Focus on events with multimedia evidence, documents, and geographic data
+                </div>
+              </div>
+
+              {/* Multimedia statistics */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <ImageIcon className="w-5 h-5 text-purple-600" />
+                    <span className="text-sm font-medium text-purple-800 dark:text-purple-300">Images</span>
+                  </div>
+                  <div className="text-2xl font-bold text-purple-900 dark:text-purple-200">
+                    {enhancedEvents.reduce((acc, event) => acc + (event.multimedia?.filter(m => m.type === 'image').length || 0), 0)}
+                  </div>
+                </div>
+                <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Video className="w-5 h-5 text-red-600" />
+                    <span className="text-sm font-medium text-red-800 dark:text-red-300">Videos</span>
+                  </div>
+                  <div className="text-2xl font-bold text-red-900 dark:text-red-200">
+                    {enhancedEvents.reduce((acc, event) => acc + (event.multimedia?.filter(m => m.type === 'video').length || 0), 0)}
+                  </div>
+                </div>
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileText className="w-5 h-5 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-800 dark:text-blue-300">Documents</span>
+                  </div>
+                  <div className="text-2xl font-bold text-blue-900 dark:text-blue-200">
+                    {enhancedEvents.reduce((acc, event) => acc + (event.linkedDocuments?.length || 0), 0)}
+                  </div>
+                </div>
+                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <MapPin className="w-5 h-5 text-green-600" />
+                    <span className="text-sm font-medium text-green-800 dark:text-green-300">Locations</span>
+                  </div>
+                  <div className="text-2xl font-bold text-green-900 dark:text-green-200">
+                    {enhancedEvents.filter(event => event.geographicData).length}
+                  </div>
+                </div>
+              </div>
+
+              {/* Rich media events */}
+              <div className="space-y-6">
+                {filteredEvents
+                  .map(event => enhancedEvents.find(e => e.id === event.id))
+                  .filter(event => event && (
+                    (event.multimedia && event.multimedia.length > 0) ||
+                    (event.linkedDocuments && event.linkedDocuments.length > 0) ||
+                    event.geographicData
+                  ))
+                  .map(event => {
+                    if (!event) return null;
+                    return (
+                      <div key={event.id} className="evidence-card p-6">
+                        <div className="flex items-start gap-6">
+                          {/* Media preview column */}
+                          <div className="w-48 flex-shrink-0">
+                            {event.multimedia && event.multimedia.length > 0 && (
+                              <div className="space-y-3">
+                                <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                  Media ({event.multimedia.length})
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                  {event.multimedia.slice(0, 4).map(media => (
+                                    <div
+                                      key={media.id}
+                                      className="aspect-square bg-gray-100 dark:bg-dark-700 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-200 dark:hover:bg-dark-600 transition-colors"
+                                      onClick={() => {
+                                        setSelectedMediaItem(media);
+                                        setShowMediaViewer(true);
+                                      }}
+                                      title={media.title}
+                                    >
+                                      {media.type === 'image' && <ImageIcon className="w-6 h-6 text-purple-600" />}
+                                      {media.type === 'video' && <Video className="w-6 h-6 text-red-600" />}
+                                      {media.type === 'document' && <FileText className="w-6 h-6 text-blue-600" />}
+                                      {media.type === 'audio' && <Mic className="w-6 h-6 text-green-600" />}
+                                    </div>
+                                  ))}
+                                </div>
+                                {event.multimedia.length > 4 && (
+                                  <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                                    +{event.multimedia.length - 4} more
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Event details column */}
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between mb-3">
+                              <div>
+                                <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
+                                  {event.title}
+                                </h4>
+                                <div className="flex items-center gap-3 text-sm">
+                                  <span className="text-gray-500 dark:text-gray-400">
+                                    {formatDate(event.date)}
+                                  </span>
+                                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                                    event.significance === 'critical' ? 'bg-red-100 text-red-800' :
+                                    event.significance === 'high' ? 'bg-orange-100 text-orange-800' :
+                                    event.significance === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                                    'bg-blue-100 text-blue-800'
+                                  }`}>
+                                    {event.significance}
+                                  </span>
+                                </div>
+                              </div>
+                              
+                              {/* Enhanced indicators */}
+                              <div className="flex items-center gap-2">
+                                {event.linkedDocuments && event.linkedDocuments.length > 0 && (
+                                  <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/20 rounded-full">
+                                    <FileText className="w-3 h-3 text-blue-600" />
+                                    <span className="text-xs text-blue-800 dark:text-blue-300">
+                                      {event.linkedDocuments.length} docs
+                                    </span>
+                                  </div>
+                                )}
+                                {event.geographicData && (
+                                  <div className="flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/20 rounded-full">
+                                    <MapPin className="w-3 h-3 text-green-600" />
+                                    <span className="text-xs text-green-800 dark:text-green-300">
+                                      Location
+                                    </span>
+                                  </div>
+                                )}
+                                {event.sourceDetails && (
+                                  <div className={`w-3 h-3 rounded-full ${
+                                    event.sourceDetails.reliability === 'high' ? 'bg-green-500' :
+                                    event.sourceDetails.reliability === 'medium' ? 'bg-yellow-500' :
+                                    'bg-red-500'
+                                  }`} title={`Source reliability: ${event.sourceDetails.reliability}`} />
+                                )}
+                              </div>
+                            </div>
+
+                            <p className="text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+                              {event.description}
+                            </p>
+
+                            {/* Action buttons */}
+                            <div className="flex items-center gap-3">
+                              <button 
+                                className="flex items-center gap-1 px-3 py-1 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+                                onClick={() => setSelectedEvent(event)}
+                              >
+                                <Eye className="w-4 h-4" />
+                                View Details
+                              </button>
+                              {event.multimedia && event.multimedia.length > 0 && (
+                                <button 
+                                  className="flex items-center gap-1 px-3 py-1 text-sm text-purple-600 hover:text-purple-800 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded transition-colors"
+                                  onClick={() => {
+                                    setSelectedMediaItem(event.multimedia![0]);
+                                    setShowMediaViewer(true);
+                                  }}
+                                >
+                                  <ImageIcon className="w-4 h-4" />
+                                  View Media
+                                </button>
+                              )}
+                              {event.geographicData && (
+                                <button 
+                                  className="flex items-center gap-1 px-3 py-1 text-sm text-green-600 hover:text-green-800 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors"
+                                  onClick={() => {
+                                    setSelectedEvent(event);
+                                    setShowGeographicInfo(true);
+                                  }}
+                                >
+                                  <MapPin className="w-4 h-4" />
+                                  Location
+                                </button>
+                              )}
+                              {event.linkedDocuments && event.linkedDocuments.length > 0 && (
+                                <button 
+                                  className="flex items-center gap-1 px-3 py-1 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+                                  onClick={() => {
+                                    setSelectedEvent(event);
+                                    setShowDocumentPanel(true);
+                                  }}
+                                >
+                                  <FileText className="w-4 h-4" />
+                                  Documents
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+
+              {/* If no multimedia events */}
+              {filteredEvents
+                .map(event => enhancedEvents.find(e => e.id === event.id))
+                .filter(event => event && (
+                  (event.multimedia && event.multimedia.length > 0) ||
+                  (event.linkedDocuments && event.linkedDocuments.length > 0) ||
+                  event.geographicData
+                )).length === 0 && (
+                <div className="text-center py-12">
+                  <ImageIcon className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <h3 className="text-lg font-medium text-gray-600 dark:text-gray-400 mb-2">
+                    No Multimedia Events Found
+                  </h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-500">
+                    Try adjusting your filters to see events with multimedia attachments, documents, or geographic data.
+                  </p>
                 </div>
               )}
             </div>
@@ -873,6 +1689,224 @@ export default function AdvancedTimeline() {
           </div>
         )}
       </div>
+
+      {/* Multimedia Viewer Modal */}
+      {showMediaViewer && selectedMediaItem && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-dark-800 rounded-lg max-w-4xl max-h-[90vh] w-full overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-dark-700">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                {selectedMediaItem.title}
+              </h3>
+              <button
+                onClick={() => setShowMediaViewer(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              {selectedMediaItem.type === 'image' && (
+                <div className="text-center">
+                  <div className="w-full h-96 bg-gray-100 dark:bg-dark-700 rounded-lg flex items-center justify-center mb-4">
+                    <ImageIcon className="w-24 h-24 text-gray-400" />
+                    <div className="ml-4 text-gray-600 dark:text-gray-400">
+                      <div className="font-medium">Image Preview</div>
+                      <div className="text-sm">{selectedMediaItem.description}</div>
+                    </div>
+                  </div>
+                  {selectedMediaItem.verified && (
+                    <div className="flex items-center justify-center gap-2 text-green-600">
+                      <Star className="w-4 h-4" />
+                      <span className="text-sm">Verified Source</span>
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {selectedMediaItem.type === 'video' && (
+                <div className="text-center">
+                  <div className="w-full h-96 bg-gray-100 dark:bg-dark-700 rounded-lg flex items-center justify-center mb-4">
+                    <Video className="w-24 h-24 text-gray-400" />
+                    <div className="ml-4 text-gray-600 dark:text-gray-400">
+                      <div className="font-medium">Video Content</div>
+                      <div className="text-sm">{selectedMediaItem.description}</div>
+                      {selectedMediaItem.duration && (
+                        <div className="text-xs mt-1">Duration: {Math.floor(selectedMediaItem.duration / 60)}:{(selectedMediaItem.duration % 60).toString().padStart(2, '0')}</div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex justify-center gap-4">
+                    <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                      <Play className="w-4 h-4" />
+                      Play Video
+                    </button>
+                    <button className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                      <Volume2 className="w-4 h-4" />
+                      Audio
+                    </button>
+                  </div>
+                </div>
+              )}
+              
+              {selectedMediaItem.type === 'document' && (
+                <div className="text-center">
+                  <div className="w-full h-96 bg-gray-100 dark:bg-dark-700 rounded-lg flex items-center justify-center mb-4">
+                    <FileText className="w-24 h-24 text-gray-400" />
+                    <div className="ml-4 text-gray-600 dark:text-gray-400">
+                      <div className="font-medium">Document</div>
+                      <div className="text-sm">{selectedMediaItem.description}</div>
+                    </div>
+                  </div>
+                  <div className="flex justify-center gap-4">
+                    <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                      <Eye className="w-4 h-4" />
+                      View Document
+                    </button>
+                    <button className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                      <Download className="w-4 h-4" />
+                      Download
+                    </button>
+                  </div>
+                </div>
+              )}
+              
+              {selectedMediaItem.source && (
+                <div className="mt-4 p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
+                  <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Source</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">{selectedMediaItem.source}</div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Document Panel Modal */}
+      {showDocumentPanel && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-dark-800 rounded-lg max-w-4xl max-h-[90vh] w-full overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-dark-700">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                Linked Documents
+              </h3>
+              <button
+                onClick={() => setShowDocumentPanel(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="p-6 max-h-96 overflow-y-auto">
+              <div className="space-y-4">
+                {selectedEvent && enhancedEvents.find(e => e.id === selectedEvent.id)?.linkedDocuments?.map(doc => (
+                  <div key={doc.id} className="border border-gray-200 dark:border-dark-700 rounded-lg p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100">{doc.title}</h4>
+                      {doc.verificationStatus === 'verified' && (
+                        <span className="flex items-center gap-1 text-green-600 text-sm">
+                          <Star className="w-3 h-3" />
+                          Verified
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{doc.description}</p>
+                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                      <span>Type: {doc.type}</span>
+                      <span>Date: {formatDate(doc.date)}</span>
+                      <span>Significance: {doc.significance}</span>
+                    </div>
+                    <div className="flex gap-2 mt-3">
+                      <button className="flex items-center gap-1 px-3 py-1 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded">
+                        <Eye className="w-3 h-3" />
+                        View
+                      </button>
+                      <button className="flex items-center gap-1 px-3 py-1 text-sm text-green-600 hover:text-green-800 hover:bg-green-50 dark:hover:bg-green-900/20 rounded">
+                        <Download className="w-3 h-3" />
+                        Download
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Geographic Info Modal */}
+      {showGeographicInfo && selectedEvent && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-dark-800 rounded-lg max-w-2xl w-full overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-dark-700">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                Geographic Information
+              </h3>
+              <button
+                onClick={() => setShowGeographicInfo(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              {(() => {
+                const enhancedEvent = enhancedEvents.find(e => e.id === selectedEvent.id);
+                return enhancedEvent?.geographicData ? (
+                  <div className="space-y-4">
+                    <div className="w-full h-64 bg-gray-100 dark:bg-dark-700 rounded-lg flex items-center justify-center">
+                      <MapPin className="w-16 h-16 text-gray-400" />
+                      <div className="ml-4 text-gray-600 dark:text-gray-400">
+                        <div className="font-medium">Interactive Map</div>
+                        <div className="text-sm">Location: {enhancedEvent.geographicData.address}</div>
+                        {enhancedEvent.geographicData.coordinates && (
+                          <div className="text-xs mt-1">
+                            Coordinates: {enhancedEvent.geographicData.coordinates.join(', ')}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-4">
+                      <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <Globe className="w-4 h-4" />
+                        Open in Maps
+                      </button>
+                      <button className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        <Bookmark className="w-4 h-4" />
+                        Save Location
+                      </button>
+                      <button className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                        <Share className="w-4 h-4" />
+                        Share
+                      </button>
+                    </div>
+                    
+                    {enhancedEvent.geographicData.propertyId && (
+                      <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                        <div className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-1">
+                          Associated Property
+                        </div>
+                        <div className="text-sm text-blue-700 dark:text-blue-400">
+                          Property ID: {enhancedEvent.geographicData.propertyId}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center text-gray-500 dark:text-gray-400">
+                    <MapPin className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <p>No geographic data available for this event.</p>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

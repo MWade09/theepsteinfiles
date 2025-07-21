@@ -792,7 +792,7 @@ export interface SearchResult {
 // Network Analysis Types
 export interface NetworkNode {
   id: string;
-  type: 'person' | 'organization' | 'location' | 'financial';
+  type: 'person' | 'organization' | 'location' | 'financial' | 'event';
   name: string;
   significance: 'critical' | 'high' | 'medium' | 'low';
   size: number; // Visual size based on connections/importance
