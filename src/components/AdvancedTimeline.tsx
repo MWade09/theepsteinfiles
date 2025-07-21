@@ -15,29 +15,23 @@ import {
   RotateCcw,
   List,
   BarChart3,
-  Network,
   ExternalLink,
   Clock,
-  Users,
   FileText,
   ChevronLeft,
   ChevronRight,
-  Info,
   Eye,
   Download,
   MapPin,
   Image as ImageIcon,
   Video,
   Play,
-  Pause,
   Volume2,
   Link2,
   Star,
   Bookmark,
   Share,
-  Maximize2,
   X,
-  Camera,
   Mic,
   Globe
 } from 'lucide-react';
@@ -458,6 +452,24 @@ export default function AdvancedTimeline() {
     URL.revokeObjectURL(url);
   };
 
+  // Zoom functions
+  const zoomIn = () => {
+    setZoomLevel(prev => Math.min(prev + 0.1, 2.0));
+  };
+
+  const zoomOut = () => {
+    setZoomLevel(prev => Math.max(prev - 0.1, 0.5));
+  };
+
+  const resetZoom = () => {
+    setZoomLevel(1);
+  };
+
+  // Navigation function (already exists - remove duplicate)
+  // const navigateToDecade = (decade: number) => {
+  //   setCurrentDecade(decade);
+  // };
+
   return (
     <div className="w-full bg-white dark:bg-dark-900 rounded-lg overflow-hidden">
       {/* Header Controls */}
@@ -540,6 +552,38 @@ export default function AdvancedTimeline() {
               <option value="significance">Group by Significance</option>
             </select>
 
+            {/* Zoom Controls */}
+            <div className="flex items-center gap-1 border border-gray-300 dark:border-dark-600 rounded-lg">
+              <button
+                onClick={zoomOut}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-l-lg"
+                title="Zoom Out"
+                disabled={zoomLevel <= 0.5}
+              >
+                <ZoomOut className="w-4 h-4" />
+              </button>
+              <span className="px-2 text-sm text-gray-600 dark:text-gray-400 border-x border-gray-300 dark:border-dark-600">
+                {Math.round(zoomLevel * 100)}%
+              </span>
+              <button
+                onClick={zoomIn}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-r-lg"
+                title="Zoom In"
+                disabled={zoomLevel >= 2.0}
+              >
+                <ZoomIn className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Reset Zoom */}
+            <button
+              onClick={resetZoom}
+              className="p-2 border border-gray-300 dark:border-dark-600 rounded-lg hover:bg-gray-100 dark:hover:bg-dark-700"
+              title="Reset Zoom to 100%"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+
             {/* Action Buttons */}
             <button
               onClick={() => setShowFilters(!showFilters)}
@@ -547,20 +591,6 @@ export default function AdvancedTimeline() {
               title="Toggle Filters"
             >
               <Filter className="w-4 h-4" />
-            </button>
-
-            {/* Filter Toggle */}
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`p-2 border rounded-lg flex items-center gap-2 ${
-                showFilters 
-                  ? 'bg-primary-600 text-white border-primary-600' 
-                  : 'border-gray-300 dark:border-dark-600 hover:bg-gray-100 dark:hover:bg-dark-700'
-              }`}
-              title="Toggle Filters"
-            >
-              <Filter className="w-4 h-4" />
-              <span className="text-sm">Filters</span>
             </button>
 
             <button
@@ -760,7 +790,15 @@ export default function AdvancedTimeline() {
 
       <div className="flex">
         {/* Timeline Content */}
-        <div className="flex-1 overflow-y-auto" style={{ maxHeight: '80vh' }}>
+        <div 
+          ref={timelineRef}
+          className="flex-1 overflow-y-auto" 
+          style={{ 
+            maxHeight: '80vh',
+            transform: `scale(${zoomLevel})`,
+            transformOrigin: 'top left'
+          }}
+        >
           {viewMode.mode === 'chronological' && (
             <div className="p-6">
               {groupedEvents.map(([groupKey, events]) => (
@@ -1904,6 +1942,19 @@ export default function AdvancedTimeline() {
                 );
               })()}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Hover Event Tooltip */}
+      {hoveredEvent && (
+        <div className="fixed z-50 bg-gray-900 text-white p-3 rounded-lg shadow-lg pointer-events-none border border-gray-600">
+          <div className="text-sm font-semibold">{hoveredEvent.title}</div>
+          <div className="text-xs text-gray-300">
+            {new Date(hoveredEvent.date).toLocaleDateString()}
+          </div>
+          <div className="text-xs text-gray-400 mt-1">
+            {hoveredEvent.type} • {hoveredEvent.significance}
           </div>
         </div>
       )}

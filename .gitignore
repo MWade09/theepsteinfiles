@@ -29,8 +29,10 @@ yarn-error.log*
 # Vercel
 .vercel
 
-# Scripts
-/scripts
+# Scripts - ignore all script files and directories
+scripts/
+/scripts/
+*.script.js
 
 # Typescript
 *.tsbuildinfo

@@ -299,8 +299,36 @@ export default function DocumentViewer({ documentId, isEmbedded = false }: Docum
 
             {/* Document Text Content */}
             <div className="prose prose-lg max-w-none dark:prose-invert">
-              <div className="whitespace-pre-wrap font-mono text-sm leading-relaxed">
-                {selectedDoc.content?.text || 'Document content not available.'}
+              <div 
+                className="whitespace-pre-wrap font-mono text-sm leading-relaxed"
+                onMouseUp={handleTextSelection}
+                ref={contentRef}
+              >
+                {(() => {
+                  const content = selectedDoc.content?.text || 'Document content not available.';
+                  
+                  if (highlightedText.length > 0 && searchTerm) {
+                    // Create highlighted content
+                    const regex = new RegExp(`(${searchTerm})`, 'gi');
+                    const parts = content.split(regex);
+                    
+                    return parts.map((part, index) => {
+                      if (part.toLowerCase() === searchTerm.toLowerCase()) {
+                        return (
+                          <mark 
+                            key={index}
+                            className="bg-yellow-200 dark:bg-yellow-600 px-1 rounded"
+                          >
+                            {part}
+                          </mark>
+                        );
+                      }
+                      return part;
+                    });
+                  }
+                  
+                  return content;
+                })()}
               </div>
             </div>
 

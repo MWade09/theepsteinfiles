@@ -26,6 +26,27 @@
 }
 
 @layer components {
+  /* Responsive Layout Utilities */
+  .responsive-container {
+    @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .responsive-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6;
+  }
+  
+  .responsive-card {
+    @apply bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-gray-700/50 rounded-xl p-4 lg:p-6 backdrop-blur-sm hover:border-gray-600/60 transition-all duration-300;
+  }
+  
+  .responsive-text {
+    @apply text-sm sm:text-base lg:text-lg;
+  }
+  
+  .responsive-heading {
+    @apply text-xl sm:text-2xl lg:text-3xl font-bold;
+  }
+
   /* Investigation Card Styling */
   .evidence-card {
     @apply bg-gradient-to-br from-gray-900/80 to-gray-800/60 border border-cyan-500/30 rounded-xl shadow-2xl hover:shadow-cyan-500/20 transition-all duration-500 backdrop-blur-md;
@@ -96,6 +117,42 @@
   .scroll-indicator:hover {
     @apply scale-110;
     box-shadow: 0 0 40px rgba(0, 255, 255, 0.8);
+  }
+  
+  /* Mobile-First Touch Interactions */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+  
+  .mobile-safe-area {
+    @apply pb-safe-bottom;
+  }
+  
+  /* Enhanced Mobile Buttons */
+  .mobile-button {
+    @apply w-full sm:w-auto px-4 py-3 sm:py-2 text-center rounded-lg font-medium transition-all duration-200 touch-target;
+  }
+  
+  .mobile-button:active {
+    @apply scale-95;
+  }
+  
+  /* Improved Mobile Cards */
+  .mobile-card {
+    @apply relative overflow-hidden rounded-xl border backdrop-blur-sm transition-all duration-300;
+  }
+  
+  .mobile-card:active {
+    @apply scale-[0.98];
+  }
+  
+  /* Better Mobile Typography */
+  .mobile-heading {
+    @apply text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold leading-tight;
+  }
+  
+  .mobile-body {
+    @apply text-sm sm:text-base leading-relaxed;
   }
   
   /* Enhanced Story Section */

@@ -1,5 +1,13 @@
 import { TimelineEvent, EventEntity } from '@/types/investigation';
 
+// Helper function to create properly typed event entities
+const createEventEntity = (entityId: string, entityType: EventEntity['entityType'], role: string, description?: string): EventEntity => ({
+  entityId,
+  entityType,
+  role,
+  description
+});
+
 export const comprehensiveTimeline: TimelineEvent[] = [
   {
     id: 'epstein-bear-stearns-start',
@@ -10,8 +18,8 @@ export const comprehensiveTimeline: TimelineEvent[] = [
     category: 'financial',
     significance: 'medium',
     entities: [
-      { entityId: 'jeffrey-epstein', entityType: 'person', role: 'employee', description: 'Started as junior assistant' },
-      { entityId: 'bear-stearns', entityType: 'organization', role: 'employer', description: 'Investment bank' }
+      createEventEntity('jeffrey-epstein', 'person', 'employee', 'Started as junior assistant'),
+      createEventEntity('bear-stearns', 'organization', 'employer', 'Investment bank')
     ],
     relatedEvents: ['epstein-bear-stearns-partner'],
     consequences: ['Gained access to wealthy financial networks', 'Learned investment banking practices'],

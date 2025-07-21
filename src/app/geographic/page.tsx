@@ -7,15 +7,14 @@ import {
   Map, 
   ArrowLeft,
   Layers,
-  Filter,
   Target,
-  MapPin,
   Plane,
   Building,
   Activity,
   Eye,
   Settings,
   Maximize,
+  Minimize,
   Search,
   Info
 } from 'lucide-react';
@@ -125,78 +124,83 @@ export default function GeographicMappingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
-      {/* Header */}
+      {/* Header - Enhanced Mobile Layout */}
       <header className="border-b border-gray-700/50 bg-gray-900/50 backdrop-blur-sm relative z-50">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className="px-4 sm:px-6 py-4">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+            <div className="flex items-center gap-4 w-full lg:w-auto">
               <Link 
                 href="/"
-                className="flex items-center gap-2 text-gray-400 hover:text-cyan-400 transition-colors"
+                className="flex items-center gap-2 text-gray-400 hover:text-cyan-400 transition-colors touch-target"
               >
                 <ArrowLeft className="w-5 h-5" />
-                <span>Investigation Dashboard</span>
+                <span className="hidden sm:inline">Investigation Dashboard</span>
+                <span className="sm:hidden">Back</span>
               </Link>
               
-              <div className="w-px h-6 bg-gray-600" />
+              <div className="w-px h-6 bg-gray-600 hidden sm:block" />
               
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-1 lg:flex-none">
                 <Map className="w-6 h-6 text-cyan-400" />
-                <div>
-                  <h1 className="text-xl font-bold text-white">Enhanced Geographic Mapping</h1>
-                  <p className="text-sm text-gray-400">Global Analysis & Property Intelligence</p>
+                <div className="flex-1 lg:flex-none">
+                  <h1 className="text-lg sm:text-xl font-bold text-white">Enhanced Geographic Mapping</h1>
+                  <p className="text-xs sm:text-sm text-gray-400 hidden sm:block">Global Analysis & Property Intelligence</p>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
-              {/* Search */}
-              <div className="relative">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full lg:w-auto">
+              {/* Search - Mobile First */}
+              <div className="relative flex-1 sm:flex-none">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Search properties, locations..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-gray-800/50 border border-gray-600 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-cyan-400 w-64"
+                  className="bg-gray-800/50 border border-gray-600 rounded-lg pl-10 pr-4 py-3 sm:py-2 text-sm focus:outline-none focus:border-cyan-400 w-full sm:w-64"
                 />
               </div>
 
-              {/* Controls */}
-              <button
-                onClick={() => setShowControlPanel(!showControlPanel)}
-                className="flex items-center gap-2 px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-lg hover:border-gray-500 transition-colors"
-              >
-                <Settings className="w-4 h-4" />
-                <span className="text-sm">Controls</span>
-              </button>
+              <div className="flex items-center gap-2 sm:gap-4">
+                {/* Controls - Mobile Optimized */}
+                <button
+                  onClick={() => setShowControlPanel(!showControlPanel)}
+                  className="flex items-center justify-center gap-2 px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-lg hover:border-gray-500 transition-colors touch-target"
+                >
+                  <Settings className="w-4 h-4" />
+                  <span className="text-sm hidden sm:inline">Controls</span>
+                </button>
 
-              <button
-                onClick={toggleFullscreen}
-                className="flex items-center gap-2 px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-lg hover:border-gray-500 transition-colors"
-              >
-                <Maximize className="w-4 h-4" />
-                <span className="text-sm">Fullscreen</span>
-              </button>
+                <button
+                  onClick={toggleFullscreen}
+                  className="flex items-center justify-center gap-2 px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-lg hover:border-gray-500 transition-colors touch-target"
+                >
+                  {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+                  <span className="text-sm hidden sm:inline">
+                    {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="relative h-screen flex">
-        {/* Control Panel Sidebar */}
+      <div className="relative flex flex-col lg:flex-row h-auto lg:h-screen">
+        {/* Control Panel Sidebar - Mobile Responsive */}
         {showControlPanel && (
-          <div className="w-80 bg-gray-900/95 border-r border-gray-700/50 backdrop-blur-sm relative z-40 flex flex-col">
-            {/* Statistics */}
-            <div className="p-6 border-b border-gray-700/50">
+          <div className="w-full lg:w-80 bg-gray-900/95 border-b lg:border-r lg:border-b-0 border-gray-700/50 backdrop-blur-sm relative z-40 flex flex-col max-h-screen lg:h-auto overflow-y-auto">
+            {/* Statistics - Mobile Layout */}
+            <div className="p-4 lg:p-6 border-b border-gray-700/50">
               <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                 <Activity className="w-5 h-5 text-cyan-400" />
                 System Overview
               </h3>
               
-              <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="grid grid-cols-2 lg:grid-cols-2 gap-3 lg:gap-4 mb-4 lg:mb-6">
                 <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3">
-                  <p className="text-2xl font-bold text-cyan-400">{geographicStats.propertiesTracked}</p>
+                  <p className="text-xl lg:text-2xl font-bold text-cyan-400">{geographicStats.propertiesTracked}</p>
                   <p className="text-xs text-gray-400">Properties Tracked</p>
                 </div>
                 <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3">
@@ -299,8 +303,8 @@ export default function GeographicMappingPage() {
           </div>
         )}
 
-        {/* Main Map Area */}
-        <div className="flex-1 relative">
+        {/* Main Map Area - Mobile Responsive */}
+        <div className="flex-1 relative min-h-[60vh] lg:min-h-0">
           <InteractiveMap
             selectedProperty={selectedProperty}
             onPropertySelect={setSelectedProperty}
@@ -308,21 +312,23 @@ export default function GeographicMappingPage() {
             className="w-full h-full"
           />
           
-          {/* Toggle Control Panel Button (when hidden) */}
+          {/* Toggle Control Panel Button (when hidden) - Mobile Optimized */}
           {!showControlPanel && (
             <button
               onClick={() => setShowControlPanel(true)}
-              className="absolute top-4 left-4 z-30 flex items-center gap-2 px-3 py-2 bg-gray-900/90 border border-gray-600 rounded-lg backdrop-blur-sm hover:border-gray-500 transition-colors"
+              className="absolute top-2 sm:top-4 left-2 sm:left-4 z-30 flex items-center gap-2 px-3 py-2 bg-gray-900/90 border border-gray-600 rounded-lg backdrop-blur-sm hover:border-gray-500 transition-colors touch-target"
             >
               <Layers className="w-4 h-4" />
-              <span className="text-sm">Show Controls</span>
+              <span className="text-sm hidden sm:inline">Show Controls</span>
+              <span className="text-sm sm:hidden">Controls</span>
             </button>
           )}
 
-          {/* Map Attribution */}
-          <div className="absolute bottom-4 right-4 z-30 bg-gray-900/90 border border-gray-600 rounded-lg px-3 py-2 backdrop-blur-sm">
+          {/* Map Attribution - Mobile Responsive */}
+          <div className="absolute bottom-2 sm:bottom-4 right-2 sm:right-4 z-30 bg-gray-900/90 border border-gray-600 rounded-lg px-2 sm:px-3 py-2 backdrop-blur-sm">
             <p className="text-xs text-gray-400">
-              Enhanced Geographic Intelligence System v2.1
+              <span className="hidden sm:inline">Enhanced Geographic Intelligence System v2.1</span>
+              <span className="sm:hidden">Geo Intel v2.1</span>
             </p>
           </div>
         </div>

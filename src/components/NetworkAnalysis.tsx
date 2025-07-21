@@ -68,6 +68,10 @@ export default function NetworkAnalysis({
     minConnectionStrength: 0
   });
 
+  const [showAnalysisPanel, setShowAnalysisPanel] = useState(false);
+  const [showFinancialConnections, setShowFinancialConnections] = useState(false);
+  const [focusEntity, setFocusEntity] = useState<string | null>(focusEntityId || null);
+
   const [layoutSettings, setLayoutSettings] = useState<LayoutSettings>({
     nodeSize: 8,
     linkDistance: 100,
@@ -92,11 +96,16 @@ export default function NetworkAnalysis({
       low: 0.4
     };
 
-    return baseColors[type as keyof typeof baseColors] || baseColors.person;
+    // Apply significance multiplier to color intensity
+    const baseColor = baseColors[type as keyof typeof baseColors] || baseColors.person;
+    const opacity = significanceMultiplier[significance as keyof typeof significanceMultiplier] || 0.6;
+    
+    // Return color with adjusted opacity based on significance
+    return `${baseColor}${Math.round(opacity * 255).toString(16).padStart(2, '0')}`;
   };
 
   // Deterministic positioning based on person ID to avoid hydration mismatch
-  const getNodePosition = (personId: string, maxX: number = 800, maxY: number = 600) => {
+  const getNodePosition = (personId: string, maxX: number = 800, maxY: number = 600): NodePosition => {
     // Simple hash function to generate consistent positions
     let hash = 0;
     for (let i = 0; i < personId.length; i++) {
@@ -142,7 +151,7 @@ export default function NetworkAnalysis({
         rel.entity1Id === person.id || rel.entity2Id === person.id
       ).length;
 
-      if (connectionCount === 0 && !focusEntityId) return;
+      if (connectionCount === 0 && !focusEntity) return;
 
       const position = getNodePosition(person.id);
 
@@ -172,7 +181,7 @@ export default function NetworkAnalysis({
         rel.entity1Id === org.id || rel.entity2Id === org.id
       ).length;
 
-      if (connectionCount === 0 && !focusEntityId) return;
+      if (connectionCount === 0 && !focusEntity) return;
 
       const position = getNodePosition(org.id);
 
@@ -207,7 +216,7 @@ export default function NetworkAnalysis({
           (entity.entityType === 'organization' && coreOrganizations.some(o => o.id === entity.entityId))
         );
 
-        if (!hasConnections && !focusEntityId) return;
+        if (!hasConnections && !focusEntity) return;
 
         const position = getNodePosition(event.id);
 
@@ -265,11 +274,11 @@ export default function NetworkAnalysis({
       });
 
     // If focusing on specific entity, filter to connections
-    if (focusEntityId) {
-      const connectedNodes = new Set([focusEntityId]);
+    if (focusEntity) {
+      const connectedNodes = new Set([focusEntity]);
       edges.forEach(edge => {
-        if (edge.source === focusEntityId) connectedNodes.add(edge.target);
-        if (edge.target === focusEntityId) connectedNodes.add(edge.source);
+        if (edge.source === focusEntity) connectedNodes.add(edge.target);
+        if (edge.target === focusEntity) connectedNodes.add(edge.source);
       });
 
       // Add second-degree connections for key nodes
@@ -308,7 +317,7 @@ export default function NetworkAnalysis({
       nodes: Array.from(nodes.values()).slice(0, maxConnections),
       edges
     };
-  }, [filters, searchTerm, focusEntityId, maxConnections, layoutSettings]);
+  }, [filters, searchTerm, focusEntity, maxConnections, layoutSettings]);
 
   const getEdgeColor = (significance: string, verified: boolean): string => {
     const alpha = verified ? '0.8' : '0.4';
@@ -465,6 +474,98 @@ export default function NetworkAnalysis({
           >
             <Settings className="w-4 h-4" />
           </button>
+
+          {/* Additional Analysis Controls */}
+          <button
+            onClick={() => setShowAnalysisPanel(!showAnalysisPanel)}
+            className={`p-2 border border-gray-300 dark:border-dark-600 rounded-lg hover:bg-gray-100 dark:hover:bg-dark-700 ${showAnalysisPanel ? 'bg-blue-100 dark:bg-blue-900' : ''}`}
+            title="Toggle Analysis Panel"
+          >
+            <Info className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => setShowFinancialConnections(!showFinancialConnections)}
+            className={`p-2 border border-gray-300 dark:border-dark-600 rounded-lg hover:bg-gray-100 dark:hover:bg-dark-700 ${showFinancialConnections ? 'bg-green-100 dark:bg-green-900' : ''}`}
+            title="Toggle Financial Connections"
+          >
+            {showFinancialConnections ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+          </button>
+
+          <button
+            onClick={() => {
+              const data = {
+                nodes: networkData.nodes,
+                edges: networkData.edges,
+                financialConnections: financialTransactions.filter(t => 
+                  networkData.nodes.some(n => n.id === t.fromEntity || n.id === t.toEntity)
+                ),
+                timestamp: new Date().toISOString()
+              };
+              const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `network-analysis-${new Date().toISOString().slice(0, 10)}.json`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            }}
+            className="p-2 border border-gray-300 dark:border-dark-600 rounded-lg hover:bg-gray-100 dark:hover:bg-dark-700"
+            title="Download Network Data"
+          >
+            <Download className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => {
+              if (navigator.share) {
+                navigator.share({
+                  title: 'Network Analysis',
+                  text: `Network analysis showing ${networkData.nodes.length} entities and ${networkData.edges.length} connections`,
+                  url: window.location.href
+                });
+              }
+            }}
+            className="p-2 border border-gray-300 dark:border-dark-600 rounded-lg hover:bg-gray-100 dark:hover:bg-dark-700"
+            title="Share Network Analysis"
+          >
+            <Share className="w-4 h-4" />
+          </button>
+
+          {/* Search for specific entities */}
+          <div className="relative">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search entities..."
+              className="pl-10 pr-4 py-2 border border-gray-300 dark:border-dark-600 rounded-lg text-sm w-48"
+              onChange={(e) => {
+                const newSearchTerm = e.target.value.toLowerCase();
+                setSearchTerm(newSearchTerm);
+                
+                if (newSearchTerm) {
+                  // Find matching entities and highlight them
+                  const matchingPeople = corePeople.filter((person: Person) => 
+                    person.name.toLowerCase().includes(newSearchTerm)
+                  );
+                  const matchingOrgs = coreOrganizations.filter((org: { id: string; name: string }) => 
+                    org.name.toLowerCase().includes(newSearchTerm)
+                  );
+                  
+                  // Focus on first matching entity if found
+                  if (matchingPeople.length > 0) {
+                    setFocusEntity(matchingPeople[0].id);
+                  } else if (matchingOrgs.length > 0) {
+                    setFocusEntity(matchingOrgs[0].id);
+                  }
+                } else {
+                  setFocusEntity(null);
+                }
+              }}
+            />
+          </div>
         </div>
       </div>
 
@@ -808,7 +909,7 @@ export default function NetworkAnalysis({
                 </div>
 
                 {(() => {
-                  const relationship = coreRelationships.find(r => r.id === selectedEdge.id);
+                  const relationship: Relationship | undefined = coreRelationships.find(r => r.id === selectedEdge.id);
                   if (!relationship) return null;
 
                   return (

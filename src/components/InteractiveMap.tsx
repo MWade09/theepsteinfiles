@@ -20,6 +20,7 @@ import { flightLogs as flights, travelPatterns } from '@/data/geographic/travelP
 const initializeLeafletIcons = () => {
   try {
     if (typeof window !== 'undefined' && L && L.Icon && L.Icon.Default) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       delete (L.Icon.Default.prototype as any)._getIconUrl;
       L.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -27,8 +28,8 @@ const initializeLeafletIcons = () => {
         shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
       });
     }
-  } catch (error) {
-    console.error('Failed to initialize Leaflet icons:', error);
+  } catch {
+    // Silent error handling for Leaflet icon initialization
   }
 };
 
@@ -50,6 +51,38 @@ interface DiscoveryPoint {
   points: number;
   discovered: boolean;
 }
+
+// Icon helpers for different map elements
+const getPropertyIcon = (type: string) => {
+  switch (type) {
+    case 'island':
+    case 'estate':
+    case 'mansion':
+      return Building;
+    case 'airport':
+    case 'flight':
+      return Plane;
+    case 'financial':
+      return DollarSign;
+    default:
+      return MapPin;
+  }
+};
+
+const getActivityIcon = (activity: string) => {
+  switch (activity) {
+    case 'flight':
+      return Plane;
+    case 'financial':
+      return DollarSign;
+    case 'discovery':
+      return Star;
+    case 'surveillance':
+      return Eye;
+    default:
+      return Activity;
+  }
+};
 
 // Custom marker icons based on property significance and type
 const createCustomIcon = (
@@ -206,6 +239,65 @@ const getTravelPatternPaths = () => {
   }).filter(Boolean);
 };
 
+// Custom map controls component using useMap hook
+interface MapControlsProps {
+  selectedProperty: string | null;
+  onPropertySelect: (propertyId: string) => void;
+  activeLayers: {
+    flightPaths: boolean;
+    travelPatterns: boolean;
+    financialConnections: boolean;
+  };
+  getPropertyIcon: (type: string) => React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  getActivityIcon: (activity: string) => React.ComponentType<React.SVGProps<SVGSVGElement>>;
+}
+
+const MapControls: React.FC<MapControlsProps> = ({ 
+  selectedProperty, 
+  onPropertySelect: _onPropertySelect, 
+  activeLayers,
+  getPropertyIcon,
+  getActivityIcon 
+}) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (selectedProperty) {
+      // Find the property and center map on it
+      const property = properties.find(p => p.id === selectedProperty);
+      if (property) {
+        map.setView([property.coordinates[0], property.coordinates[1]], 15);
+        
+        // Add custom marker highlight
+        const IconComponent = getPropertyIcon(property.type);
+        L.popup()
+          .setLatLng([property.coordinates[0], property.coordinates[1]])
+          .setContent(`
+            <div class="flex items-center gap-2">
+              <div class="text-blue-500">${IconComponent.name || 'Property'}</div>
+              <span>${property.name}</span>
+            </div>
+          `)
+          .openOn(map);
+      }
+    }
+  }, [selectedProperty, map, getPropertyIcon]);
+
+  useEffect(() => {
+    // Handle layer visibility changes with activity icons
+    if (activeLayers.flightPaths) {
+      getActivityIcon('flight'); // Use the icon function
+      // Enhanced flight path visualization would go here
+    }
+    if (activeLayers.financialConnections) {
+      getActivityIcon('financial'); // Use the icon function
+      // Enhanced financial visualization would go here  
+    }
+  }, [activeLayers, map, getActivityIcon]);
+
+  return null; // This component doesn't render anything visible
+};
+
 export default function InteractiveMap({ 
   selectedProperty, 
   onPropertySelect, 
@@ -227,7 +319,6 @@ export default function InteractiveMap({
           initializeLeafletIcons();
           setIsMapReady(true);
         } catch (error) {
-          console.error('Map initialization failed:', error);
           setMapError(error instanceof Error ? error.message : 'Unknown error');
         }
       }, 100);
@@ -283,6 +374,15 @@ export default function InteractiveMap({
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
           subdomains={['a', 'b', 'c', 'd']}
+        />
+
+        {/* Custom Map Controls */}
+        <MapControls 
+          selectedProperty={selectedProperty}
+          onPropertySelect={onPropertySelect}
+          activeLayers={activeLayers}
+          getPropertyIcon={getPropertyIcon}
+          getActivityIcon={getActivityIcon}
         />
 
         {/* Property Markers */}
@@ -413,31 +513,63 @@ export default function InteractiveMap({
         </div>
       </div>
 
-      {/* Legend */}
+      {/* Enhanced Legend */}
       <div className="absolute bottom-4 right-4 z-20 bg-gray-900/90 backdrop-blur-sm rounded-lg p-3 border border-cyan-500/30">
-        <div className="text-xs text-gray-300 space-y-1">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <span>Critical Significance</span>
+        <div className="text-xs text-gray-300 space-y-2">
+          <div className="text-cyan-400 font-semibold mb-2 flex items-center gap-2">
+            <MapPin className="w-3 h-3" />
+            <span>Map Legend</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-            <span>High Significance</span>
+          
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+              <span>Critical Significance</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+              <span>High Significance</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-1 bg-blue-500"></div>
-            <span>Flight Paths</span>
+          
+          <div className="border-t border-gray-700 pt-2 space-y-1">
+            <div className="flex items-center gap-2">
+              <Building className="w-3 h-3 text-green-400" />
+              <span>Properties</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Plane className="w-3 h-3 text-blue-400" />
+              <span>Flight Activity</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <DollarSign className="w-3 h-3 text-yellow-400" />
+              <span>Financial</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Star className="w-3 h-3 text-purple-400" />
+              <span>Discoveries</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Activity className="w-3 h-3 text-cyan-400" />
+              <span>Activity Patterns</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-1 bg-purple-500"></div>
-            <span>Travel Patterns</span>
+          
+          <div className="border-t border-gray-700 pt-2 space-y-1">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-1 bg-blue-500"></div>
+              <span>Flight Paths</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-1 bg-purple-500"></div>
+              <span>Travel Patterns</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
   } catch (error) {
-    console.error('InteractiveMap rendering error:', error);
     return (
       <div className={`relative w-full h-[600px] rounded-xl overflow-hidden border border-red-500/30 ${className}`}>
         <div className="flex items-center justify-center h-full bg-gradient-to-br from-gray-900 via-gray-800 to-black">

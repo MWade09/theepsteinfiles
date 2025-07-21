@@ -872,6 +872,6 @@ export interface AuditLog {
   entityId: string;
   entityType: string;
   timestamp: string;
-  details: Record<string, any>;
+  details: Record<string, unknown>;
   ipAddress?: string;
 } 

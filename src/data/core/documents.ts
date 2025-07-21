@@ -36,7 +36,18 @@ export const coreDocuments: Evidence[] = [
       text: 'UNITED STATES OF AMERICA v. JEFFREY EPSTEIN... The United States agrees that it will not institute any criminal charges against Epstein...',
       hash: 'sha256:a1b2c3d4e5f6...'
     },
-    annotations: [],
+    annotations: [
+      {
+        id: 'anno_001',
+        type: 'highlight',
+        startPosition: 120,
+        endPosition: 145,
+        content: 'Non-prosecution agreement - Key legal protection granted to Epstein',
+        authorId: 'legal-analysis-team',
+        createdDate: '2024-01-10T10:30:00Z',
+        significance: 'critical'
+      } as Annotation
+    ],
     accessLevel: 'public',
     lastUpdated: '2024-01-15'
   },
@@ -362,8 +373,14 @@ export const getDocumentsByCollection = (collectionId: string): Evidence[] => {
   return coreDocuments.filter(doc => collection.documents.includes(doc.id));
 };
 
+// Helper function to extract document content
+export const getDocumentContent = (document: Evidence): DocumentContent | null => {
+  if (!document.content) return null;
+  return document.content as DocumentContent;
+};
+
 // Helper function to search documents
-export const searchDocuments = (query: string, filters?: any): Evidence[] => {
+export const searchDocuments = (query: string, _filters?: { category?: string; timeframe?: string }): Evidence[] => {
   const normalizedQuery = query.toLowerCase();
   
   return coreDocuments.filter(doc => {

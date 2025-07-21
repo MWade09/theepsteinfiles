@@ -311,6 +311,21 @@ export default function EnhancedGeographicMapping() {
       </div>
       
              {properties && properties
+         .filter(property => {
+           // Apply timeline filters
+           const acquisitionDate = new Date(property.ownershipHistory[0].startDate);
+           const filterStart = new Date(timelineFilter.startDate);
+           const filterEnd = new Date(timelineFilter.endDate);
+           
+           // Check if property falls within timeline filter
+           const withinDateRange = acquisitionDate >= filterStart && acquisitionDate <= filterEnd;
+           
+           // Check if property type matches event types filter
+           const matchesEventTypes = timelineFilter.eventTypes.includes('ownership') || 
+                                   timelineFilter.eventTypes.includes('financial');
+           
+           return withinDateRange && matchesEventTypes;
+         })
          .sort((a, b) => new Date(a.ownershipHistory[0].startDate).getTime() - new Date(b.ownershipHistory[0].startDate).getTime())
         .map((property, _index) => {
           const discovery = discoveryPoints.find(d => d.id === property.id?.split('_')[0]);

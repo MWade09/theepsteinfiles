@@ -163,15 +163,15 @@ export default function InvestigationDashboard() {
     },
     {
       id: 'research',
-      title: 'Research Integration',
-      description: 'Integration of external research, investigative journalism, and verified source materials.',
+      title: 'Research Tools & Export',
+      description: 'Professional research tools: data export, PDF reports, research notes, and academic citations.',
       icon: <BookOpen className="w-8 h-8" />,
       href: '/research',
-      status: 'active',
+      status: 'completed',
       stats: [
-        { label: 'Sources Integrated', value: 156 },
-        { label: 'Verification Status', value: '89%' },
-        { label: 'Research Papers', value: 45 }
+        { label: 'Export Formats', value: 'CSV, PDF' },
+        { label: 'Citation Styles', value: 4 },
+        { label: 'Research Notes', value: 'Unlimited' }
       ],
       color: 'indigo',
       gradient: 'from-indigo-500 to-purple-600'
@@ -211,44 +211,49 @@ export default function InvestigationDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
-      {/* Header */}
-      <header className="relative px-8 py-8 border-b border-gray-700/50 backdrop-blur-sm">
+      {/* Header - Improved Layout */}
+      <header className="relative px-4 sm:px-6 lg:px-8 py-6 lg:py-8 border-b border-gray-700/50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+            {/* Title Section - Better Responsive Design */}
+            <div className="text-center lg:text-left">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
                 The Epstein Files
               </h1>
-              <p className="text-gray-300 text-lg mt-2">Comprehensive Investigation Platform</p>
+              <p className="text-gray-300 text-base lg:text-lg mt-2">Comprehensive Investigation Platform</p>
             </div>
             
-            <div className="flex items-center gap-6">
-              {/* Search Button */}
+            {/* Controls Section - Better Mobile Layout */}
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full lg:w-auto">
+              {/* Search Button - Improved Mobile Design */}
               <button
                 onClick={() => setIsSearchOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-800/50 border border-gray-600 rounded-lg hover:border-cyan-400 transition-colors"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg hover:border-cyan-400 transition-colors"
                 title="Search (Ctrl+K)"
               >
                 <Search className="w-4 h-4 text-gray-400" />
                 <span className="text-sm text-gray-400">Search...</span>
-                <kbd className="px-2 py-1 text-xs text-gray-400 border border-gray-600 rounded">
+                <kbd className="hidden sm:inline px-2 py-1 text-xs text-gray-400 border border-gray-600 rounded">
                   ⌘K
                 </kbd>
               </button>
 
-              <div className="text-right">
-                <p className="text-sm text-gray-400">Investigation Status</p>
-                <div className="flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-green-400" />
-                  <span className="text-green-400 font-semibold">Active</span>
+              {/* Status Info - Better Mobile Layout */}
+              <div className="flex items-center gap-4 sm:gap-6">
+                <div className="text-center sm:text-right">
+                  <p className="text-xs sm:text-sm text-gray-400">Status</p>
+                  <div className="flex items-center justify-center sm:justify-end gap-2">
+                    <Activity className="w-4 h-4 text-green-400" />
+                    <span className="text-green-400 font-semibold text-sm">Active</span>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="text-right">
-                <p className="text-sm text-gray-400">Last Updated</p>
-                <p className="text-cyan-400 font-mono text-sm">
-                  {currentTime.toLocaleTimeString()}
-                </p>
+                
+                <div className="text-center sm:text-right">
+                  <p className="text-xs sm:text-sm text-gray-400">Updated</p>
+                  <p className="text-cyan-400 font-mono text-xs sm:text-sm">
+                    {currentTime.toLocaleTimeString()}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -266,58 +271,58 @@ export default function InvestigationDashboard() {
         </div>
       </header>
 
-      {/* Statistics Dashboard */}
-      <section className="px-8 py-8">
+      {/* Statistics Dashboard - Enhanced Responsive Design */}
+      <section className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8 lg:mb-12">
+            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-cyan-500/30 rounded-xl p-4 lg:p-6 backdrop-blur-sm hover:border-cyan-400/50 transition-colors">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-400 text-sm">Total Documents</p>
-                  <p className="text-2xl font-bold text-cyan-400">{investigationStats.totalDocuments.toLocaleString()}</p>
+                  <p className="text-gray-400 text-xs sm:text-sm">Total Documents</p>
+                  <p className="text-xl lg:text-2xl font-bold text-cyan-400">{investigationStats.totalDocuments.toLocaleString()}</p>
                 </div>
-                <FileText className="w-8 h-8 text-cyan-400" />
+                <FileText className="w-6 h-6 lg:w-8 lg:h-8 text-cyan-400" />
               </div>
             </div>
             
-            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-purple-500/30 rounded-xl p-6 backdrop-blur-sm">
+            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-purple-500/30 rounded-xl p-4 lg:p-6 backdrop-blur-sm hover:border-purple-400/50 transition-colors">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-400 text-sm">Entities Tracked</p>
-                  <p className="text-2xl font-bold text-purple-400">{investigationStats.entitiesTracked}</p>
+                  <p className="text-gray-400 text-xs sm:text-sm">Entities Tracked</p>
+                  <p className="text-xl lg:text-2xl font-bold text-purple-400">{investigationStats.entitiesTracked}</p>
                 </div>
-                <Users className="w-8 h-8 text-purple-400" />
+                <Users className="w-6 h-6 lg:w-8 lg:h-8 text-purple-400" />
               </div>
             </div>
             
-            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-green-500/30 rounded-xl p-6 backdrop-blur-sm">
+            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-green-500/30 rounded-xl p-4 lg:p-6 backdrop-blur-sm hover:border-green-400/50 transition-colors">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-400 text-sm">Connections Mapped</p>
-                  <p className="text-2xl font-bold text-green-400">{investigationStats.connectionsMapping}</p>
+                  <p className="text-gray-400 text-xs sm:text-sm">Connections Mapped</p>
+                  <p className="text-xl lg:text-2xl font-bold text-green-400">{investigationStats.connectionsMapping}</p>
                 </div>
-                <Network className="w-8 h-8 text-green-400" />
+                <Network className="w-6 h-6 lg:w-8 lg:h-8 text-green-400" />
               </div>
             </div>
             
-            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-yellow-500/30 rounded-xl p-6 backdrop-blur-sm">
+            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-yellow-500/30 rounded-xl p-4 lg:p-6 backdrop-blur-sm hover:border-yellow-400/50 transition-colors">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-400 text-sm">Active Investigations</p>
-                  <p className="text-2xl font-bold text-yellow-400">{investigationStats.activeInvestigations}</p>
+                  <p className="text-gray-400 text-xs sm:text-sm">Active Investigations</p>
+                  <p className="text-xl lg:text-2xl font-bold text-yellow-400">{investigationStats.activeInvestigations}</p>
                 </div>
-                <Target className="w-8 h-8 text-yellow-400" />
+                <Target className="w-6 h-6 lg:w-8 lg:h-8 text-yellow-400" />
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Investigation Modules */}
-      <section className="px-8 pb-16">
+      {/* Investigation Modules - Better Spacing */}
+      <section className="px-4 sm:px-6 lg:px-8 pb-12 lg:pb-16">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-white mb-4">Investigation Modules</h2>
+          <div className="mb-6 lg:mb-8">
+            <h2 className="text-2xl lg:text-3xl font-bold text-white mb-4">Investigation Modules</h2>
             <p className="text-gray-400 text-lg">Comprehensive analysis tools for understanding the full scope of the investigation</p>
           </div>
           

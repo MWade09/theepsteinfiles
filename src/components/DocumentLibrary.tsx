@@ -60,12 +60,12 @@ export default function DocumentLibrary() {
   });
 
   // Filter and sort documents
-  const filteredDocuments = useMemo(() => {
-    let docs = searchQuery ? searchDocuments(searchQuery) : [...coreDocuments];
+  const filteredDocuments = useMemo((): Evidence[] => {
+    let docs: Evidence[] = searchQuery ? searchDocuments(searchQuery) : [...coreDocuments];
 
     // Apply collection filter
     if (selectedCollection) {
-      const collection = documentCollections.find(c => c.id === selectedCollection);
+      const collection: DocumentCollection | undefined = documentCollections.find(c => c.id === selectedCollection);
       if (collection) {
         docs = docs.filter(doc => collection.documents.includes(doc.id));
       }
@@ -432,7 +432,7 @@ export default function DocumentLibrary() {
                 <div className="flex items-center space-x-2">
                   <select
                     value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as any)}
+                    onChange={(e) => setSortBy(e.target.value as 'date' | 'title' | 'significance' | 'relevance')}
                     className="text-sm border border-gray-300 dark:border-dark-600 rounded px-3 py-1 dark:bg-dark-700"
                   >
                     <option value="date">Date</option>
@@ -513,6 +513,64 @@ export default function DocumentLibrary() {
                         <div className="flex items-center space-x-1">
                           <Eye className="w-3 h-3" />
                           <span>{doc.content?.pageCount || 1} pages</span>
+                        </div>
+                      </div>
+
+                      {/* Document Actions */}
+                      <div className="mt-3 pt-3 border-t border-gray-200 dark:border-dark-700 flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          {/* Tags */}
+                          <div className="flex items-center space-x-1">
+                            <Tag className="w-3 h-3 text-gray-400" />
+                            <span className="text-xs text-gray-500">
+                              {doc.tags.slice(0, 2).join(', ')}
+                              {doc.tags.length > 2 && `+${doc.tags.length - 2}`}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-1">
+                          {/* Star/Bookmark */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Toggle bookmark functionality would go here
+                            }}
+                            className="p-1 text-gray-400 hover:text-yellow-500 transition-colors"
+                            title="Bookmark document"
+                          >
+                            <Star className="w-3 h-3" />
+                          </button>
+
+                          {/* Download */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Download functionality would go here
+                              const downloadUrl = doc.sources?.[0]?.url || '#';
+                              if (downloadUrl !== '#') {
+                                window.open(downloadUrl, '_blank');
+                              }
+                            }}
+                            className="p-1 text-gray-400 hover:text-blue-500 transition-colors"
+                            title="Download document"
+                          >
+                            <Download className="w-3 h-3" />
+                          </button>
+
+                          {/* External Link */}
+                          {doc.sources?.[0]?.url && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(doc.sources[0].url, '_blank');
+                              }}
+                              className="p-1 text-gray-400 hover:text-green-500 transition-colors"
+                              title="Open external source"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>

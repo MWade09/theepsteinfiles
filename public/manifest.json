@@ -1,0 +1,116 @@
+{
+  "name": "The Epstein Files - Investigation Platform",
+  "short_name": "Epstein Files",
+  "description": "Comprehensive investigation platform for the Jeffrey Epstein case with advanced search, data visualization, and research tools",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#3B82F6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "categories": ["news", "education", "reference"],
+  "lang": "en-US",
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Investigation Dashboard - Desktop View"
+    },
+    {
+      "src": "/screenshots/mobile-1.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Investigation Dashboard - Mobile View"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Search Investigation",
+      "short_name": "Search",
+      "description": "Search across all investigation data",
+      "url": "/?action=search",
+      "icons": [{ "src": "/icons/search-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Timeline Analysis",
+      "short_name": "Timeline",
+      "description": "View chronological events",
+      "url": "/timeline",
+      "icons": [{ "src": "/icons/timeline-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Network Analysis",
+      "short_name": "Network",
+      "description": "Explore relationship networks",
+      "url": "/network",
+      "icons": [{ "src": "/icons/network-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Research Tools",
+      "short_name": "Research",
+      "description": "Export data and generate reports",
+      "url": "/research",
+      "icons": [{ "src": "/icons/research-96x96.png", "sizes": "96x96" }]
+    }
+  ],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  }
+}

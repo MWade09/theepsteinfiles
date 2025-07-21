@@ -96,6 +96,7 @@ export default function EvidenceGrid() {
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   const filteredEvidence = evidenceData.filter(evidence => {
     const matchesSearch = evidence.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -141,44 +142,71 @@ export default function EvidenceGrid() {
 
       {/* Search and Filters */}
       <div className="mb-8 space-y-4">
-        <div className="relative max-w-md mx-auto">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <input
-            type="text"
-            placeholder="Search evidence..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-dark-600 rounded-lg bg-white dark:bg-dark-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-          />
+        <div className="flex items-center space-x-4 max-w-2xl mx-auto">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search evidence..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-dark-600 rounded-lg bg-white dark:bg-dark-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            />
+          </div>
+          
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+              showFilters 
+                ? 'bg-primary-100 text-primary-800 dark:bg-primary-900/20 dark:text-primary-400'
+                : 'bg-gray-100 text-gray-700 dark:bg-dark-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600'
+            }`}
+          >
+            <Filter className="w-4 h-4" />
+            <span>Filters</span>
+          </button>
         </div>
 
-        <div className="flex flex-wrap gap-4 justify-center">
-          <select
-            value={selectedType}
-            onChange={(e) => setSelectedType(e.target.value)}
-            className="px-4 py-2 border border-gray-300 dark:border-dark-600 rounded-lg bg-white dark:bg-dark-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500"
-          >
-            <option value="all">All Types</option>
-            <option value="document">Documents</option>
-            <option value="testimony">Testimony</option>
-            <option value="photo">Photos</option>
-            <option value="recording">Recordings</option>
-            <option value="financial">Financial</option>
-          </select>
+        {showFilters && (
+          <div className="flex flex-wrap gap-4 justify-center bg-gray-50 dark:bg-dark-800 p-4 rounded-lg">
+            <select
+              value={selectedType}
+              onChange={(e) => setSelectedType(e.target.value)}
+              className="px-4 py-2 border border-gray-300 dark:border-dark-600 rounded-lg bg-white dark:bg-dark-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="all">All Types</option>
+              <option value="document">Documents</option>
+              <option value="testimony">Testimony</option>
+              <option value="photo">Photos</option>
+              <option value="recording">Recordings</option>
+              <option value="financial">Financial</option>
+            </select>
 
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-4 py-2 border border-gray-300 dark:border-dark-600 rounded-lg bg-white dark:bg-dark-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500"
-          >
-            <option value="all">All Categories</option>
-            <option value="legal">Legal</option>
-            <option value="financial">Financial</option>
-            <option value="personal">Personal</option>
-            <option value="government">Government</option>
-            <option value="media">Media</option>
-          </select>
-        </div>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="px-4 py-2 border border-gray-300 dark:border-dark-600 rounded-lg bg-white dark:bg-dark-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="all">All Categories</option>
+              <option value="legal">Legal</option>
+              <option value="financial">Financial</option>
+              <option value="personal">Personal</option>
+              <option value="government">Government</option>
+              <option value="media">Media</option>
+            </select>
+            
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setSelectedType('all');
+                setSelectedCategory('all');
+              }}
+              className="px-4 py-2 bg-red-100 text-red-800 rounded-lg hover:bg-red-200 transition-colors dark:bg-red-900/20 dark:text-red-400"
+            >
+              Clear Filters
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Evidence Grid */}

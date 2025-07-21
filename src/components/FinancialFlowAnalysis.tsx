@@ -142,13 +142,13 @@ export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowP
 
     // Create nodes from entities involved in filtered transactions
     const involvedEntities = new Set<string>();
-    filteredTransactions.forEach(txn => {
+    filteredTransactions.forEach((txn: FinancialTransaction) => {
       involvedEntities.add(txn.fromEntity);
       involvedEntities.add(txn.toEntity);
     });
 
     Array.from(involvedEntities).forEach(entityId => {
-      const entity = getEntityById(entityId);
+      const entity: FinancialEntity | undefined = getEntityById(entityId);
       if (!entity) return;
 
       const entityTransactions = getTransactionsByEntity(entityId);
@@ -233,13 +233,33 @@ export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowP
     // Update average values
     transactionMap.forEach(edge => {
       edge.averageValue = edge.totalValue / edge.transactionCount;
+      edges.push(edge);
     });
 
     return {
       nodes: Array.from(nodes.values()),
-      edges: Array.from(transactionMap.values())
+      edges
     };
   }, [filteredTransactions]);
+
+  // Animation and interaction effects
+  useEffect(() => {
+    if (!svgRef.current || !flowAnimation) return;
+
+    const interval = setInterval(() => {
+      // Trigger flow animation updates
+      const flows = svgRef.current?.querySelectorAll('.flow-animation');
+      flows?.forEach((flow, index) => {
+        const delay = (index * 100) / animationSpeed;
+        setTimeout(() => {
+          flow.classList.add('animate-pulse');
+          setTimeout(() => flow.classList.remove('animate-pulse'), 1000);
+        }, delay);
+      });
+    }, 3000 / animationSpeed);
+
+    return () => clearInterval(interval);
+  }, [flowAnimation, animationSpeed, networkData]);
 
   const formatCurrency = (amount: number): string => {
     if (amount >= 1000000) {
@@ -890,10 +910,47 @@ export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowP
             <Filter className="w-4 h-4" />
             <span>Filters</span>
           </button>
+
+          {/* Animation Controls */}
+          <button
+            onClick={() => setFlowAnimation(!flowAnimation)}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+              flowAnimation 
+                ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                : 'bg-gray-100 text-gray-700 dark:bg-dark-700 dark:text-gray-300'
+            }`}
+          >
+            {flowAnimation ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+            <span>Animation</span>
+          </button>
+
+          {/* Download Button */}
+          <button
+            onClick={() => {
+              const data = {
+                transactions: filteredTransactions,
+                summary: getSuspiciousActivitySummary(),
+                timestamp: new Date().toISOString()
+              };
+              const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `financial-analysis-${new Date().toISOString().slice(0, 10)}.json`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            }}
+            className="flex items-center space-x-2 px-4 py-2 bg-purple-100 text-purple-800 rounded-lg hover:bg-purple-200 transition-colors dark:bg-purple-900/20 dark:text-purple-400"
+          >
+            <Download className="w-4 h-4" />
+            <span>Export</span>
+          </button>
         </div>
       </div>
 
-      {/* Search and Controls */}
+      {/* Search and View Mode Controls */}
       <div className="flex items-center justify-between">
         <div className="relative flex-1 max-w-md">
           <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -949,6 +1006,323 @@ export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowP
           </button>
         </div>
       </div>
+
+      {/* Advanced Filters Panel */}
+      {showFilters && (
+        <div className="bg-white dark:bg-dark-800 rounded-lg border border-gray-200 dark:border-dark-700 p-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center space-x-2">
+              <Filter className="w-5 h-5" />
+              <span>Advanced Filters</span>
+            </h3>
+            
+            {/* Animation Speed Control */}
+            <div className="flex items-center space-x-3">
+              <Clock className="w-4 h-4 text-gray-500" />
+              <label className="text-sm text-gray-700 dark:text-gray-300">Speed:</label>
+              <input
+                type="range"
+                min="0.5"
+                max="3"
+                step="0.5"
+                value={animationSpeed}
+                onChange={(e) => setAnimationSpeed(parseFloat(e.target.value))}
+                className="w-20"
+              />
+              <span className="text-sm text-gray-600 dark:text-gray-400">{animationSpeed}x</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Date Range Filter */}
+            <div className="space-y-2">
+              <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Calendar className="w-4 h-4" />
+                <span>Date Range</span>
+              </label>
+              <div className="space-y-2">
+                <input
+                  type="date"
+                  value={filters.dateRange.start}
+                  onChange={(e) => setFilters(prev => ({
+                    ...prev,
+                    dateRange: { ...prev.dateRange, start: e.target.value }
+                  }))}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-lg dark:bg-dark-700"
+                />
+                <input
+                  type="date"
+                  value={filters.dateRange.end}
+                  onChange={(e) => setFilters(prev => ({
+                    ...prev,
+                    dateRange: { ...prev.dateRange, end: e.target.value }
+                  }))}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-lg dark:bg-dark-700"
+                />
+              </div>
+            </div>
+
+            {/* Amount Range Filter */}
+            <div className="space-y-2">
+              <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <DollarSign className="w-4 h-4" />
+                <span>Amount Range (USD)</span>
+              </label>
+              <div className="space-y-2">
+                <input
+                  type="number"
+                  placeholder="Min amount"
+                  value={filters.amountRange.min}
+                  onChange={(e) => setFilters(prev => ({
+                    ...prev,
+                    amountRange: { ...prev.amountRange, min: parseInt(e.target.value) || 0 }
+                  }))}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-lg dark:bg-dark-700"
+                />
+                <input
+                  type="number"
+                  placeholder="Max amount"
+                  value={filters.amountRange.max}
+                  onChange={(e) => setFilters(prev => ({
+                    ...prev,
+                    amountRange: { ...prev.amountRange, max: parseInt(e.target.value) || 100000000 }
+                  }))}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-lg dark:bg-dark-700"
+                />
+              </div>
+            </div>
+
+            {/* Entity Type Filters */}
+            <div className="space-y-2">
+              <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Building className="w-4 h-4" />
+                <span>Entity Types</span>
+              </label>
+              <div className="space-y-1">
+                {['individual', 'corporation', 'bank', 'trust', 'foundation'].map(type => (
+                  <label key={type} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={filters.entities.includes(type)}
+                      onChange={() => {
+                        setFilters(prev => ({
+                          ...prev,
+                          entities: prev.entities.includes(type)
+                            ? prev.entities.filter(t => t !== type)
+                            : [...prev.entities, type]
+                        }));
+                      }}
+                      className="rounded border-gray-300 dark:border-dark-600"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300 capitalize">{type}</span>
+                    {type === 'individual' && <User className="w-3 h-3 text-blue-500" />}
+                    {type === 'bank' && <Shield className="w-3 h-3 text-purple-500" />}
+                    {type === 'corporation' && <Building className="w-3 h-3 text-green-500" />}
+                  </label>
+                ))}
+                
+                {/* Entity Statistics */}
+                <div className="mt-3 pt-3 border-t border-gray-200 dark:border-dark-600">
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    Total Entities: {financialEntities.length}
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    People: {corePeople.length} | Organizations: {coreOrganizations.length}
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    Timeline Events: {comprehensiveTimeline.length}
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    Relationships: {coreRelationships.length}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Risk Assessment Tools */}
+          <div className="border-t border-gray-200 dark:border-dark-700 pt-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Target className="w-5 h-5 text-red-500" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Risk Assessment</span>
+              </div>
+              
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => {
+                    // Shuffle network layout for new perspective
+                    setSelectedEntity(null); // Reset selection to trigger re-render
+                  }}
+                  className="flex items-center space-x-2 px-3 py-1 bg-indigo-100 text-indigo-800 rounded-lg hover:bg-indigo-200 transition-colors dark:bg-indigo-900/20 dark:text-indigo-400"
+                >
+                  <Shuffle className="w-4 h-4" />
+                  <span>Shuffle Layout</span>
+                </button>
+                
+                <button
+                  onClick={() => {
+                    // Focus on flagged entities
+                    setFilters(prev => ({ ...prev, suspiciousOnly: true }));
+                    setShowSuspiciousOnly(true);
+                  }}
+                  className="flex items-center space-x-2 px-3 py-1 bg-red-100 text-red-800 rounded-lg hover:bg-red-200 transition-colors dark:bg-red-900/20 dark:text-red-400"
+                >
+                  <Flag className="w-4 h-4" />
+                  <span>Focus Flagged</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Timeline Navigation */}
+      {viewMode === 'timeline' && (
+        <div className="bg-white dark:bg-dark-800 rounded-lg border border-gray-200 dark:border-dark-700 p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => {
+                  const currentDate = new Date(timelineDate);
+                  currentDate.setMonth(currentDate.getMonth() - 1);
+                  setTimelineDate(currentDate.toISOString().slice(0, 10));
+                }}
+                className="flex items-center space-x-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors dark:bg-dark-700 dark:text-gray-300"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Previous</span>
+              </button>
+              
+              <input
+                type="date"
+                value={timelineDate}
+                onChange={(e) => setTimelineDate(e.target.value)}
+                className="px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-lg dark:bg-dark-700"
+              />
+              
+              <button
+                onClick={() => {
+                  const currentDate = new Date(timelineDate);
+                  currentDate.setMonth(currentDate.getMonth() + 1);
+                  setTimelineDate(currentDate.toISOString().slice(0, 10));
+                }}
+                className="flex items-center space-x-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors dark:bg-dark-700 dark:text-gray-300"
+              >
+                <span>Next</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <TrendingUp className="w-5 h-5 text-green-500" />
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                Trends for {new Date(timelineDate).toLocaleDateString()}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Analytics Charts Navigation */}
+      {viewMode === 'analytics' && (
+        <div className="bg-white dark:bg-dark-800 rounded-lg border border-gray-200 dark:border-dark-700 p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <BarChart3 className="w-5 h-5 text-blue-500" />
+              <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">Analytics Dashboard</span>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => {/* Toggle chart type */}}
+                className="flex items-center space-x-2 px-3 py-2 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 transition-colors dark:bg-blue-900/20 dark:text-blue-400"
+              >
+                <PieChart className="w-4 h-4" />
+                <span>Chart Type</span>
+              </button>
+              
+              <MapPin className="w-4 h-4 text-gray-400" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Entity Details Panel */}
+      {selectedEntity && (
+        <div className="bg-white dark:bg-dark-800 rounded-lg border border-gray-200 dark:border-dark-700 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center space-x-2">
+              <Building className="w-5 h-5" />
+              <span>Entity Details</span>
+            </h3>
+            <button
+              onClick={() => setSelectedEntity(null)}
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            >
+              ×
+            </button>
+          </div>
+          {(() => {
+            const entity = getEntityById(selectedEntity);
+            if (!entity) return <div>Entity not found</div>;
+            
+            return (
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100">{entity.name}</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 capitalize">{entity.type}</p>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-500 dark:text-gray-400">Registration:</span>
+                    <span className="ml-2 text-gray-900 dark:text-gray-100">{entity.registrationCountry}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500 dark:text-gray-400">Status:</span>
+                    <span className="ml-2 text-gray-900 dark:text-gray-100 capitalize">{entity.currentStatus}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500 dark:text-gray-400">Legal Structure:</span>
+                    <span className="ml-2 text-gray-900 dark:text-gray-100 uppercase">{entity.legalStructure}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500 dark:text-gray-400">Tax Haven:</span>
+                    <span className={`ml-2 ${entity.taxHaven ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
+                      {entity.taxHaven ? 'Yes' : 'No'}
+                    </span>
+                  </div>
+                </div>
+                
+                {entity.suspiciousActivity.length > 0 && (
+                  <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
+                    <div className="flex items-center space-x-2 text-red-800 dark:text-red-400 mb-2">
+                      <Flag className="w-4 h-4" />
+                      <span className="font-medium">Suspicious Activity ({entity.suspiciousActivity.length})</span>
+                    </div>
+                    <ul className="text-sm text-red-700 dark:text-red-300 space-y-1">
+                      {entity.suspiciousActivity.map((activity, index) => (
+                        <li key={index} className="flex items-center space-x-2">
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${
+                            activity.severity === 'critical' ? 'bg-red-200 text-red-900 dark:bg-red-900/50 dark:text-red-200' :
+                            activity.severity === 'high' ? 'bg-orange-200 text-orange-900 dark:bg-orange-900/50 dark:text-orange-200' :
+                            activity.severity === 'medium' ? 'bg-yellow-200 text-yellow-900 dark:bg-yellow-900/50 dark:text-yellow-200' :
+                            'bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-gray-200'
+                          }`}>
+                            {activity.severity}
+                          </span>
+                          <span>• {activity.description}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+        </div>
+      )}
 
       {/* Main Content */}
       {viewMode === 'flow' && renderFlowView()}
