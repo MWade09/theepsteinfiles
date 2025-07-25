@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, Circle, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { 
@@ -307,6 +307,8 @@ export default function InteractiveMap({
   const [isClient, setIsClient] = useState(false);
   const [isMapReady, setIsMapReady] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
+  const [mapKey, setMapKey] = useState(0);
+  const mapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Check if we're in browser environment
@@ -326,6 +328,27 @@ export default function InteractiveMap({
       return () => clearTimeout(timer);
     }
   }, []);
+
+  // Cleanup effect to handle component unmounting and prevent map reinitialization
+  useEffect(() => {
+    return () => {
+      // Force remount of map on component reinitialization
+      setMapKey(prev => prev + 1);
+      setIsMapReady(false);
+    };
+  }, []);
+
+  // Effect to handle strict mode double mounting
+  useEffect(() => {
+    if (isMapReady && mapRef.current) {
+      // Clear any existing map instance
+      const mapElement = mapRef.current.querySelector('.leaflet-container');
+      if (mapElement && (mapElement as HTMLElement & { _leaflet_id?: string })._leaflet_id) {
+        // Force recreation if map already exists
+        setMapKey(prev => prev + 1);
+      }
+    }
+  }, [isMapReady]);
 
   if (!isClient || !isMapReady) {
     return (
@@ -355,8 +378,12 @@ export default function InteractiveMap({
 
   try {
     return (
-      <div className={`relative w-full h-[600px] rounded-xl overflow-hidden border border-cyan-500/30 ${className}`}>
+      <div 
+        ref={mapRef}
+        className={`relative w-full h-[600px] rounded-xl overflow-hidden border border-cyan-500/30 ${className}`}
+      >
         <MapContainer
+          key={`map-${mapKey}`} // Force remount when key changes
           center={mapCenter}
           zoom={mapZoom}
           style={{ height: '100%', width: '100%' }}

@@ -39,6 +39,28 @@ const InteractiveMap = dynamic(() => import('@/components/InteractiveMap'), {
   )
 });
 
+// Error boundary component for map initialization issues
+const MapErrorFallback = ({ error, resetError }: { error: Error; resetError: () => void }) => (
+  <div className="w-full h-full bg-gradient-to-br from-red-900 via-gray-800 to-black flex items-center justify-center rounded-xl border border-red-500/30">
+    <div className="text-center text-red-400 p-6">
+      <div className="text-6xl mb-4">🗺️</div>
+      <p className="text-lg font-bold mb-2">Map Loading Error</p>
+      <p className="text-sm opacity-60 mb-4">
+        {error.message.includes('Map container is already initialized') 
+          ? 'Map is reinitializing. This will resolve automatically.'
+          : error.message
+        }
+      </p>
+      <button 
+        onClick={resetError}
+        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+      >
+        Retry Map Loading
+      </button>
+    </div>
+  </div>
+);
+
 export default function GeographicMappingPage() {
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
   const [activeLayers, setActiveLayers] = useState<LayerState>({
@@ -50,6 +72,30 @@ export default function GeographicMappingPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControlPanel, setShowControlPanel] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [mapError, setMapError] = useState<Error | null>(null);
+  const [mapKey, setMapKey] = useState(0);
+
+  // Function to reset map on error
+  const resetMap = () => {
+    setMapError(null);
+    setMapKey(prev => prev + 1);
+  };
+
+  // Handle window errors from map initialization
+  useEffect(() => {
+    const handleError = (event: ErrorEvent) => {
+      if (event.message.includes('Map container is already initialized')) {
+        setMapError(new Error('Map container is already initialized'));
+        // Auto-recover after a short delay
+        setTimeout(() => {
+          resetMap();
+        }, 1000);
+      }
+    };
+
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
+  }, []);
 
   // Statistics for the mapping system
   const geographicStats = {
@@ -305,12 +351,17 @@ export default function GeographicMappingPage() {
 
         {/* Main Map Area - Mobile Responsive */}
         <div className="flex-1 relative min-h-[60vh] lg:min-h-0">
-          <InteractiveMap
-            selectedProperty={selectedProperty}
-            onPropertySelect={setSelectedProperty}
-            activeLayers={activeLayers}
-            className="w-full h-full"
-          />
+          {mapError ? (
+            <MapErrorFallback error={mapError} resetError={resetMap} />
+          ) : (
+            <InteractiveMap
+              key={`map-${mapKey}`}
+              selectedProperty={selectedProperty}
+              onPropertySelect={setSelectedProperty}
+              activeLayers={activeLayers}
+              className="w-full h-full"
+            />
+          )}
           
           {/* Toggle Control Panel Button (when hidden) - Mobile Optimized */}
           {!showControlPanel && (

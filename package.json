@@ -13,7 +13,9 @@
     "check-all": "npm run type-check && npm run lint"
   },
   "dependencies": {
+    "@types/d3": "^7.4.3",
     "autoprefixer": "^10.4.16",
+    "d3": "^7.9.0",
     "date-fns": "^2.30.0",
     "framer-motion": "^10.16.16",
     "leaflet": "^1.9.4",

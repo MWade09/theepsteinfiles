@@ -41,7 +41,7 @@ interface TimelineFilter {
 }
 
 interface TimelineView {
-  mode: 'chronological' | 'thematic' | 'network' | 'geographic';
+  mode: 'chronological' | 'thematic' | 'network' | 'geographic' | 'multimedia' | 'statistical';
   zoom: 'decade' | 'year' | 'month' | 'day';
   animation: boolean;
 }
@@ -124,7 +124,9 @@ export default function TimelinePage() {
     { id: 'chronological', label: 'Chronological', description: 'Events in time order' },
     { id: 'thematic', label: 'Thematic', description: 'Grouped by category' },
     { id: 'network', label: 'Network', description: 'Relationship-based' },
-    { id: 'geographic', label: 'Geographic', description: 'Location-based timeline' }
+    { id: 'geographic', label: 'Geographic', description: 'Location-based timeline' },
+    { id: 'multimedia', label: 'Multimedia', description: 'Media-rich events' },
+    { id: 'statistical', label: 'Statistical', description: 'Data analysis view' }
   ];
 
   const zoomLevels = [
@@ -363,7 +365,7 @@ export default function TimelinePage() {
                 {viewModes.map((mode) => (
                   <button
                     key={mode.id}
-                    onClick={() => setView(prev => ({ ...prev, mode: mode.id as 'chronological' | 'thematic' | 'network' | 'geographic' }))}
+                    onClick={() => setView(prev => ({ ...prev, mode: mode.id as 'chronological' | 'thematic' | 'network' | 'geographic' | 'multimedia' | 'statistical' }))}
                     className={`w-full text-left p-3 rounded-lg border transition-all ${
                       view.mode === mode.id
                         ? 'bg-purple-500/20 border-purple-500 text-purple-400'
@@ -497,7 +499,12 @@ export default function TimelinePage() {
         {/* Main Timeline Area - Mobile Responsive */}
         <div className="flex-1 relative min-h-[60vh] lg:min-h-0">
           <div className="h-full bg-gradient-to-br from-gray-900 to-black p-2 sm:p-4 lg:p-0">
-            <AdvancedTimeline />
+            <AdvancedTimeline 
+              view={view}
+              externalFilters={filters}
+              onEventSelect={(event) => setSelectedEvent(event.id)}
+              onViewChange={(newView) => setView(prev => ({ ...prev, ...newView }))}
+            />
           </div>
           
           {/* Toggle Filter Panel Button (when hidden) - Mobile Optimized */}

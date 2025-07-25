@@ -183,7 +183,7 @@ export const comprehensiveTimeline: TimelineEvent[] = [
       { entityId: 'jeffrey-epstein', entityType: 'person', role: 'attorney-in-fact', description: 'Granted power of attorney' },
       { entityId: 'les-wexner', entityType: 'person', role: 'grantor', description: 'Granted power of attorney to Epstein' }
     ],
-    relatedEvents: ['epstein-meets-wexner', 'wexner-manhattan-mansion-transfer'],
+    relatedEvents: ['epstein-meets-wexner', 'wexner-manhattan-mansion-transfer', 'manhattan-mansion-activities'],
     consequences: ['Epstein gained control over billions in assets', 'Access to Wexner\'s properties and resources'],
     verificationStatus: 'verified',
     sources: [
@@ -230,6 +230,18 @@ export const comprehensiveTimeline: TimelineEvent[] = [
         reliability: 'high',
         description: 'Official property transfer documentation',
         tags: ['property-transfer', 'manhattan', 'gift']
+      },
+      {
+        id: 'mansion-transfer-nyt',
+        title: 'How Epstein Got His Manhattan Mansion',
+        type: 'news_article',
+        author: 'Annie Karni',
+        publication: 'The New York Times',
+        publicationDate: '2019-07-08',
+        url: 'https://www.nytimes.com/2019/07/08/nyregion/jeffrey-epstein-nyc-mansion.html',
+        reliability: 'high',
+        description: 'Investigative report on the mansion transfer',
+        tags: ['mansion', 'transfer', 'investigation']
       }
     ],
     evidence: ['manhattan-mansion-deed-transfer'],
@@ -333,20 +345,19 @@ export const comprehensiveTimeline: TimelineEvent[] = [
     lastUpdated: '2024-01-15T00:00:00Z'
   },
   {
-    id: 'wexner-manhattan-mansion-transfer',
-    title: 'Manhattan Mansion Transferred to Epstein',
-    description: 'Leslie Wexner\'s Manhattan mansion is transferred to Jeffrey Epstein for reportedly $0, one of the largest private residences in NYC.',
-    date: '1996-07-01',
-    type: 'business',
-    category: 'financial',
-    significance: 'critical',
+    id: 'manhattan-mansion-activities',
+    title: 'Epstein Uses Manhattan Mansion for Social Activities',
+    description: 'Following the transfer, Jeffrey Epstein begins using the Manhattan mansion for high-profile social gatherings and meetings with prominent figures.',
+    date: '1996-08-01',
+    type: 'meeting',
+    category: 'social',
+    significance: 'high',
     entities: [
-      { entityId: 'jeffrey-epstein', entityType: 'person', role: 'recipient', description: 'Received mansion transfer' },
-      { entityId: 'les-wexner', entityType: 'person', role: 'transferor', description: 'Transferred mansion to Epstein' },
-      { entityId: 'manhattan-mansion', entityType: 'location', role: 'property', description: '9 East 71st Street mansion' }
+      { entityId: 'jeffrey-epstein', entityType: 'person', role: 'host', description: 'Used mansion for social activities' },
+      { entityId: 'manhattan-mansion', entityType: 'location', role: 'venue', description: '9 East 71st Street mansion activities' }
     ],
-    relatedEvents: ['epstein-wexner-power-attorney', 'manhattan-mansion-activities'],
-    consequences: ['Epstein gained prestigious NYC residence', 'Enhanced social status and access'],
+    relatedEvents: ['wexner-manhattan-mansion-transfer', 'epstein-social-network-expansion'],
+    consequences: ['Established Manhattan social hub', 'Increased access to elite networks'],
     verificationStatus: 'verified',
     sources: [
       {
