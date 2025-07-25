@@ -351,7 +351,7 @@ export interface TimelineEvent {
   entities: EventEntity[]; // People, organizations, locations involved
   relatedEvents: string[]; // IDs of related events
   consequences: string[];
-  verificationStatus: 'verified' | 'pending' | 'disputed';
+  verificationStatus: 'verified' | 'corroborated' | 'reported' | 'alleged' | 'pending' | 'disputed';
   sources: Source[];
   evidence: string[]; // Evidence IDs
   tags: string[];

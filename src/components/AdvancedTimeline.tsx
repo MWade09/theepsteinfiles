@@ -162,15 +162,15 @@ export default function AdvancedTimeline({
     types: ['all'],
     categories: ['all'],
     significance: ['critical', 'high', 'medium', 'low'],
-    verificationStatus: ['verified', 'pending'],
+    verificationStatus: ['verified', 'pending', 'corroborated', 'reported', 'alleged'],
     dateRange: {
-      start: '1970-01-01',
-      end: '2025-01-01'
+      start: '1950-01-01',
+      end: '2030-01-01'
     },
     entities: [],
-    multimedia: ['all'], // Added multimedia filter
-    hasDocuments: false, // Added document filter
-    hasGeographic: false // Added geographic filter
+    multimedia: ['all'],
+    hasDocuments: false,
+    hasGeographic: false
   });
 
   // Merge external filters with internal filters
@@ -316,7 +316,7 @@ export default function AdvancedTimeline({
 
   // Filter and process events
   const filteredEvents = useMemo(() => {
-    return enhancedEvents.filter(event => {
+    const filtered = enhancedEvents.filter(event => {
       // Search filter
       if (searchTerm && !event.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
           !event.description.toLowerCase().includes(searchTerm.toLowerCase()) &&
@@ -379,7 +379,9 @@ export default function AdvancedTimeline({
       }
 
       return true;
-    }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    });
+    
+    return filtered.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [enhancedEvents, searchTerm, filters]);
 
   // Group events based on view mode
@@ -2245,14 +2247,14 @@ export default function AdvancedTimeline({
                 <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                   {selectedNetworkNode.name}
                 </h4>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                <div className="flex items-center gap-2 mb-4">
+                  <span className={`px-3 py-1 rounded text-sm font-medium ${
                     selectedNetworkNode.significance === 'critical' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
                     selectedNetworkNode.significance === 'high' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' :
                     selectedNetworkNode.significance === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
-                    'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                    'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
                   }`}>
-                    {selectedNetworkNode.significance} significance
+                    {selectedNetworkNode.significance?.toUpperCase() || 'UNKNOWN'}
                   </span>
                   <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs rounded-full capitalize">
                     {selectedNetworkNode.type}
@@ -2268,25 +2270,39 @@ export default function AdvancedTimeline({
               {/* Person-specific details */}
               {selectedNetworkNode.type === 'person' && (() => {
                 const person = corePeople.find(p => p.id === selectedNetworkNode.id);
-                if (!person) return null;
+                if (!person) return (
+                  <div className="text-center text-gray-500 dark:text-gray-400">
+                    <p>Person data not found.</p>
+                  </div>
+                );
+                
+                const connectedEvents = filteredEvents.filter(e => e.entities.some(ent => ent.entityId === selectedNetworkNode.id));
                 
                 return (
-                  <div className="space-y-4">
+                  <>
                     <div>
-                      <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Biography</h5>
-                      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                          {person.biography || 'No biography available.'}
-                        </p>
+                      <h5 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">Personal Information</h5>
+                      <div className="space-y-2 text-sm">
+                        <div><strong>Name:</strong> {person.name}</div>
+                        <div><strong>Significance:</strong> {person.significance}</div>
+                        <div><strong>Connected Events:</strong> {connectedEvents.length}</div>
+                        <div><strong>Network Influence:</strong> {selectedNetworkNode.size}px</div>
                       </div>
+                    </div>
+
+                    <div>
+                      <h5 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">Biography</h5>
+                      <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                        {person.biography || 'No biography available.'}
+                      </p>
                     </div>
 
                     {person.aliases && person.aliases.length > 0 && (
                       <div>
-                        <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Known Aliases</h5>
+                        <h5 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">Known Aliases</h5>
                         <div className="flex flex-wrap gap-1">
                           {person.aliases.map(alias => (
-                            <span key={alias} className="px-2 py-1 bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs rounded">
+                            <span key={alias} className="px-2 py-1 bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200 rounded text-xs">
                               {alias}
                             </span>
                           ))}
@@ -2294,75 +2310,173 @@ export default function AdvancedTimeline({
                       </div>
                     )}
 
-                    <div>
-                      <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Network Statistics</h5>
-                      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-600 dark:text-gray-400">Connected Events:</span>
-                          <span className="font-medium">
-                            {filteredEvents.filter(e => e.entities.some(ent => ent.entityId === selectedNetworkNode.id)).length}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-600 dark:text-gray-400">Network Influence:</span>
-                          <span className="font-medium">{selectedNetworkNode.size}px</span>
+                    {connectedEvents.length > 0 && (
+                      <div>
+                        <h5 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">Connected Events</h5>
+                        <div className="space-y-2">
+                          {connectedEvents.slice(0, 5).map(event => {
+                            const entity = event.entities.find(e => e.entityId === selectedNetworkNode.id);
+                            return (
+                              <button
+                                key={event.id}
+                                onClick={() => setSelectedEvent(event)}
+                                className="w-full text-left p-2 bg-gray-50 dark:bg-dark-700 rounded hover:bg-gray-100 dark:hover:bg-dark-600 transition-colors"
+                              >
+                                <div className="font-medium text-sm">{event.title}</div>
+                                <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center justify-between">
+                                  <span>{formatDate(event.date)}</span>
+                                  <span className="capitalize">{entity?.role || 'Unknown role'}</span>
+                                </div>
+                              </button>
+                            );
+                          })}
+                          {connectedEvents.length > 5 && (
+                            <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                              +{connectedEvents.length - 5} more events
+                            </div>
+                          )}
                         </div>
                       </div>
+                    )}
+
+                    <div>
+                      <h5 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">Event Categories</h5>
+                      <div className="flex flex-wrap gap-1">
+                        {Array.from(new Set(connectedEvents.map(e => e.category))).map(category => (
+                          <span
+                            key={category}
+                            className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs capitalize"
+                          >
+                            {category}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  </>
                 );
               })()}
 
               {/* Event-specific details */}
               {selectedNetworkNode.type === 'event' && (() => {
                 const event = filteredEvents.find(e => e.id === selectedNetworkNode.id);
-                if (!event) return null;
+                if (!event) return (
+                  <div className="text-center text-gray-500 dark:text-gray-400">
+                    <p>Event data not found.</p>
+                  </div>
+                );
                 
                 return (
-                  <div className="space-y-4">
+                  <>
                     <div>
-                      <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Event Information</h5>
-                      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-600 dark:text-gray-400">Date:</span>
-                          <span>{new Date(event.date).toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-600 dark:text-gray-400">Category:</span>
-                          <span className="capitalize">{event.category}</span>
-                        </div>
+                      <h5 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">Date & Type</h5>
+                      <div className="space-y-2 text-sm">
+                        <div><strong>Date:</strong> {formatDate(event.date)}</div>
+                        <div><strong>Type:</strong> {event.type}</div>
+                        <div><strong>Category:</strong> {event.category}</div>
+                        <div><strong>Verification:</strong> {event.verificationStatus}</div>
                       </div>
                     </div>
 
                     <div>
-                      <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Description</h5>
-                      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                          {event.description || 'No description available.'}
-                        </p>
-                      </div>
+                      <h5 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">Description</h5>
+                      <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                        {event.description}
+                      </p>
                     </div>
 
-                    <div>
-                      <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Connected People</h5>
-                      <div className="space-y-2 max-h-64 overflow-y-auto">
-                        {event.entities
-                          .filter(entity => entity.entityType === 'person')
-                          .map(entity => {
+                    {event.entities.length > 0 && (
+                      <div>
+                        <h5 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">People Involved</h5>
+                        <div className="space-y-2">
+                          {event.entities.map(entity => {
                             const person = corePeople.find(p => p.id === entity.entityId);
                             return person ? (
-                              <div key={entity.entityId} className="flex items-center justify-between text-sm py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded">
-                                <div className="flex items-center gap-2">
-                                  <User className="w-4 h-4 text-gray-400" />
-                                  <span className="font-medium">{person.name}</span>
+                              <div key={entity.entityId} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-dark-700 rounded">
+                                <div>
+                                  <div className="font-medium text-sm">{person.name}</div>
+                                  <div className="text-xs text-gray-600 dark:text-gray-400">{entity.role}</div>
                                 </div>
-                                <span className="text-xs text-gray-500 capitalize">{entity.role}</span>
                               </div>
                             ) : null;
                           })}
+                        </div>
+                      </div>
+                    )}
+
+                    {event.consequences.length > 0 && (
+                      <div>
+                        <h5 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">Consequences</h5>
+                        <ul className="space-y-1 text-sm">
+                          {event.consequences.map((consequence, index) => (
+                            <li key={index} className="flex items-start gap-2">
+                              <span className="text-primary-600 mt-1">•</span>
+                              {consequence}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {event.relatedEvents.length > 0 && (
+                      <div>
+                        <h5 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">Related Events</h5>
+                        <div className="space-y-2">
+                          {getRelatedEvents(event.id).slice(0, 3).map(relatedEvent => (
+                            <button
+                              key={relatedEvent.id}
+                              onClick={() => setSelectedEvent(relatedEvent)}
+                              className="w-full text-left p-2 bg-gray-50 dark:bg-dark-700 rounded hover:bg-gray-100 dark:hover:bg-dark-600 transition-colors"
+                            >
+                              <div className="font-medium text-sm">{relatedEvent.title}</div>
+                              <div className="text-xs text-gray-600 dark:text-gray-400">
+                                {formatDate(relatedEvent.date)}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {event.sources.length > 0 && (
+                      <div>
+                        <h5 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">Sources</h5>
+                        <div className="space-y-2">
+                          {event.sources.map((source, index) => (
+                            <div key={index} className="p-2 bg-gray-50 dark:bg-dark-700 rounded">
+                              <div className="font-medium text-sm">{source.title}</div>
+                              <div className="text-xs text-gray-600 dark:text-gray-400">
+                                {source.author} - {source.publication}
+                              </div>
+                              {source.url && (
+                                <a 
+                                  href={source.url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-primary-600 hover:text-primary-700 flex items-center gap-1 mt-1"
+                                >
+                                  View Source <ExternalLink className="w-3 h-3" />
+                                </a>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div>
+                      <h5 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">Tags</h5>
+                      <div className="flex flex-wrap gap-1">
+                        {event.tags.map(tag => (
+                          <span
+                            key={tag}
+                            className="px-2 py-1 bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200 rounded text-xs"
+                          >
+                            {tag}
+                          </span>
+                        ))}
                       </div>
                     </div>
-                  </div>
+                  </>
                 );
               })()}
             </div>
