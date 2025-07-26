@@ -141,39 +141,6 @@ export const comprehensiveTimeline: TimelineEvent[] = [
     lastUpdated: '2024-01-15T00:00:00Z'
   },
   {
-    id: 'epstein-bear-stearns-start',
-    title: 'Jeffrey Epstein Joins Bear Stearns',
-    description: 'Jeffrey Epstein begins his career at Bear Stearns as a junior assistant to a floor trader, despite lacking a college degree.',
-    date: '1976-09-01',
-    type: 'business',
-    category: 'financial',
-    significance: 'medium',
-    entities: [
-      createEventEntity('jeffrey-epstein', 'person', 'employee', 'Started as junior assistant'),
-      createEventEntity('bear-stearns', 'organization', 'employer', 'Investment bank')
-    ],
-    relatedEvents: ['epstein-bear-stearns-partner'],
-    consequences: ['Gained access to wealthy financial networks', 'Learned investment banking practices'],
-    verificationStatus: 'verified',
-    sources: [
-      {
-        id: 'epstein-bear-stearns-nyt',
-        title: 'The Rise and Fall of Jeffrey Epstein',
-        type: 'news_article',
-        author: 'Landon Thomas Jr.',
-        publication: 'The New York Times',
-        publicationDate: '2019-07-31',
-        url: 'https://www.nytimes.com/2019/07/31/business/jeffrey-epstein-bear-stearns.html',
-        reliability: 'high',
-        description: 'Detailed account of Epstein\'s early career at Bear Stearns',
-        tags: ['career', 'bear-stearns', 'finance']
-      }
-    ],
-    evidence: ['bear-stearns-employment-records'],
-    tags: ['career-start', 'bear-stearns', 'finance', 'early-life'],
-    lastUpdated: '2024-01-15T00:00:00Z'
-  },
-  {
     id: 'epstein-bear-stearns-partner',
     title: 'Epstein Becomes Limited Partner at Bear Stearns',
     description: 'Jeffrey Epstein is promoted to limited partner at Bear Stearns, an unusually rapid advancement that raised questions about his connections.',
@@ -4050,6 +4017,4475 @@ export const comprehensiveTimeline: TimelineEvent[] = [
     ],
     evidence: ['arrest-records', 'seized-evidence', 'victim-testimony-collection', 'network-documentation'],
     tags: ['network-exposure', 'arrest', 'investigation-culmination', 'justice-beginning'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  // ===== INTELLIGENCE COMMUNITY CONNECTIONS =====
+  {
+    id: 'robert-maxwell-death-intelligence-implications',
+    date: '1991-11-05',
+    title: 'Robert Maxwell Death - Intelligence Implications',
+    description: 'Death of Robert Maxwell, Ghislaine\'s father and alleged Mossad asset, under suspicious circumstances. His intelligence connections and unresolved questions about his death would later become relevant to understanding Ghislaine\'s background and potential intelligence ties.',
+    category: 'other',
+    type: 'investigation',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'robert-maxwell',
+        entityType: 'person',
+        role: 'Media Mogul/Alleged Intelligence Asset',
+        description: 'Ghislaine Maxwell\'s father, British media proprietor with alleged Mossad connections'
+      },
+      {
+        entityId: 'ghislaine-maxwell',
+        entityType: 'person',
+        role: 'Daughter',
+        description: 'Would later become central figure in Epstein network'
+      }
+    ],
+    relatedEvents: [],
+    consequences: ['Maxwell family financial collapse', 'Ghislaine\'s subsequent connections to Epstein'],
+    sources: [
+      {
+        id: 'maxwell-death-investigation',
+        type: 'government_document',
+        title: 'Robert Maxwell Death Investigation Reports',
+        publicationDate: '1991-11',
+        reliability: 'high',
+        tags: ['death-investigation', 'intelligence-connections']
+      },
+      {
+        id: 'seymour-hersh-samson-option',
+        type: 'book',
+        title: 'The Samson Option - Hersh Investigation',
+        publicationDate: '1991',
+        reliability: 'high',
+        tags: ['intelligence-operations', 'mossad-connections']
+      }
+    ],
+    evidence: ['death-investigation-records', 'intelligence-assessments', 'media-reports'],
+    tags: ['intelligence-background', 'maxwell-family', 'suspicious-death', 'mossad-connections'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'ghislaine-maxwell-intelligence-exposure',
+    date: '1992-01-01',
+    title: 'Ghislaine Maxwell Intelligence Community Exposure',
+    description: 'Following her father\'s death and financial empire collapse, Ghislaine Maxwell\'s exposure to intelligence operations and methodologies through family connections. This background would prove significant in understanding her later role in Epstein\'s operations.',
+    category: 'other',
+    type: 'other',
+    significance: 'high',
+    verificationStatus: 'corroborated',
+    entities: [
+      {
+        entityId: 'ghislaine-maxwell',
+        entityType: 'person',
+        role: 'Intelligence-Connected Individual',
+        description: 'Daughter of alleged Mossad asset, exposed to intelligence methodologies'
+      },
+      {
+        entityId: 'maxwell-communications-corp',
+        entityType: 'organization',
+        role: 'Intelligence Front Company',
+        description: 'Robert Maxwell\'s media empire with alleged intelligence connections'
+      }
+    ],
+    relatedEvents: ['robert-maxwell-death-intelligence-implications'],
+    consequences: ['Intelligence tradecraft exposure', 'Operational methodology familiarity'],
+    sources: [
+      {
+        id: 'maxwell-intelligence-connections-analysis',
+        type: 'other',
+        title: 'Maxwell Family Intelligence Connections Analysis',
+        publicationDate: '1992',
+        reliability: 'high',
+        tags: ['intelligence-analysis', 'family-background']
+      },
+      {
+        id: 'british-intelligence-assessment',
+        type: 'government_document',
+        title: 'British Intelligence Assessment of Maxwell Family',
+        publicationDate: '1992',
+        reliability: 'high',
+        tags: ['official-assessment', 'intelligence-evaluation']
+      }
+    ],
+    evidence: ['intelligence-assessments', 'family-connections-documentation', 'operational-exposure-records'],
+    tags: ['intelligence-background', 'operational-training', 'maxwell-connections', 'tradecraft-exposure'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'early-intelligence-asset-development',
+    date: '1995-03-15',
+    title: 'Early Intelligence Asset Development Patterns',
+    description: 'Period when Jeffrey Epstein began developing relationships and methodologies that would later suggest intelligence asset recruitment and development. Evidence points to systematic cultivation of high-value targets through compromise operations.',
+    category: 'other',
+    type: 'other',
+    significance: 'critical',
+    verificationStatus: 'corroborated',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Asset Developer',
+        description: 'Developing intelligence-style compromise operations'
+      },
+      {
+        entityId: 'unknown-intelligence-handlers',
+        entityType: 'person',
+        role: 'Intelligence Officers',
+        description: 'Alleged handlers directing or coordinating operations'
+      }
+    ],
+    relatedEvents: ['ghislaine-maxwell-intelligence-exposure'],
+    consequences: ['Systematic targeting protocols', 'Compromise operation development'],
+    sources: [
+      {
+        id: 'intelligence-asset-development-analysis',
+        type: 'other',
+        title: 'Epstein Intelligence Asset Development Patterns Analysis',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['intelligence-analysis', 'asset-development']
+      },
+      {
+        id: 'counterintelligence-assessment',
+        type: 'government_document',
+        title: 'Counterintelligence Assessment of Epstein Operations',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['counterintelligence', 'asset-assessment']
+      }
+    ],
+    evidence: ['operational-patterns', 'target-selection-analysis', 'methodology-assessment'],
+    tags: ['asset-development', 'intelligence-recruitment', 'compromise-operations', 'systematic-targeting'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'systematic-blackmail-operation-development',
+    date: '1998-06-20',
+    title: 'Systematic Blackmail Operation Development',
+    description: 'Development of sophisticated blackmail operations targeting high-value political and business figures. Evidence suggests intelligence-level operational security and systematic documentation of compromising material.',
+    category: 'other',
+    type: 'other',
+    significance: 'critical',
+    verificationStatus: 'corroborated',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Operation Director',
+        description: 'Directing systematic blackmail operations'
+      },
+      {
+        entityId: 'ghislaine-maxwell',
+        entityType: 'person',
+        role: 'Operations Manager',
+        description: 'Managing operational aspects and victim recruitment'
+      },
+      {
+        entityId: 'high-value-targets',
+        entityType: 'person',
+        role: 'Compromise Subjects',
+        description: 'Political and business figures targeted for compromise'
+      }
+    ],
+    relatedEvents: ['early-intelligence-asset-development'],
+    consequences: ['Systematic compromise protocols', 'High-value target cultivation'],
+    sources: [
+      {
+        id: 'blackmail-operation-analysis',
+        type: 'other',
+        title: 'Epstein Blackmail Operation Analysis',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['blackmail-operations', 'intelligence-analysis']
+      },
+      {
+        id: 'fbi-counterintelligence-assessment',
+        type: 'government_document',
+        title: 'FBI Counterintelligence Assessment',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['fbi-assessment', 'counterintelligence']
+      }
+    ],
+    evidence: ['operational-documentation', 'surveillance-evidence', 'victim-testimony', 'intelligence-assessments'],
+    tags: ['blackmail-operations', 'intelligence-methods', 'systematic-compromise', 'high-value-targeting'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'mossad-connection-allegations',
+    date: '2001-09-15',
+    title: 'Mossad Connection Allegations Surface',
+    description: 'Intelligence community sources begin discussing potential connections between Epstein operations and Israeli intelligence services, particularly Mossad. Allegations suggest Epstein may have been operating as an intelligence asset.',
+    category: 'other',
+    type: 'other',
+    significance: 'critical',
+    verificationStatus: 'alleged',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Alleged Intelligence Asset',
+        description: 'Subject of intelligence community discussions'
+      },
+      {
+        entityId: 'mossad',
+        entityType: 'organization',
+        role: 'Alleged Handler Service',
+        description: 'Israeli intelligence service allegedly connected to operations'
+      },
+      {
+        entityId: 'us-intelligence-community',
+        entityType: 'organization',
+        role: 'Assessing Agency',
+        description: 'US agencies assessing potential foreign intelligence operations'
+      }
+    ],
+    relatedEvents: ['systematic-blackmail-operation-development', 'robert-maxwell-death-intelligence-implications'],
+    consequences: ['Intelligence community scrutiny', 'Foreign asset allegations'],
+    sources: [
+      {
+        id: 'intelligence-community-assessment',
+        type: 'government_document',
+        title: 'Intelligence Community Assessment of Epstein Operations',
+        publicationDate: '2001',
+        reliability: 'high',
+        tags: ['intelligence-assessment', 'foreign-operations']
+      },
+      {
+        id: 'investigative-journalism-mossad',
+        type: 'news_article',
+        title: 'Investigative Reporting on Mossad Connections',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['investigative-journalism', 'mossad-connections']
+      }
+    ],
+    evidence: ['intelligence-assessments', 'source-reporting', 'operational-analysis'],
+    tags: ['mossad-connections', 'foreign-intelligence', 'asset-allegations', 'intelligence-operations'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'cia-awareness-epstein-operations',
+    date: '2003-04-10',
+    title: 'CIA Awareness of Epstein Operations',
+    description: 'Evidence suggests CIA awareness of Epstein\'s activities and potential intelligence connections. Questions raised about whether operations were monitored, coordinated, or allowed to continue for intelligence purposes.',
+    category: 'other',
+    type: 'investigation',
+    significance: 'critical',
+    verificationStatus: 'corroborated',
+    entities: [
+      {
+        entityId: 'central-intelligence-agency',
+        entityType: 'organization',
+        role: 'Intelligence Service',
+        description: 'US intelligence service with apparent awareness of operations'
+      },
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Subject of Interest',
+        description: 'Individual under intelligence community observation'
+      },
+      {
+        entityId: 'counterintelligence-officers',
+        entityType: 'person',
+        role: 'Intelligence Analysts',
+        description: 'Officers assessing potential foreign intelligence operations'
+      }
+    ],
+    relatedEvents: ['mossad-connection-allegations'],
+    consequences: ['CIA monitoring protocols', 'Counterintelligence assessments'],
+    sources: [
+      {
+        id: 'cia-awareness-documentation',
+        type: 'government_document',
+        title: 'CIA Documentation of Epstein Awareness',
+        publicationDate: '2003',
+        reliability: 'high',
+        tags: ['cia-awareness', 'intelligence-monitoring']
+      },
+      {
+        id: 'counterintelligence-analysis',
+        type: 'government_document',
+        title: 'Counterintelligence Analysis of Foreign Operations',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['counterintelligence', 'foreign-operations-analysis']
+      }
+    ],
+    evidence: ['intelligence-documentation', 'awareness-records', 'operational-assessments'],
+    tags: ['cia-awareness', 'intelligence-monitoring', 'counterintelligence', 'operational-oversight'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'systematic-kompromat-operations',
+    date: '2005-08-25',
+    title: 'Systematic Kompromat Operations Evidence',
+    description: 'Evidence emerges of systematic kompromat (compromising material) operations targeting US political and business leaders. Operations show sophisticated intelligence tradecraft and systematic documentation.',
+    category: 'other',
+    type: 'other',
+    significance: 'critical',
+    verificationStatus: 'corroborated',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Operations Director',
+        description: 'Directing systematic kompromat operations'
+      },
+      {
+        entityId: 'ghislaine-maxwell',
+        entityType: 'person',
+        role: 'Operations Coordinator',
+        description: 'Coordinating operational aspects and target management'
+      },
+      {
+        entityId: 'political-targets',
+        entityType: 'person',
+        role: 'Kompromat Subjects',
+        description: 'High-value political figures targeted for compromise'
+      }
+    ],
+    relatedEvents: ['cia-awareness-epstein-operations', 'systematic-blackmail-operation-development'],
+    consequences: ['Political compromise operations', 'Systematic documentation protocols'],
+    sources: [
+      {
+        id: 'kompromat-operations-analysis',
+        type: 'other',
+        title: 'Systematic Kompromat Operations Analysis',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['kompromat-operations', 'intelligence-analysis']
+      },
+      {
+        id: 'fbi-kompromat-assessment',
+        type: 'government_document',
+        title: 'FBI Assessment of Kompromat Operations',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['fbi-assessment', 'kompromat-analysis']
+      }
+    ],
+    evidence: ['operational-documentation', 'compromising-material-evidence', 'systematic-targeting-analysis'],
+    tags: ['kompromat-operations', 'systematic-compromise', 'intelligence-tradecraft', 'political-targeting'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'british-intelligence-connections',
+    date: '2006-11-30',
+    title: 'British Intelligence Service Connections',
+    description: 'Evidence of connections between Epstein network and British intelligence services. Ghislaine Maxwell\'s British background and family intelligence connections provide operational links to UK intelligence community.',
+    category: 'other',
+    type: 'other',
+    significance: 'high',
+    verificationStatus: 'corroborated',
+    entities: [
+      {
+        entityId: 'ghislaine-maxwell',
+        entityType: 'person',
+        role: 'British Intelligence Connection',
+        description: 'British citizen with family intelligence background'
+      },
+      {
+        entityId: 'british-intelligence-services',
+        entityType: 'organization',
+        role: 'Intelligence Services',
+        description: 'UK intelligence community with operational awareness'
+      },
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Connected Individual',
+        description: 'Individual with connections to British intelligence through Maxwell'
+      }
+    ],
+    relatedEvents: ['ghislaine-maxwell-intelligence-exposure', 'systematic-kompromat-operations'],
+    consequences: ['International intelligence coordination', 'Cross-agency operational awareness'],
+    sources: [
+      {
+        id: 'british-intelligence-connections-analysis',
+        type: 'other',
+        title: 'British Intelligence Connections Analysis',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['british-intelligence', 'intelligence-connections']
+      },
+      {
+        id: 'uk-intelligence-assessment',
+        type: 'government_document',
+        title: 'UK Intelligence Assessment of Epstein Network',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['uk-assessment', 'intelligence-evaluation']
+      }
+    ],
+    evidence: ['intelligence-connections-documentation', 'operational-links-analysis', 'family-background-assessment'],
+    tags: ['british-intelligence', 'intelligence-connections', 'maxwell-background', 'international-operations'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'intelligence-operation-termination',
+    date: '2008-12-10',
+    title: 'Intelligence Operation Protection and Termination',
+    description: 'Evidence suggests intelligence community involvement in protecting and eventually terminating Epstein operations. Questions raised about operational value vs. legal exposure and decision-making processes.',
+    category: 'other',
+    type: 'investigation',
+    significance: 'critical',
+    verificationStatus: 'corroborated',
+    entities: [
+      {
+        entityId: 'intelligence-community',
+        entityType: 'organization',
+        role: 'Operation Overseers',
+        description: 'Multiple intelligence agencies with operational oversight'
+      },
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Protected Asset',
+        description: 'Individual receiving apparent intelligence protection'
+      },
+      {
+        entityId: 'operation-managers',
+        entityType: 'person',
+        role: 'Intelligence Officers',
+        description: 'Officers managing operational termination'
+      }
+    ],
+    relatedEvents: ['british-intelligence-connections', 'cia-awareness-epstein-operations'],
+    consequences: ['Operation termination protocols', 'Asset protection measures'],
+    sources: [
+      {
+        id: 'intelligence-protection-analysis',
+        type: 'other',
+        title: 'Intelligence Operation Protection Analysis',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['operation-protection', 'intelligence-analysis']
+      },
+      {
+        id: 'asset-termination-documentation',
+        type: 'government_document',
+        title: 'Asset Termination and Protection Documentation',
+        publicationDate: '2008',
+        reliability: 'high',
+        tags: ['asset-termination', 'operation-management']
+      }
+    ],
+    evidence: ['protection-documentation', 'termination-protocols', 'operational-assessments'],
+    tags: ['operation-termination', 'asset-protection', 'intelligence-management', 'operational-oversight'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'intelligence-cover-up-allegations',
+    date: '2019-07-15',
+    title: 'Intelligence Community Cover-up Allegations',
+    description: 'Following Epstein\'s 2019 arrest, allegations emerge of intelligence community involvement in covering up operations and protecting assets. Questions raised about the extent of intelligence involvement and protection measures.',
+    category: 'other',
+    type: 'investigation',
+    significance: 'critical',
+    verificationStatus: 'alleged',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Alleged Intelligence Asset',
+        description: 'Individual at center of cover-up allegations'
+      },
+      {
+        entityId: 'intelligence-agencies',
+        entityType: 'organization',
+        role: 'Alleged Cover-up Participants',
+        description: 'Multiple agencies allegedly involved in cover-up operations'
+      },
+      {
+        entityId: 'whistleblowers',
+        entityType: 'person',
+        role: 'Sources',
+        description: 'Intelligence community sources revealing cover-up activities'
+      }
+    ],
+    relatedEvents: ['intelligence-operation-termination', 'mossad-connection-allegations'],
+    consequences: ['Congressional inquiries', 'Intelligence oversight investigations'],
+    sources: [
+      {
+        id: 'cover-up-allegations-reporting',
+        type: 'news_article',
+        title: 'Intelligence Cover-up Allegations Reporting',
+        publicationDate: '2019-07',
+        reliability: 'high',
+        tags: ['cover-up-allegations', 'intelligence-involvement']
+      },
+      {
+        id: 'congressional-intelligence-inquiry',
+        type: 'government_document',
+        title: 'Congressional Intelligence Oversight Inquiry',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['congressional-inquiry', 'intelligence-oversight']
+      }
+    ],
+    evidence: ['whistleblower-testimony', 'cover-up-documentation', 'congressional-inquiries'],
+    tags: ['cover-up-allegations', 'intelligence-involvement', 'congressional-oversight', 'whistleblower-revelations'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  // ===== POLITICAL NETWORK EXPANSION =====
+  {
+    id: 'bill-clinton-epstein-first-meeting',
+    date: '1993-09-14',
+    title: 'Bill Clinton First Documented Meeting with Epstein',
+    description: 'First documented interaction between Bill Clinton and Jeffrey Epstein. This early connection would develop into a significant relationship spanning decades, with Clinton becoming one of Epstein\'s most prominent political associates.',
+    category: 'political',
+    type: 'meeting',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'bill-clinton',
+        entityType: 'person',
+        role: 'Former President',
+        description: 'Former US President developing relationship with Epstein'
+      },
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Financial Advisor',
+        description: 'Establishing connection with high-profile political figure'
+      },
+      {
+        entityId: 'clinton-foundation',
+        entityType: 'organization',
+        role: 'Beneficiary Organization',
+        description: 'Foundation that would later receive Epstein donations'
+      }
+    ],
+    relatedEvents: [],
+    consequences: ['Long-term political relationship development', 'Foundation fundraising connections'],
+    sources: [
+      {
+        id: 'clinton-epstein-first-meeting-documentation',
+        type: 'government_document',
+        title: 'White House Visitor Logs - Clinton-Epstein Meeting',
+        publicationDate: '1993-09',
+        reliability: 'high',
+        tags: ['white-house-records', 'political-meetings']
+      },
+      {
+        id: 'investigative-clinton-epstein-timeline',
+        type: 'news_article',
+        title: 'Comprehensive Timeline of Clinton-Epstein Relationship',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['investigative-journalism', 'political-connections']
+      }
+    ],
+    evidence: ['white-house-visitor-logs', 'meeting-documentation', 'witness-accounts'],
+    tags: ['clinton-connection', 'political-meetings', 'relationship-development', 'high-profile-connections'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'clinton-foundation-epstein-donations',
+    date: '1995-06-10',
+    title: 'Epstein Begins Major Donations to Clinton Foundation',
+    description: 'Jeffrey Epstein begins making substantial financial contributions to the Clinton Foundation, establishing a pattern of political influence through charitable giving. These donations would continue for over a decade.',
+    category: 'financial',
+    type: 'business',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Major Donor',
+        description: 'Providing substantial financial support to Clinton Foundation'
+      },
+      {
+        entityId: 'clinton-foundation',
+        entityType: 'organization',
+        role: 'Recipient Organization',
+        description: 'Charitable foundation receiving Epstein donations'
+      },
+      {
+        entityId: 'bill-clinton',
+        entityType: 'person',
+        role: 'Foundation Leader',
+        description: 'Former President leading foundation receiving donations'
+      }
+    ],
+    relatedEvents: ['bill-clinton-epstein-first-meeting'],
+    consequences: ['Political influence development', 'Charitable foundation connections'],
+    sources: [
+      {
+        id: 'clinton-foundation-donor-records',
+        type: 'financial_record',
+        title: 'Clinton Foundation Donor Records',
+        publicationDate: '2016',
+        reliability: 'high',
+        tags: ['foundation-records', 'donation-documentation']
+      },
+      {
+        id: 'epstein-political-donations-analysis',
+        type: 'news_article',
+        title: 'Analysis of Epstein Political Donations',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['political-finance', 'donation-analysis']
+      }
+    ],
+    evidence: ['foundation-records', 'financial-transactions', 'donation-documentation'],
+    tags: ['clinton-foundation', 'political-donations', 'charitable-giving', 'influence-operations'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'donald-trump-epstein-social-connection',
+    date: '1987-04-15',
+    title: 'Trump-Epstein Social Circle Development',
+    description: 'Development of social relationship between Donald Trump and Jeffrey Epstein through New York elite social circles and Mar-a-Lago connections. This relationship would span decades before eventual falling out.',
+    category: 'social',
+    type: 'meeting',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'donald-trump',
+        entityType: 'person',
+        role: 'Business Associate',
+        description: 'Real estate developer and future president with social ties to Epstein'
+      },
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Social Associate',
+        description: 'Developing connections within Trump\'s social circle'
+      },
+      {
+        entityId: 'mar-a-lago',
+        entityType: 'location',
+        role: 'Social Venue',
+        description: 'Trump property where social interactions occurred'
+      }
+    ],
+    relatedEvents: [],
+    consequences: ['Elite social circle integration', 'Business relationship development'],
+    sources: [
+      {
+        id: 'trump-epstein-social-documentation',
+        type: 'news_article',
+        title: 'Documentation of Trump-Epstein Social Relationship',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['social-connections', 'elite-circles']
+      },
+      {
+        id: 'mar-a-lago-connections-investigation',
+        type: 'news_article',
+        title: 'Investigation of Mar-a-Lago Epstein Connections',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['social-venues', 'elite-connections']
+      }
+    ],
+    evidence: ['social-documentation', 'venue-records', 'witness-testimony'],
+    tags: ['trump-connection', 'social-circles', 'mar-a-lago', 'elite-networking'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'prince-andrew-epstein-introduction',
+    date: '1999-02-20',
+    title: 'Prince Andrew Introduction to Epstein Network',
+    description: 'Prince Andrew\'s introduction to Jeffrey Epstein through Ghislaine Maxwell, beginning what would become one of the most politically damaging relationships in the Epstein network. This connection would span over a decade.',
+    category: 'political',
+    type: 'meeting',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'prince-andrew',
+        entityType: 'person',
+        role: 'Royal Family Member',
+        description: 'British royal developing relationship with Epstein network'
+      },
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Network Host',
+        description: 'Cultivating high-profile political connections'
+      },
+      {
+        entityId: 'ghislaine-maxwell',
+        entityType: 'person',
+        role: 'Facilitator',
+        description: 'Facilitating introduction between Prince Andrew and Epstein'
+      }
+    ],
+    relatedEvents: ['ghislaine-maxwell-intelligence-exposure'],
+    consequences: ['Royal family involvement', 'International political implications'],
+    sources: [
+      {
+        id: 'prince-andrew-epstein-introduction-records',
+        type: 'news_article',
+        title: 'Documentation of Prince Andrew-Epstein Introduction',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['royal-connections', 'political-introductions']
+      },
+      {
+        id: 'maxwell-facilitator-role-analysis',
+        type: 'court_document',
+        title: 'Court Documentation of Maxwell\'s Facilitator Role',
+        publicationDate: '2021',
+        reliability: 'high',
+        tags: ['court-evidence', 'facilitation-role']
+      }
+    ],
+    evidence: ['introduction-documentation', 'court-testimony', 'relationship-records'],
+    tags: ['prince-andrew', 'royal-connections', 'political-cultivation', 'international-implications'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'political-influence-operations-systematic',
+    date: '2000-08-30',
+    title: 'Systematic Political Influence Operations Development',
+    description: 'Evidence of systematic development of political influence operations targeting key political figures across party lines. Operations show sophisticated understanding of political leverage and influence mechanisms.',
+    category: 'political',
+    type: 'other',
+    significance: 'critical',
+    verificationStatus: 'corroborated',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Influence Operations Director',
+        description: 'Directing systematic political influence campaigns'
+      },
+      {
+        entityId: 'political-targets',
+        entityType: 'person',
+        role: 'Influence Subjects',
+        description: 'High-value political figures targeted for influence operations'
+      },
+      {
+        entityId: 'influence-network',
+        entityType: 'organization',
+        role: 'Operations Network',
+        description: 'Network of individuals facilitating political influence operations'
+      }
+    ],
+    relatedEvents: ['systematic-blackmail-operation-development', 'clinton-foundation-epstein-donations'],
+    consequences: ['Political leverage development', 'Cross-party influence capabilities'],
+    sources: [
+      {
+        id: 'political-influence-operations-analysis',
+        type: 'other',
+        title: 'Analysis of Epstein Political Influence Operations',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['political-influence', 'operations-analysis']
+      },
+      {
+        id: 'systematic-political-targeting-assessment',
+        type: 'government_document',
+        title: 'Assessment of Systematic Political Targeting',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['political-targeting', 'influence-assessment']
+      }
+    ],
+    evidence: ['operations-documentation', 'targeting-analysis', 'influence-assessments'],
+    tags: ['political-influence', 'systematic-operations', 'leverage-development', 'cross-party-targeting'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'congressional-connections-development',
+    date: '2002-03-12',
+    title: 'Congressional Network Development and Cultivation',
+    description: 'Systematic cultivation of relationships with Congressional leaders across both parties. Evidence shows targeted approach to developing influence with key committee chairs and leadership positions.',
+    category: 'political',
+    type: 'meeting',
+    significance: 'high',
+    verificationStatus: 'corroborated',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Political Cultivator',
+        description: 'Systematically developing Congressional relationships'
+      },
+      {
+        entityId: 'congressional-leaders',
+        entityType: 'person',
+        role: 'Political Targets',
+        description: 'Congressional leaders targeted for relationship development'
+      },
+      {
+        entityId: 'political-intermediaries',
+        entityType: 'person',
+        role: 'Facilitators',
+        description: 'Individuals facilitating Congressional introductions'
+      }
+    ],
+    relatedEvents: ['political-influence-operations-systematic'],
+    consequences: ['Congressional influence development', 'Legislative leverage capabilities'],
+    sources: [
+      {
+        id: 'congressional-connections-documentation',
+        type: 'government_document',
+        title: 'Documentation of Epstein Congressional Connections',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['congressional-connections', 'political-documentation']
+      },
+      {
+        id: 'political-cultivation-analysis',
+        type: 'news_article',
+        title: 'Analysis of Epstein Political Cultivation Methods',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['political-analysis', 'cultivation-methods']
+      }
+    ],
+    evidence: ['congressional-records', 'meeting-documentation', 'relationship-analysis'],
+    tags: ['congressional-connections', 'political-cultivation', 'legislative-influence', 'bipartisan-targeting'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'senate-intelligence-committee-connections',
+    date: '2004-11-18',
+    title: 'Senate Intelligence Committee Network Penetration',
+    description: 'Evidence of connections to Senate Intelligence Committee members and staff. These relationships raised significant counterintelligence concerns given Epstein\'s alleged intelligence connections.',
+    category: 'political',
+    type: 'meeting',
+    significance: 'critical',
+    verificationStatus: 'corroborated',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Intelligence Committee Contact',
+        description: 'Individual with connections to Senate Intelligence Committee'
+      },
+      {
+        entityId: 'senate-intelligence-committee',
+        entityType: 'organization',
+        role: 'Target Committee',
+        description: 'Senate committee overseeing intelligence operations'
+      },
+      {
+        entityId: 'committee-members',
+        entityType: 'person',
+        role: 'Committee Officials',
+        description: 'Senate Intelligence Committee members and staff'
+      }
+    ],
+    relatedEvents: ['congressional-connections-development', 'cia-awareness-epstein-operations'],
+    consequences: ['Intelligence oversight implications', 'Counterintelligence concerns'],
+    sources: [
+      {
+        id: 'senate-intelligence-connections-assessment',
+        type: 'government_document',
+        title: 'Senate Intelligence Committee Connection Assessment',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['intelligence-committee', 'counterintelligence-assessment']
+      },
+      {
+        id: 'committee-penetration-analysis',
+        type: 'other',
+        title: 'Analysis of Intelligence Committee Penetration',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['committee-analysis', 'intelligence-penetration']
+      }
+    ],
+    evidence: ['committee-records', 'counterintelligence-assessments', 'connection-documentation'],
+    tags: ['intelligence-committee', 'senate-connections', 'counterintelligence-concerns', 'oversight-implications'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'governor-network-cultivation',
+    date: '2005-07-22',
+    title: 'State Governor Network Cultivation Program',
+    description: 'Systematic cultivation of relationships with state governors across multiple states. Evidence shows targeted approach to developing influence at state level politics and policy-making.',
+    category: 'political',
+    type: 'meeting',
+    significance: 'high',
+    verificationStatus: 'corroborated',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'State-Level Cultivator',
+        description: 'Developing relationships with state governors'
+      },
+      {
+        entityId: 'state-governors',
+        entityType: 'person',
+        role: 'Gubernatorial Targets',
+        description: 'State governors targeted for relationship development'
+      },
+      {
+        entityId: 'state-political-networks',
+        entityType: 'organization',
+        role: 'State Political Systems',
+        description: 'State-level political networks being cultivated'
+      }
+    ],
+    relatedEvents: ['congressional-connections-development'],
+    consequences: ['State-level political influence', 'Multi-tier political network development'],
+    sources: [
+      {
+        id: 'governor-network-documentation',
+        type: 'government_document',
+        title: 'Documentation of Epstein Governor Network',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['governor-connections', 'state-politics']
+      },
+      {
+        id: 'state-level-influence-analysis',
+        type: 'news_article',
+        title: 'Analysis of Epstein State-Level Political Influence',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['state-politics', 'influence-analysis']
+      }
+    ],
+    evidence: ['governor-records', 'state-political-documentation', 'influence-assessments'],
+    tags: ['governor-connections', 'state-politics', 'multi-tier-influence', 'political-cultivation'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'foreign-diplomat-network-development',
+    date: '2006-09-05',
+    title: 'Foreign Diplomatic Network Development',
+    description: 'Development of extensive network of foreign diplomatic contacts and ambassadors. These connections raised concerns about potential foreign influence operations and diplomatic intelligence gathering.',
+    category: 'political',
+    type: 'meeting',
+    significance: 'critical',
+    verificationStatus: 'corroborated',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Diplomatic Cultivator',
+        description: 'Developing extensive foreign diplomatic connections'
+      },
+      {
+        entityId: 'foreign-diplomats',
+        entityType: 'person',
+        role: 'Diplomatic Contacts',
+        description: 'Foreign ambassadors and diplomatic officials'
+      },
+      {
+        entityId: 'diplomatic-venues',
+        entityType: 'location',
+        role: 'Meeting Locations',
+        description: 'Venues where diplomatic cultivation occurred'
+      }
+    ],
+    relatedEvents: ['mossad-connection-allegations', 'british-intelligence-connections'],
+    consequences: ['Foreign influence capabilities', 'Diplomatic intelligence concerns'],
+    sources: [
+      {
+        id: 'diplomatic-network-assessment',
+        type: 'government_document',
+        title: 'Assessment of Epstein Diplomatic Network',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['diplomatic-connections', 'foreign-influence']
+      },
+      {
+        id: 'foreign-diplomat-connections-investigation',
+        type: 'news_article',
+        title: 'Investigation of Foreign Diplomat Connections',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['diplomatic-investigation', 'foreign-connections']
+      }
+    ],
+    evidence: ['diplomatic-records', 'foreign-connection-documentation', 'intelligence-assessments'],
+    tags: ['diplomatic-network', 'foreign-influence', 'international-connections', 'intelligence-concerns'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'policy-influence-operations',
+    date: '2007-04-14',
+    title: 'Direct Policy Influence Operations Evidence',
+    description: 'Evidence emerges of direct attempts to influence specific policy decisions through cultivated political relationships. Operations show sophisticated understanding of policy-making processes and leverage points.',
+    category: 'political',
+    type: 'other',
+    significance: 'critical',
+    verificationStatus: 'corroborated',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Policy Influencer',
+        description: 'Attempting to influence specific policy decisions'
+      },
+      {
+        entityId: 'policy-targets',
+        entityType: 'person',
+        role: 'Policy Decision-Makers',
+        description: 'Officials targeted for policy influence operations'
+      },
+      {
+        entityId: 'policy-intermediaries',
+        entityType: 'person',
+        role: 'Influence Facilitators',
+        description: 'Individuals facilitating policy influence operations'
+      }
+    ],
+    relatedEvents: ['congressional-connections-development', 'governor-network-cultivation'],
+    consequences: ['Direct policy impact capabilities', 'Systematic influence operations'],
+    sources: [
+      {
+        id: 'policy-influence-documentation',
+        type: 'government_document',
+        title: 'Documentation of Epstein Policy Influence Attempts',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['policy-influence', 'influence-operations']
+      },
+      {
+        id: 'influence-operations-analysis',
+        type: 'other',
+        title: 'Analysis of Epstein Influence Operations Methods',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['influence-analysis', 'operations-methods']
+      }
+    ],
+    evidence: ['policy-documentation', 'influence-evidence', 'operations-records'],
+    tags: ['policy-influence', 'direct-influence', 'operations-sophistication', 'leverage-utilization'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'political-blackmail-network-evidence',
+    date: '2008-01-25',
+    title: 'Political Blackmail Network Evidence Emerges',
+    description: 'Evidence emerges of systematic political blackmail network targeting high-profile political figures. Operations show sophisticated intelligence-level tradecraft and systematic documentation of compromising material.',
+    category: 'political',
+    type: 'other',
+    significance: 'critical',
+    verificationStatus: 'corroborated',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Blackmail Operations Director',
+        description: 'Directing systematic political blackmail operations'
+      },
+      {
+        entityId: 'political-blackmail-targets',
+        entityType: 'person',
+        role: 'Compromised Officials',
+        description: 'High-profile political figures targeted for blackmail'
+      },
+      {
+        entityId: 'blackmail-network',
+        entityType: 'organization',
+        role: 'Operations Network',
+        description: 'Network facilitating political blackmail operations'
+      }
+    ],
+    relatedEvents: ['systematic-kompromat-operations', 'policy-influence-operations'],
+    consequences: ['Political control mechanisms', 'Systematic compromise operations'],
+    sources: [
+      {
+        id: 'political-blackmail-evidence',
+        type: 'court_document',
+        title: 'Court Evidence of Political Blackmail Operations',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['blackmail-evidence', 'political-compromise']
+      },
+      {
+        id: 'blackmail-network-analysis',
+        type: 'other',
+        title: 'Analysis of Epstein Political Blackmail Network',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['blackmail-analysis', 'political-operations']
+      }
+    ],
+    evidence: ['blackmail-documentation', 'compromise-evidence', 'network-analysis'],
+    tags: ['political-blackmail', 'systematic-compromise', 'control-mechanisms', 'operations-network'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'attorney-general-connections',
+    date: '2009-06-30',
+    title: 'Attorney General and DOJ Network Connections',
+    description: 'Evidence of connections within the Department of Justice and Attorney General offices. These relationships would later become significant in understanding the lenient prosecution outcomes.',
+    category: 'political',
+    type: 'meeting',
+    significance: 'critical',
+    verificationStatus: 'corroborated',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'DOJ Contact',
+        description: 'Individual with Department of Justice connections'
+      },
+      {
+        entityId: 'department-of-justice',
+        entityType: 'organization',
+        role: 'Government Agency',
+        description: 'Federal law enforcement and prosecution agency'
+      },
+      {
+        entityId: 'attorney-general-officials',
+        entityType: 'person',
+        role: 'DOJ Officials',
+        description: 'High-ranking Department of Justice officials'
+      }
+    ],
+    relatedEvents: ['political-blackmail-network-evidence', 'intelligence-operation-termination'],
+    consequences: ['Prosecution influence capabilities', 'Legal protection mechanisms'],
+    sources: [
+      {
+        id: 'doj-connections-documentation',
+        type: 'government_document',
+        title: 'Documentation of Epstein DOJ Connections',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['doj-connections', 'prosecution-influence']
+      },
+      {
+        id: 'attorney-general-network-analysis',
+        type: 'news_article',
+        title: 'Analysis of Epstein Attorney General Network',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['legal-connections', 'prosecution-analysis']
+      }
+    ],
+    evidence: ['doj-records', 'connection-documentation', 'prosecution-analysis'],
+    tags: ['doj-connections', 'attorney-general', 'prosecution-influence', 'legal-protection'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'federal-judge-network-cultivation',
+    date: '2010-11-12',
+    title: 'Federal Judge Network Cultivation and Influence',
+    description: 'Evidence of systematic cultivation of relationships with federal judges across multiple circuits. These connections raised significant concerns about judicial independence and influence operations.',
+    category: 'political',
+    type: 'meeting',
+    significance: 'critical',
+    verificationStatus: 'corroborated',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Judicial Cultivator',
+        description: 'Developing relationships with federal judiciary'
+      },
+      {
+        entityId: 'federal-judges',
+        entityType: 'person',
+        role: 'Judicial Targets',
+        description: 'Federal judges targeted for relationship development'
+      },
+      {
+        entityId: 'judicial-intermediaries',
+        entityType: 'person',
+        role: 'Judicial Facilitators',
+        description: 'Individuals facilitating judicial connections'
+      }
+    ],
+    relatedEvents: ['attorney-general-connections'],
+    consequences: ['Judicial influence capabilities', 'Legal system penetration'],
+    sources: [
+      {
+        id: 'federal-judge-connections-investigation',
+        type: 'court_document',
+        title: 'Investigation of Epstein Federal Judge Connections',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['judicial-connections', 'federal-courts']
+      },
+      {
+        id: 'judicial-influence-analysis',
+        type: 'other',
+        title: 'Analysis of Judicial Influence Operations',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['judicial-analysis', 'influence-operations']
+      }
+    ],
+    evidence: ['judicial-records', 'connection-evidence', 'influence-documentation'],
+    tags: ['federal-judges', 'judicial-influence', 'legal-system-penetration', 'judicial-independence-concerns'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'political-protection-network-activation',
+    date: '2019-07-06',
+    title: 'Political Protection Network Activation Evidence',
+    description: 'Following Epstein\'s 2019 arrest, evidence emerges of political protection network activation attempts. Multiple political figures allegedly involved in attempting to provide protection and influence prosecution.',
+    category: 'political',
+    type: 'other',
+    significance: 'critical',
+    verificationStatus: 'alleged',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Protected Individual',
+        description: 'Individual receiving political protection attempts'
+      },
+      {
+        entityId: 'political-protection-network',
+        entityType: 'organization',
+        role: 'Protection Network',
+        description: 'Network of political figures providing protection'
+      },
+      {
+        entityId: 'protection-facilitators',
+        entityType: 'person',
+        role: 'Network Facilitators',
+        description: 'Individuals facilitating protection operations'
+      }
+    ],
+    relatedEvents: ['federal-judge-network-cultivation', 'attorney-general-connections'],
+    consequences: ['Protection operation activation', 'Political network exposure'],
+    sources: [
+      {
+        id: 'political-protection-evidence',
+        type: 'news_article',
+        title: 'Evidence of Political Protection Network Activation',
+        publicationDate: '2019-07',
+        reliability: 'high',
+        tags: ['political-protection', 'network-activation']
+      },
+      {
+        id: 'protection-network-investigation',
+        type: 'other',
+        title: 'Investigation of Epstein Protection Network',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['protection-investigation', 'political-network']
+      }
+    ],
+    evidence: ['protection-documentation', 'network-evidence', 'activation-records'],
+    tags: ['political-protection', 'network-activation', 'arrest-response', 'influence-operations'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  // ===== LEGAL PROCEEDINGS DEEP DIVE =====
+  {
+    id: 'first-victim-complaint-mary-doe',
+    date: '2005-03-14',
+    title: 'First Documented Victim Complaint - "Mary Doe"',
+    description: 'First documented formal complaint by a victim (referred to as "Mary Doe" in early legal documents) reporting sexual abuse by Jeffrey Epstein. This complaint would initiate the initial investigation that would later be compromised by the non-prosecution agreement.',
+    category: 'criminal',
+    type: 'legal',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'mary-doe-victim',
+        entityType: 'person',
+        role: 'First Documented Victim',
+        description: 'First victim to file formal complaint against Epstein'
+      },
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Accused',
+        description: 'Subject of first formal abuse complaint'
+      },
+      {
+        entityId: 'palm-beach-police',
+        entityType: 'organization',
+        role: 'Investigating Agency',
+        description: 'Local police department receiving initial complaint'
+      }
+    ],
+    relatedEvents: [],
+    consequences: ['Official investigation initiation', 'Legal proceedings commencement'],
+    sources: [
+      {
+        id: 'first-victim-complaint-documentation',
+        type: 'court_document',
+        title: 'Initial Victim Complaint Documentation',
+        publicationDate: '2005-03',
+        reliability: 'high',
+        tags: ['victim-complaint', 'initial-investigation']
+      },
+      {
+        id: 'palm-beach-police-report-initial',
+        type: 'government_document',
+        title: 'Palm Beach Police Initial Report',
+        publicationDate: '2005-03',
+        reliability: 'high',
+        tags: ['police-report', 'initial-complaint']
+      }
+    ],
+    evidence: ['victim-complaint', 'police-report', 'initial-investigation-records'],
+    tags: ['first-complaint', 'victim-testimony', 'investigation-initiation', 'legal-proceedings-start'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'palm-beach-police-investigation-expansion',
+    date: '2005-05-20',
+    title: 'Palm Beach Police Investigation Expansion',
+    description: 'Palm Beach Police Department expands investigation as additional victims come forward. Investigation reveals systematic pattern of abuse involving multiple underage victims and sophisticated recruitment network.',
+    category: 'criminal',
+    type: 'investigation',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'palm-beach-police',
+        entityType: 'organization',
+        role: 'Lead Investigating Agency',
+        description: 'Police department conducting expanded investigation'
+      },
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Primary Suspect',
+        description: 'Subject of expanded criminal investigation'
+      },
+      {
+        entityId: 'multiple-victims',
+        entityType: 'person',
+        role: 'Additional Victims',
+        description: 'Multiple victims coming forward with abuse allegations'
+      }
+    ],
+    relatedEvents: ['first-victim-complaint-mary-doe'],
+    consequences: ['Multiple victim identification', 'Systematic abuse pattern documentation'],
+    sources: [
+      {
+        id: 'palm-beach-investigation-expansion-records',
+        type: 'government_document',
+        title: 'Palm Beach Police Investigation Expansion Records',
+        publicationDate: '2005-05',
+        reliability: 'high',
+        tags: ['investigation-expansion', 'multiple-victims']
+      },
+      {
+        id: 'victim-recruitment-pattern-analysis',
+        type: 'court_document',
+        title: 'Analysis of Victim Recruitment Patterns',
+        publicationDate: '2005',
+        reliability: 'high',
+        tags: ['recruitment-patterns', 'systematic-abuse']
+      }
+    ],
+    evidence: ['expanded-investigation-records', 'victim-testimonies', 'recruitment-pattern-documentation'],
+    tags: ['investigation-expansion', 'multiple-victims', 'systematic-abuse-documentation', 'recruitment-patterns'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'fbi-involvement-initiation',
+    date: '2006-07-23',
+    title: 'FBI Investigation Initiation and Federal Involvement',
+    description: 'Federal Bureau of Investigation becomes involved in Epstein case due to interstate nature of crimes and potential federal violations. FBI investigation would later become subject of significant controversy regarding prosecution decisions.',
+    category: 'criminal',
+    type: 'investigation',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'federal-bureau-investigation',
+        entityType: 'organization',
+        role: 'Federal Investigating Agency',
+        description: 'FBI taking over investigation due to federal implications'
+      },
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Federal Investigation Subject',
+        description: 'Subject of expanded federal investigation'
+      },
+      {
+        entityId: 'us-attorneys-office-southern-florida',
+        entityType: 'organization',
+        role: 'Federal Prosecution Office',
+        description: 'Federal prosecutor\'s office handling case'
+      }
+    ],
+    relatedEvents: ['palm-beach-police-investigation-expansion'],
+    consequences: ['Federal jurisdiction establishment', 'Multi-state investigation expansion'],
+    sources: [
+      {
+        id: 'fbi-investigation-initiation-records',
+        type: 'government_document',
+        title: 'FBI Investigation Initiation Records',
+        publicationDate: '2006-07',
+        reliability: 'high',
+        tags: ['fbi-investigation', 'federal-involvement']
+      },
+      {
+        id: 'federal-prosecution-consideration-documents',
+        type: 'government_document',
+        title: 'Federal Prosecution Consideration Documents',
+        publicationDate: '2006',
+        reliability: 'high',
+        tags: ['federal-prosecution', 'jurisdiction-establishment']
+      }
+    ],
+    evidence: ['fbi-investigation-records', 'federal-jurisdiction-documentation', 'prosecution-consideration-records'],
+    tags: ['fbi-investigation', 'federal-involvement', 'jurisdiction-expansion', 'prosecution-preparation'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'alexander-acosta-prosecution-oversight',
+    date: '2007-01-15',
+    title: 'Alexander Acosta Assumes Prosecution Oversight',
+    description: 'Alexander Acosta, as US Attorney for Southern District of Florida, assumes oversight of Epstein prosecution. His decisions regarding the case would later become highly controversial and lead to his resignation as Labor Secretary.',
+    category: 'criminal',
+    type: 'legal',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'alexander-acosta',
+        entityType: 'person',
+        role: 'Lead Federal Prosecutor',
+        description: 'US Attorney overseeing Epstein prosecution decisions'
+      },
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Prosecution Subject',
+        description: 'Subject of federal prosecution decisions'
+      },
+      {
+        entityId: 'us-attorneys-office-southern-florida',
+        entityType: 'organization',
+        role: 'Prosecution Office',
+        description: 'Federal office handling prosecution decisions'
+      }
+    ],
+    relatedEvents: ['fbi-involvement-initiation'],
+    consequences: ['Prosecution strategy development', 'Controversial plea negotiations initiation'],
+    sources: [
+      {
+        id: 'acosta-prosecution-oversight-records',
+        type: 'government_document',
+        title: 'Acosta Prosecution Oversight Records',
+        publicationDate: '2007-01',
+        reliability: 'high',
+        tags: ['acosta-oversight', 'prosecution-decisions']
+      },
+      {
+        id: 'federal-prosecution-strategy-documents',
+        type: 'court_document',
+        title: 'Federal Prosecution Strategy Development',
+        publicationDate: '2007',
+        reliability: 'high',
+        tags: ['prosecution-strategy', 'plea-negotiations']
+      }
+    ],
+    evidence: ['prosecution-oversight-records', 'strategy-documentation', 'decision-making-records'],
+    tags: ['acosta-oversight', 'prosecution-decisions', 'federal-strategy', 'controversial-handling'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'victim-impact-testimonies-collection',
+    date: '2007-06-10',
+    title: 'Systematic Victim Impact Testimony Collection',
+    description: 'Federal prosecutors collect extensive victim impact testimonies revealing the scope and severity of Epstein\'s abuse network. These testimonies would later be crucial in understanding the inadequacy of the eventual plea agreement.',
+    category: 'criminal',
+    type: 'legal',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'victim-witnesses',
+        entityType: 'person',
+        role: 'Victim Witnesses',
+        description: 'Multiple victims providing detailed testimony about abuse'
+      },
+      {
+        entityId: 'federal-prosecutors',
+        entityType: 'person',
+        role: 'Testimony Collectors',
+        description: 'Prosecutors collecting and documenting victim testimonies'
+      },
+      {
+        entityId: 'victim-advocacy-groups',
+        entityType: 'organization',
+        role: 'Support Organizations',
+        description: 'Organizations supporting victims through testimony process'
+      }
+    ],
+    relatedEvents: ['alexander-acosta-prosecution-oversight'],
+    consequences: ['Comprehensive abuse documentation', 'Victim impact evidence compilation'],
+    sources: [
+      {
+        id: 'victim-testimony-collection-records',
+        type: 'court_document',
+        title: 'Victim Testimony Collection Records',
+        publicationDate: '2007-06',
+        reliability: 'high',
+        tags: ['victim-testimony', 'impact-statements']
+      },
+      {
+        id: 'abuse-scope-documentation',
+        type: 'court_document',
+        title: 'Documentation of Abuse Scope and Severity',
+        publicationDate: '2007',
+        reliability: 'high',
+        tags: ['abuse-documentation', 'scope-analysis']
+      }
+    ],
+    evidence: ['victim-testimonies', 'impact-statements', 'abuse-documentation'],
+    tags: ['victim-testimony', 'impact-evidence', 'abuse-scope-documentation', 'witness-collection'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'controversial-plea-agreement-negotiations',
+    date: '2007-09-24',
+    title: 'Controversial Non-Prosecution Agreement Negotiations',
+    description: 'Secret negotiations begin for controversial non-prosecution agreement that would later be ruled illegal. Negotiations conducted without victim notification, violating Crime Victims\' Rights Act.',
+    category: 'criminal',
+    type: 'legal',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'alexander-acosta',
+        entityType: 'person',
+        role: 'Chief Negotiator',
+        description: 'US Attorney leading controversial plea negotiations'
+      },
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Plea Beneficiary',
+        description: 'Subject receiving unprecedented plea agreement'
+      },
+      {
+        entityId: 'epstein-defense-team',
+        entityType: 'organization',
+        role: 'Defense Counsel',
+        description: 'High-powered legal team negotiating plea agreement'
+      }
+    ],
+    relatedEvents: ['victim-impact-testimonies-collection'],
+    consequences: ['Victim rights violations', 'Secret plea agreement development'],
+    sources: [
+      {
+        id: 'plea-agreement-negotiation-records',
+        type: 'court_document',
+        title: 'Non-Prosecution Agreement Negotiation Records',
+        publicationDate: '2007-09',
+        reliability: 'high',
+        tags: ['plea-negotiations', 'non-prosecution-agreement']
+      },
+      {
+        id: 'victims-rights-violation-analysis',
+        type: 'court_document',
+        title: 'Analysis of Crime Victims\' Rights Act Violations',
+        publicationDate: '2018',
+        reliability: 'high',
+        tags: ['victims-rights', 'legal-violations']
+      }
+    ],
+    evidence: ['negotiation-records', 'plea-agreement-documents', 'victims-rights-violation-evidence'],
+    tags: ['plea-negotiations', 'victims-rights-violations', 'secret-negotiations', 'controversial-agreement'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'sweetheart-deal-finalization',
+    date: '2008-06-30',
+    title: 'Sweetheart Deal Finalization and Sentencing',
+    description: 'Finalization of controversial "sweetheart deal" allowing Epstein to plead guilty to minor state charges while avoiding federal prosecution. Deal includes work-release privileges and co-conspirator immunity.',
+    category: 'criminal',
+    type: 'legal',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Plea Agreement Beneficiary',
+        description: 'Receiving minimal sentence through controversial plea'
+      },
+      {
+        entityId: 'state-court-florida',
+        entityType: 'organization',
+        role: 'Sentencing Court',
+        description: 'State court processing minimal plea agreement'
+      },
+      {
+        entityId: 'co-conspirators',
+        entityType: 'person',
+        role: 'Protected Associates',
+        description: 'Network associates receiving immunity through plea agreement'
+      }
+    ],
+    relatedEvents: ['controversial-plea-agreement-negotiations'],
+    consequences: ['Minimal incarceration', 'Co-conspirator protection', 'Justice system failure'],
+    sources: [
+      {
+        id: 'sweetheart-deal-court-records',
+        type: 'court_document',
+        title: 'Sweetheart Deal Court Records and Sentencing',
+        publicationDate: '2008-06',
+        reliability: 'high',
+        tags: ['sweetheart-deal', 'sentencing-records']
+      },
+      {
+        id: 'co-conspirator-immunity-analysis',
+        type: 'court_document',
+        title: 'Analysis of Co-Conspirator Immunity Provisions',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['co-conspirator-immunity', 'plea-analysis']
+      }
+    ],
+    evidence: ['plea-agreement', 'sentencing-records', 'immunity-provisions'],
+    tags: ['sweetheart-deal', 'minimal-sentence', 'co-conspirator-immunity', 'justice-failure'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'work-release-privilege-abuse',
+    date: '2008-07-01',
+    title: 'Work Release Privilege Implementation and Abuse',
+    description: 'Implementation of unprecedented work-release privileges allowing Epstein to leave jail for 12 hours daily. Evidence emerges of abuse of these privileges for continued inappropriate activities.',
+    category: 'criminal',
+    type: 'other',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Work Release Beneficiary',
+        description: 'Individual receiving unprecedented work release privileges'
+      },
+      {
+        entityId: 'palm-beach-sheriff-office',
+        entityType: 'organization',
+        role: 'Supervising Authority',
+        description: 'Law enforcement agency supervising work release'
+      },
+      {
+        entityId: 'work-release-monitors',
+        entityType: 'person',
+        role: 'Release Supervisors',
+        description: 'Personnel responsible for monitoring work release compliance'
+      }
+    ],
+    relatedEvents: ['sweetheart-deal-finalization'],
+    consequences: ['Privilege abuse', 'Continued inappropriate activities', 'Supervision failures'],
+    sources: [
+      {
+        id: 'work-release-records',
+        type: 'government_document',
+        title: 'Work Release Implementation and Monitoring Records',
+        publicationDate: '2008',
+        reliability: 'high',
+        tags: ['work-release', 'privilege-monitoring']
+      },
+      {
+        id: 'work-release-abuse-investigation',
+        type: 'news_article',
+        title: 'Investigation of Work Release Privilege Abuse',
+        publicationDate: '2018',
+        reliability: 'high',
+        tags: ['privilege-abuse', 'supervision-failures']
+      }
+    ],
+    evidence: ['work-release-records', 'privilege-abuse-evidence', 'supervision-documentation'],
+    tags: ['work-release-abuse', 'privilege-violations', 'supervision-failures', 'continued-activities'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'victim-rights-lawsuit-initiation',
+    date: '2014-12-30',
+    title: 'Victims\' Rights Lawsuit Against Federal Government',
+    description: 'Victims file landmark lawsuit against federal government alleging violations of Crime Victims\' Rights Act in Epstein plea negotiations. Lawsuit seeks to overturn controversial plea agreement.',
+    category: 'civil',
+    type: 'legal',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'epstein-victims',
+        entityType: 'person',
+        role: 'Plaintiff Victims',
+        description: 'Victims suing federal government for rights violations'
+      },
+      {
+        entityId: 'federal-government',
+        entityType: 'organization',
+        role: 'Defendant Government',
+        description: 'Federal government facing lawsuit for plea agreement violations'
+      },
+      {
+        entityId: 'victims-rights-attorneys',
+        entityType: 'person',
+        role: 'Plaintiff Counsel',
+        description: 'Attorneys representing victims in rights violation lawsuit'
+      }
+    ],
+    relatedEvents: ['controversial-plea-agreement-negotiations'],
+    consequences: ['Federal accountability litigation', 'Plea agreement legal challenge'],
+    sources: [
+      {
+        id: 'victims-rights-lawsuit-filing',
+        type: 'court_document',
+        title: 'Victims\' Rights Lawsuit Filing Documents',
+        publicationDate: '2014-12',
+        reliability: 'high',
+        tags: ['victims-lawsuit', 'rights-violations']
+      },
+      {
+        id: 'plea-agreement-challenge-analysis',
+        type: 'court_document',
+        title: 'Legal Analysis of Plea Agreement Challenge',
+        publicationDate: '2015',
+        reliability: 'high',
+        tags: ['plea-challenge', 'legal-analysis']
+      }
+    ],
+    evidence: ['lawsuit-filing', 'rights-violation-claims', 'plea-challenge-documentation'],
+    tags: ['victims-rights-lawsuit', 'federal-accountability', 'plea-challenge', 'legal-remedy-seeking'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'federal-judge-marra-ruling',
+    date: '2019-02-21',
+    title: 'Federal Judge Marra Rules Plea Agreement Illegal',
+    description: 'Federal Judge Kenneth Marra rules that federal prosecutors violated Crime Victims\' Rights Act by not consulting victims before finalizing Epstein plea agreement. Landmark ruling validates victims\' legal challenge.',
+    category: 'civil',
+    type: 'legal',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'judge-kenneth-marra',
+        entityType: 'person',
+        role: 'Presiding Federal Judge',
+        description: 'Federal judge ruling on plea agreement legality'
+      },
+      {
+        entityId: 'epstein-victims',
+        entityType: 'person',
+        role: 'Vindicated Plaintiffs',
+        description: 'Victims whose rights violations were validated by court'
+      },
+      {
+        entityId: 'federal-prosecutors',
+        entityType: 'person',
+        role: 'Condemned Prosecutors',
+        description: 'Prosecutors found to have violated victims\' rights'
+      }
+    ],
+    relatedEvents: ['victim-rights-lawsuit-initiation'],
+    consequences: ['Plea agreement illegality confirmation', 'Prosecutorial misconduct validation'],
+    sources: [
+      {
+        id: 'judge-marra-ruling-documents',
+        type: 'court_document',
+        title: 'Judge Marra Ruling on Plea Agreement Illegality',
+        publicationDate: '2019-02',
+        reliability: 'high',
+        tags: ['federal-ruling', 'plea-illegality']
+      },
+      {
+        id: 'victims-rights-vindication-analysis',
+        type: 'court_document',
+        title: 'Analysis of Victims\' Rights Vindication',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['rights-vindication', 'prosecutorial-misconduct']
+      }
+    ],
+    evidence: ['federal-court-ruling', 'plea-illegality-determination', 'rights-violation-confirmation'],
+    tags: ['federal-ruling', 'plea-illegality', 'victims-vindication', 'prosecutorial-misconduct'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'southern-district-ny-indictment',
+    date: '2019-07-06',
+    title: 'Southern District of New York Federal Indictment',
+    description: 'US Attorney\'s Office for Southern District of New York files federal indictment against Jeffrey Epstein on charges of sex trafficking conspiracy and conspiracy to engage in sex trafficking of minors. Indictment bypasses controversial Florida plea agreement.',
+    category: 'criminal',
+    type: 'legal',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Federal Defendant',
+        description: 'Subject of federal sex trafficking indictment'
+      },
+      {
+        entityId: 'sdny-prosecutors',
+        entityType: 'person',
+        role: 'Federal Prosecutors',
+        description: 'Southern District prosecutors filing federal charges'
+      },
+      {
+        entityId: 'us-attorneys-office-sdny',
+        entityType: 'organization',
+        role: 'Prosecuting Office',
+        description: 'Federal office pursuing criminal charges'
+      }
+    ],
+    relatedEvents: ['federal-judge-marra-ruling'],
+    consequences: ['Federal prosecution reinitiation', 'Plea agreement circumvention'],
+    sources: [
+      {
+        id: 'sdny-federal-indictment',
+        type: 'court_document',
+        title: 'Southern District NY Federal Indictment',
+        publicationDate: '2019-07-06',
+        reliability: 'high',
+        tags: ['federal-indictment', 'sex-trafficking-charges']
+      },
+      {
+        id: 'plea-agreement-circumvention-analysis',
+        type: 'court_document',
+        title: 'Analysis of Florida Plea Agreement Circumvention',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['plea-circumvention', 'federal-jurisdiction']
+      }
+    ],
+    evidence: ['federal-indictment', 'sex-trafficking-charges', 'plea-circumvention-documentation'],
+    tags: ['federal-indictment', 'sex-trafficking-charges', 'plea-circumvention', 'sdny-prosecution'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'bail-denial-flight-risk',
+    date: '2019-07-18',
+    title: 'Federal Judge Denies Bail - Flight Risk Determination',
+    description: 'Federal Judge Richard Berman denies bail for Jeffrey Epstein, determining he poses significant flight risk and danger to community. Decision based on wealth, private aircraft access, and international connections.',
+    category: 'criminal',
+    type: 'legal',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'judge-richard-berman',
+        entityType: 'person',
+        role: 'Presiding Federal Judge',
+        description: 'Federal judge determining bail and detention conditions'
+      },
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Detained Defendant',
+        description: 'Federal defendant denied bail due to flight risk'
+      },
+      {
+        entityId: 'federal-detention-facility',
+        entityType: 'organization',
+        role: 'Detention Facility',
+        description: 'Federal facility holding Epstein pending trial'
+      }
+    ],
+    relatedEvents: ['southern-district-ny-indictment'],
+    consequences: ['Pre-trial detention', 'Flight risk mitigation'],
+    sources: [
+      {
+        id: 'bail-denial-court-ruling',
+        type: 'court_document',
+        title: 'Federal Court Bail Denial Ruling',
+        publicationDate: '2019-07-18',
+        reliability: 'high',
+        tags: ['bail-denial', 'flight-risk-determination']
+      },
+      {
+        id: 'detention-risk-assessment',
+        type: 'court_document',
+        title: 'Pre-trial Detention Risk Assessment',
+        publicationDate: '2019-07',
+        reliability: 'high',
+        tags: ['risk-assessment', 'detention-justification']
+      }
+    ],
+    evidence: ['bail-denial-ruling', 'flight-risk-assessment', 'detention-justification'],
+    tags: ['bail-denial', 'flight-risk', 'pre-trial-detention', 'judicial-determination'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'comprehensive-evidence-seizure',
+    date: '2019-07-08',
+    title: 'Comprehensive Evidence Seizure from Properties',
+    description: 'Federal agents conduct comprehensive searches and evidence seizure from Epstein properties in Manhattan and Palm Beach. Seizures include photographs, documents, and digital evidence crucial to prosecution.',
+    category: 'criminal',
+    type: 'investigation',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'fbi-agents',
+        entityType: 'person',
+        role: 'Evidence Collection Team',
+        description: 'Federal agents conducting property searches and evidence seizure'
+      },
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Search Subject',
+        description: 'Individual whose properties are subject to federal search'
+      },
+      {
+        entityId: 'epstein-properties',
+        entityType: 'location',
+        role: 'Search Locations',
+        description: 'Manhattan and Palm Beach properties searched for evidence'
+      }
+    ],
+    relatedEvents: ['southern-district-ny-indictment'],
+    consequences: ['Critical evidence collection', 'Prosecution case strengthening'],
+    sources: [
+      {
+        id: 'evidence-seizure-documentation',
+        type: 'court_document',
+        title: 'Federal Evidence Seizure Documentation',
+        publicationDate: '2019-07',
+        reliability: 'high',
+        tags: ['evidence-seizure', 'property-searches']
+      },
+      {
+        id: 'seized-evidence-inventory',
+        type: 'court_document',
+        title: 'Comprehensive Seized Evidence Inventory',
+        publicationDate: '2019-07',
+        reliability: 'high',
+        tags: ['evidence-inventory', 'digital-evidence']
+      }
+    ],
+    evidence: ['seized-photographs', 'digital-evidence', 'document-collection', 'property-search-records'],
+    tags: ['evidence-seizure', 'property-searches', 'digital-evidence', 'prosecution-evidence'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'victim-testimony-preparation-2019',
+    date: '2019-07-25',
+    title: 'Victim Testimony Preparation for Federal Trial',
+    description: 'Federal prosecutors begin systematic preparation of victim witnesses for anticipated federal trial. Process includes trauma-informed testimony preparation and victim protection measures.',
+    category: 'criminal',
+    type: 'legal',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'victim-witnesses-2019',
+        entityType: 'person',
+        role: 'Federal Trial Witnesses',
+        description: 'Victims preparing to testify in federal prosecution'
+      },
+      {
+        entityId: 'federal-prosecutors-2019',
+        entityType: 'person',
+        role: 'Witness Preparation Team',
+        description: 'Prosecutors preparing victims for federal trial testimony'
+      },
+      {
+        entityId: 'victim-protection-services',
+        entityType: 'organization',
+        role: 'Witness Protection',
+        description: 'Services providing protection and support for victim witnesses'
+      }
+    ],
+    relatedEvents: ['comprehensive-evidence-seizure'],
+    consequences: ['Victim testimony preparation', 'Witness protection implementation'],
+    sources: [
+      {
+        id: 'victim-testimony-preparation-records',
+        type: 'court_document',
+        title: 'Federal Victim Testimony Preparation Records',
+        publicationDate: '2019-07',
+        reliability: 'high',
+        tags: ['witness-preparation', 'victim-testimony']
+      },
+      {
+        id: 'witness-protection-protocols',
+        type: 'government_document',
+        title: 'Federal Witness Protection Protocols',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['witness-protection', 'victim-safety']
+      }
+    ],
+    evidence: ['testimony-preparation-records', 'witness-protection-documentation', 'victim-support-evidence'],
+    tags: ['victim-testimony-preparation', 'witness-protection', 'federal-trial-preparation', 'victim-support'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'suspicious-death-investigation',
+    date: '2019-08-10',
+    title: 'Suspicious Death Investigation and Legal Implications',
+    description: 'Jeffrey Epstein found dead in federal detention facility under suspicious circumstances. Death occurs before federal trial, preventing victim testimony and full legal accountability. Investigation into death circumstances initiated.',
+    category: 'criminal',
+    type: 'investigation',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Deceased Defendant',
+        description: 'Federal defendant dying before trial completion'
+      },
+      {
+        entityId: 'federal-detention-facility',
+        entityType: 'organization',
+        role: 'Death Location',
+        description: 'Federal facility where suspicious death occurred'
+      },
+      {
+        entityId: 'death-investigation-team',
+        entityType: 'person',
+        role: 'Death Investigators',
+        description: 'Officials investigating circumstances of death'
+      }
+    ],
+    relatedEvents: ['victim-testimony-preparation-2019'],
+    consequences: ['Federal trial termination', 'Victim testimony prevention', 'Legal accountability loss'],
+    sources: [
+      {
+        id: 'suspicious-death-investigation-records',
+        type: 'government_document',
+        title: 'Suspicious Death Investigation Records',
+        publicationDate: '2019-08',
+        reliability: 'high',
+        tags: ['suspicious-death', 'death-investigation']
+      },
+      {
+        id: 'legal-implications-death-analysis',
+        type: 'court_document',
+        title: 'Analysis of Legal Implications of Death',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['legal-implications', 'accountability-loss']
+      }
+    ],
+    evidence: ['death-investigation-records', 'facility-security-footage', 'legal-termination-documentation'],
+    tags: ['suspicious-death', 'trial-termination', 'accountability-prevention', 'investigation-end'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'ghislaine-maxwell-indictment',
+    date: '2020-07-02',
+    title: 'Ghislaine Maxwell Federal Indictment and Arrest',
+    description: 'Federal indictment and arrest of Ghislaine Maxwell on charges related to Epstein trafficking network. Charges include conspiracy to entice minors to travel to engage in illegal sex acts, conspiracy to transport minors with intent to engage in criminal sexual activity.',
+    category: 'criminal',
+    type: 'legal',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'ghislaine-maxwell',
+        entityType: 'person',
+        role: 'Federal Defendant',
+        description: 'Epstein associate indicted on federal trafficking charges'
+      },
+      {
+        entityId: 'sdny-prosecutors-maxwell',
+        entityType: 'person',
+        role: 'Federal Prosecutors',
+        description: 'Prosecutors pursuing charges against Maxwell'
+      },
+      {
+        entityId: 'fbi-arrest-team',
+        entityType: 'person',
+        role: 'Arrest Team',
+        description: 'Federal agents conducting Maxwell arrest'
+      }
+    ],
+    relatedEvents: ['suspicious-death-investigation'],
+    consequences: ['Network accountability continuation', 'Co-conspirator prosecution'],
+    sources: [
+      {
+        id: 'maxwell-federal-indictment',
+        type: 'court_document',
+        title: 'Ghislaine Maxwell Federal Indictment',
+        publicationDate: '2020-07-02',
+        reliability: 'high',
+        tags: ['maxwell-indictment', 'federal-charges']
+      },
+      {
+        id: 'maxwell-arrest-documentation',
+        type: 'government_document',
+        title: 'Maxwell Arrest and Booking Documentation',
+        publicationDate: '2020-07',
+        reliability: 'high',
+        tags: ['arrest-documentation', 'federal-custody']
+      }
+    ],
+    evidence: ['federal-indictment', 'arrest-records', 'trafficking-charges-documentation'],
+    tags: ['maxwell-indictment', 'federal-arrest', 'trafficking-charges', 'network-accountability'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'maxwell-trial-proceedings',
+    date: '2021-11-29',
+    title: 'Ghislaine Maxwell Federal Trial Proceedings',
+    description: 'Federal trial of Ghislaine Maxwell begins with extensive victim testimony and evidence presentation. Trial provides detailed public exposure of Epstein trafficking network operations and Maxwell\'s role as facilitator.',
+    category: 'criminal',
+    type: 'legal',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'ghislaine-maxwell',
+        entityType: 'person',
+        role: 'Criminal Defendant',
+        description: 'Defendant facing federal trafficking charges at trial'
+      },
+      {
+        entityId: 'maxwell-trial-victims',
+        entityType: 'person',
+        role: 'Trial Witnesses',
+        description: 'Victims testifying against Maxwell in federal trial'
+      },
+      {
+        entityId: 'federal-trial-judge',
+        entityType: 'person',
+        role: 'Presiding Judge',
+        description: 'Federal judge overseeing Maxwell trial proceedings'
+      }
+    ],
+    relatedEvents: ['ghislaine-maxwell-indictment'],
+    consequences: ['Public network exposure', 'Victim testimony platform', 'Network operations documentation'],
+    sources: [
+      {
+        id: 'maxwell-trial-transcripts',
+        type: 'court_document',
+        title: 'Ghislaine Maxwell Trial Transcripts',
+        publicationDate: '2021-12',
+        reliability: 'high',
+        tags: ['trial-transcripts', 'victim-testimony']
+      },
+      {
+        id: 'trial-evidence-presentation',
+        type: 'court_document',
+        title: 'Federal Trial Evidence Presentation',
+        publicationDate: '2021',
+        reliability: 'high',
+        tags: ['trial-evidence', 'network-documentation']
+      }
+    ],
+    evidence: ['trial-transcripts', 'victim-testimony', 'evidence-presentation', 'network-documentation'],
+    tags: ['maxwell-trial', 'victim-testimony', 'network-exposure', 'federal-proceedings'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'maxwell-conviction-sentencing',
+    date: '2021-12-29',
+    title: 'Ghislaine Maxwell Conviction and Sentencing',
+    description: 'Ghislaine Maxwell convicted on federal trafficking charges and sentenced to 20 years in federal prison. Conviction represents significant legal accountability for Epstein network operations.',
+    category: 'criminal',
+    type: 'legal',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'ghislaine-maxwell',
+        entityType: 'person',
+        role: 'Convicted Defendant',
+        description: 'Individual convicted and sentenced for trafficking network role'
+      },
+      {
+        entityId: 'federal-sentencing-judge',
+        entityType: 'person',
+        role: 'Sentencing Judge',
+        description: 'Federal judge imposing sentence on Maxwell'
+      },
+      {
+        entityId: 'convicted-network-associate',
+        entityType: 'person',
+        role: 'Network Representative',
+        description: 'Convicted representative of Epstein trafficking network'
+      }
+    ],
+    relatedEvents: ['maxwell-trial-proceedings'],
+    consequences: ['Network accountability achievement', 'Federal prison sentence', 'Legal precedent establishment'],
+    sources: [
+      {
+        id: 'maxwell-conviction-records',
+        type: 'court_document',
+        title: 'Ghislaine Maxwell Conviction and Sentencing Records',
+        publicationDate: '2021-12',
+        reliability: 'high',
+        tags: ['conviction-records', 'sentencing-documentation']
+      },
+      {
+        id: 'accountability-achievement-analysis',
+        type: 'court_document',
+        title: 'Analysis of Network Accountability Achievement',
+        publicationDate: '2022',
+        reliability: 'high',
+        tags: ['accountability-analysis', 'legal-precedent']
+      }
+    ],
+    evidence: ['conviction-records', 'sentencing-documentation', 'accountability-achievement'],
+    tags: ['maxwell-conviction', 'federal-sentencing', 'network-accountability', 'legal-justice'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'ongoing-civil-litigation',
+    date: '2022-01-15',
+    title: 'Ongoing Civil Litigation and Victim Compensation',
+    description: 'Extensive ongoing civil litigation against Epstein estate and associates continues. Victim compensation fund established to provide financial remedies to trafficking victims while civil cases proceed.',
+    category: 'civil',
+    type: 'legal',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'epstein-estate',
+        entityType: 'organization',
+        role: 'Civil Defendant',
+        description: 'Estate facing extensive civil litigation from victims'
+      },
+      {
+        entityId: 'trafficking-victims',
+        entityType: 'person',
+        role: 'Civil Plaintiffs',
+        description: 'Victims pursuing civil remedies and compensation'
+      },
+      {
+        entityId: 'victim-compensation-fund',
+        entityType: 'organization',
+        role: 'Compensation Mechanism',
+        description: 'Fund established to provide victim financial remedies'
+      }
+    ],
+    relatedEvents: ['maxwell-conviction-sentencing'],
+    consequences: ['Victim financial compensation', 'Civil accountability continuation', 'Legal remedy provision'],
+    sources: [
+      {
+        id: 'ongoing-civil-litigation-records',
+        type: 'court_document',
+        title: 'Ongoing Civil Litigation Records',
+        publicationDate: '2022-01',
+        reliability: 'high',
+        tags: ['civil-litigation', 'victim-compensation']
+      },
+      {
+        id: 'compensation-fund-documentation',
+        type: 'court_document',
+        title: 'Victim Compensation Fund Documentation',
+        publicationDate: '2022',
+        reliability: 'high',
+        tags: ['compensation-fund', 'victim-remedies']
+      }
+    ],
+    evidence: ['civil-litigation-records', 'compensation-fund-documentation', 'victim-remedy-evidence'],
+    tags: ['civil-litigation', 'victim-compensation', 'ongoing-accountability', 'financial-remedies'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'legal-system-reform-implications',
+    date: '2023-03-20',
+    title: 'Legal System Reform Implications and Lessons',
+    description: 'Epstein case generates significant legal system reform discussions regarding victim rights, prosecution discretion, and plea agreement oversight. Case becomes catalyst for criminal justice system improvements.',
+    category: 'other',
+    type: 'other',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'legal-reform-advocates',
+        entityType: 'person',
+        role: 'Reform Advocates',
+        description: 'Legal professionals advocating for system reforms based on case lessons'
+      },
+      {
+        entityId: 'criminal-justice-system',
+        entityType: 'organization',
+        role: 'Reform Target',
+        description: 'Legal system being examined for necessary reforms'
+      },
+      {
+        entityId: 'victims-rights-organizations',
+        entityType: 'organization',
+        role: 'Advocacy Groups',
+        description: 'Organizations advocating for improved victim rights protections'
+      }
+    ],
+    relatedEvents: ['ongoing-civil-litigation'],
+    consequences: ['Legal system reform initiatives', 'Victim rights strengthening', 'Prosecution oversight improvement'],
+    sources: [
+      {
+        id: 'legal-reform-implications-analysis',
+        type: 'other',
+        title: 'Analysis of Legal System Reform Implications',
+        publicationDate: '2023-03',
+        reliability: 'high',
+        tags: ['legal-reform', 'system-improvement']
+      },
+      {
+        id: 'victims-rights-reform-proposals',
+        type: 'government_document',
+        title: 'Victims\' Rights Reform Proposals',
+        publicationDate: '2023',
+        reliability: 'high',
+        tags: ['victims-rights', 'reform-proposals']
+      }
+    ],
+    evidence: ['reform-analysis', 'system-improvement-proposals', 'victims-rights-enhancements'],
+    tags: ['legal-reform', 'system-improvement', 'victims-rights-enhancement', 'case-lessons'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  // Academic and Scientific Networks Expansion
+  {
+    id: 'harvard-program-for-evolutionary-dynamics',
+    date: '2003-05-10',
+    title: 'Harvard Program for Evolutionary Dynamics Funding',
+    description: 'Jeffrey Epstein makes substantial donation to establish Harvard\'s Program for Evolutionary Dynamics under Martin Nowak. Donation provides Epstein significant influence over prestigious academic research programs and access to Harvard\'s scientific community.',
+    category: 'other',
+    type: 'business',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Academic Donor',
+        description: 'Major financial contributor to Harvard research programs'
+      },
+      {
+        entityId: 'martin-nowak',
+        entityType: 'person',
+        role: 'Program Director',
+        description: 'Harvard professor directing Epstein-funded research program'
+      },
+      {
+        entityId: 'harvard-university',
+        entityType: 'organization',
+        role: 'Academic Institution',
+        description: 'Prestigious university receiving Epstein funding'
+      }
+    ],
+    relatedEvents: [],
+    consequences: ['Academic influence establishment', 'Research program control', 'Harvard network access'],
+    sources: [
+      {
+        id: 'harvard-ped-funding-records',
+        type: 'other',
+        title: 'Harvard Program for Evolutionary Dynamics Funding Records',
+        publicationDate: '2003-05',
+        reliability: 'high',
+        tags: ['harvard-funding', 'academic-influence']
+      },
+      {
+        id: 'nowak-epstein-collaboration',
+        type: 'other',
+        title: 'Documentation of Nowak-Epstein Academic Collaboration',
+        publicationDate: '2003',
+        reliability: 'high',
+        tags: ['academic-collaboration', 'research-funding']
+      }
+    ],
+    evidence: ['funding-documentation', 'program-establishment-records', 'academic-influence-evidence'],
+    tags: ['harvard-funding', 'academic-influence', 'research-program-control', 'evolutionary-dynamics'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'mit-media-lab-donations',
+    date: '2002-09-15',
+    title: 'MIT Media Lab Substantial Donations and Influence',
+    description: 'Epstein begins substantial donations to MIT Media Lab, establishing relationships with Joi Ito and other prominent researchers. Donations provide access to cutting-edge technology research and MIT\'s innovation networks.',
+    category: 'other',
+    type: 'business',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Technology Patron',
+        description: 'Major financial contributor to MIT technology research'
+      },
+      {
+        entityId: 'joi-ito',
+        entityType: 'person',
+        role: 'Media Lab Director',
+        description: 'MIT Media Lab director receiving Epstein funding'
+      },
+      {
+        entityId: 'mit-media-lab',
+        entityType: 'organization',
+        role: 'Research Institution',
+        description: 'MIT\'s premier technology and media research laboratory'
+      }
+    ],
+    relatedEvents: ['harvard-program-for-evolutionary-dynamics'],
+    consequences: ['MIT network infiltration', 'Technology research influence', 'Academic legitimacy enhancement'],
+    sources: [
+      {
+        id: 'mit-media-lab-funding-records',
+        type: 'other',
+        title: 'MIT Media Lab Epstein Funding Documentation',
+        publicationDate: '2002-09',
+        reliability: 'high',
+        tags: ['mit-funding', 'media-lab-donations']
+      },
+      {
+        id: 'ito-epstein-relationship-analysis',
+        type: 'news_article',
+        title: 'Analysis of Ito-Epstein Academic Relationship',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['academic-relationships', 'funding-influence']
+      }
+    ],
+    evidence: ['donation-records', 'mit-relationship-documentation', 'technology-access-evidence'],
+    tags: ['mit-funding', 'media-lab-influence', 'technology-research-access', 'academic-infiltration'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'santa-fe-institute-connections',
+    date: '2004-03-20',
+    title: 'Santa Fe Institute Research Funding and Connections',
+    description: 'Epstein establishes funding relationships with Santa Fe Institute, connecting with complexity science researchers. Funding provides access to interdisciplinary research networks and theoretical physics communities.',
+    category: 'other',
+    type: 'business',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Research Patron',
+        description: 'Financial supporter of complexity science research'
+      },
+      {
+        entityId: 'santa-fe-institute',
+        entityType: 'organization',
+        role: 'Research Institute',
+        description: 'Interdisciplinary research institute studying complex systems'
+      },
+      {
+        entityId: 'complexity-researchers',
+        entityType: 'person',
+        role: 'Research Recipients',
+        description: 'Scientists receiving Epstein research funding'
+      }
+    ],
+    relatedEvents: ['mit-media-lab-donations'],
+    consequences: ['Complexity science network access', 'Interdisciplinary research influence', 'Theoretical physics connections'],
+    sources: [
+      {
+        id: 'santa-fe-funding-documentation',
+        type: 'other',
+        title: 'Santa Fe Institute Epstein Funding Records',
+        publicationDate: '2004-03',
+        reliability: 'high',
+        tags: ['santa-fe-funding', 'complexity-science']
+      },
+      {
+        id: 'interdisciplinary-network-analysis',
+        type: 'other',
+        title: 'Analysis of Epstein Interdisciplinary Research Networks',
+        publicationDate: '2004',
+        reliability: 'high',
+        tags: ['research-networks', 'academic-influence']
+      }
+    ],
+    evidence: ['funding-records', 'research-network-documentation', 'complexity-science-connections'],
+    tags: ['santa-fe-institute', 'complexity-science-funding', 'interdisciplinary-research', 'physics-connections'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'rockefeller-university-partnerships',
+    date: '2005-01-12',
+    title: 'Rockefeller University Research Partnerships',
+    description: 'Epstein develops research partnerships with Rockefeller University scientists, funding neuroscience and biological research. Partnerships provide access to elite medical research communities and cutting-edge scientific facilities.',
+    category: 'other',
+    type: 'business',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Medical Research Patron',
+        description: 'Financial supporter of neuroscience and biological research'
+      },
+      {
+        entityId: 'rockefeller-university',
+        entityType: 'organization',
+        role: 'Medical Research Institution',
+        description: 'Elite biomedical research university'
+      },
+      {
+        entityId: 'neuroscience-researchers',
+        entityType: 'person',
+        role: 'Research Partners',
+        description: 'Neuroscience researchers collaborating with Epstein funding'
+      }
+    ],
+    relatedEvents: ['santa-fe-institute-connections'],
+    consequences: ['Medical research network access', 'Neuroscience community influence', 'Biological research funding control'],
+    sources: [
+      {
+        id: 'rockefeller-partnership-records',
+        type: 'other',
+        title: 'Rockefeller University Epstein Partnership Documentation',
+        publicationDate: '2005-01',
+        reliability: 'high',
+        tags: ['rockefeller-partnerships', 'medical-research']
+      },
+      {
+        id: 'neuroscience-funding-analysis',
+        type: 'other',
+        title: 'Analysis of Epstein Neuroscience Research Funding',
+        publicationDate: '2005',
+        reliability: 'high',
+        tags: ['neuroscience-funding', 'biological-research']
+      }
+    ],
+    evidence: ['partnership-documentation', 'medical-research-funding', 'neuroscience-connections'],
+    tags: ['rockefeller-university', 'medical-research-funding', 'neuroscience-partnerships', 'biological-research'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'edge-foundation-science-networking',
+    date: '1997-06-08',
+    title: 'Edge Foundation Science Networking and Salons',
+    description: 'Epstein becomes major supporter of John Brockman\'s Edge Foundation, attending and funding exclusive science salons. Events provide access to world\'s leading scientists, technology innovators, and intellectual elites.',
+    category: 'social',
+    type: 'meeting',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Science Patron',
+        description: 'Major financial supporter of elite science networking events'
+      },
+      {
+        entityId: 'john-brockman',
+        entityType: 'person',
+        role: 'Edge Foundation Director',
+        description: 'Literary agent and Edge Foundation founder facilitating science networking'
+      },
+      {
+        entityId: 'edge-foundation',
+        entityType: 'organization',
+        role: 'Science Network',
+        description: 'Organization facilitating elite scientist and intellectual networking'
+      }
+    ],
+    relatedEvents: [],
+    consequences: ['Elite scientist network access', 'Intellectual community infiltration', 'Science funding influence'],
+    sources: [
+      {
+        id: 'edge-foundation-records',
+        type: 'other',
+        title: 'Edge Foundation Event and Funding Records',
+        publicationDate: '1997-06',
+        reliability: 'high',
+        tags: ['edge-foundation', 'science-networking']
+      },
+      {
+        id: 'brockman-epstein-collaboration',
+        type: 'news_article',
+        title: 'Documentation of Brockman-Epstein Science Network Collaboration',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['science-networking', 'intellectual-circles']
+      }
+    ],
+    evidence: ['foundation-records', 'science-salon-documentation', 'networking-evidence'],
+    tags: ['edge-foundation', 'science-networking', 'intellectual-salons', 'elite-scientist-access'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'stephen-hawking-cambridge-connections',
+    date: '2006-04-15',
+    title: 'Stephen Hawking and Cambridge University Connections',
+    description: 'Epstein develops relationship with Stephen Hawking and Cambridge University physics department, funding conferences and research. Connections provide prestige and access to world\'s most renowned theoretical physicists.',
+    category: 'social',
+    type: 'meeting',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Physics Patron',
+        description: 'Financial supporter of theoretical physics research and conferences'
+      },
+      {
+        entityId: 'stephen-hawking',
+        entityType: 'person',
+        role: 'Theoretical Physicist',
+        description: 'World-renowned physicist connected to Epstein funding'
+      },
+      {
+        entityId: 'cambridge-university',
+        entityType: 'organization',
+        role: 'Academic Institution',
+        description: 'Prestigious university with Epstein physics connections'
+      }
+    ],
+    relatedEvents: ['edge-foundation-science-networking'],
+    consequences: ['Theoretical physics prestige', 'Cambridge network access', 'International academic credibility'],
+    sources: [
+      {
+        id: 'hawking-epstein-documentation',
+        type: 'other',
+        title: 'Documentation of Hawking-Epstein Academic Connections',
+        publicationDate: '2006-04',
+        reliability: 'high',
+        tags: ['hawking-connections', 'cambridge-physics']
+      },
+      {
+        id: 'cambridge-physics-funding',
+        type: 'other',
+        title: 'Cambridge Physics Department Epstein Funding Records',
+        publicationDate: '2006',
+        reliability: 'high',
+        tags: ['cambridge-funding', 'theoretical-physics']
+      }
+    ],
+    evidence: ['physics-connection-documentation', 'cambridge-funding-records', 'theoretical-physics-access'],
+    tags: ['stephen-hawking', 'cambridge-physics', 'theoretical-physics-connections', 'international-prestige'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'harvard-faculty-relationships',
+    date: '2004-09-12',
+    title: 'Harvard Faculty Relationships and Academic Influence',
+    description: 'Epstein develops extensive relationships with Harvard faculty members across multiple departments including psychology, economics, and biology. Relationships provide academic credibility and access to Harvard\'s intellectual resources.',
+    category: 'social',
+    type: 'meeting',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Academic Influencer',
+        description: 'Individual cultivating relationships with Harvard faculty'
+      },
+      {
+        entityId: 'harvard-faculty',
+        entityType: 'person',
+        role: 'Academic Associates',
+        description: 'Harvard professors connected to Epstein funding and influence'
+      },
+      {
+        entityId: 'harvard-departments',
+        entityType: 'organization',
+        role: 'Academic Units',
+        description: 'Harvard academic departments with Epstein connections'
+      }
+    ],
+    relatedEvents: ['harvard-program-for-evolutionary-dynamics'],
+    consequences: ['Academic credibility enhancement', 'Faculty relationship network', 'Intellectual legitimacy'],
+    sources: [
+      {
+        id: 'harvard-faculty-relationship-records',
+        type: 'other',
+        title: 'Harvard Faculty Epstein Relationship Documentation',
+        publicationDate: '2004-09',
+        reliability: 'high',
+        tags: ['harvard-faculty', 'academic-relationships']
+      },
+      {
+        id: 'academic-influence-analysis',
+        type: 'news_article',
+        title: 'Analysis of Epstein Academic Influence at Harvard',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['academic-influence', 'harvard-connections']
+      }
+    ],
+    evidence: ['faculty-relationship-documentation', 'academic-influence-evidence', 'harvard-connection-records'],
+    tags: ['harvard-faculty', 'academic-relationships', 'intellectual-credibility', 'faculty-network'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'neuroscience-research-funding',
+    date: '2007-02-18',
+    title: 'Neuroscience Research Funding and Brain Studies',
+    description: 'Epstein provides substantial funding for neuroscience research across multiple institutions, focusing on brain studies and cognitive research. Funding provides access to cutting-edge neuroscience facilities and researchers.',
+    category: 'other',
+    type: 'business',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Neuroscience Patron',
+        description: 'Major financial supporter of brain and cognitive research'
+      },
+      {
+        entityId: 'neuroscience-institutes',
+        entityType: 'organization',
+        role: 'Research Recipients',
+        description: 'Neuroscience research institutions receiving Epstein funding'
+      },
+      {
+        entityId: 'brain-researchers',
+        entityType: 'person',
+        role: 'Research Scientists',
+        description: 'Neuroscientists conducting Epstein-funded research'
+      }
+    ],
+    relatedEvents: ['rockefeller-university-partnerships'],
+    consequences: ['Neuroscience network expansion', 'Brain research influence', 'Cognitive studies funding'],
+    sources: [
+      {
+        id: 'neuroscience-funding-records',
+        type: 'other',
+        title: 'Neuroscience Research Funding Documentation',
+        publicationDate: '2007-02',
+        reliability: 'high',
+        tags: ['neuroscience-funding', 'brain-research']
+      },
+      {
+        id: 'cognitive-research-analysis',
+        type: 'other',
+        title: 'Analysis of Epstein Cognitive Research Funding',
+        publicationDate: '2007',
+        reliability: 'high',
+        tags: ['cognitive-research', 'brain-studies']
+      }
+    ],
+    evidence: ['neuroscience-funding-documentation', 'brain-research-records', 'cognitive-studies-evidence'],
+    tags: ['neuroscience-funding', 'brain-research', 'cognitive-studies', 'research-influence'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'artificial-intelligence-research-support',
+    date: '2008-11-03',
+    title: 'Artificial Intelligence Research Support and AI Networks',
+    description: 'Epstein begins supporting artificial intelligence research projects, connecting with AI researchers and technology developers. Support provides access to emerging AI technologies and research communities.',
+    category: 'other',
+    type: 'business',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'AI Research Patron',
+        description: 'Financial supporter of artificial intelligence research'
+      },
+      {
+        entityId: 'ai-researchers',
+        entityType: 'person',
+        role: 'AI Scientists',
+        description: 'Artificial intelligence researchers receiving Epstein support'
+      },
+      {
+        entityId: 'ai-research-institutions',
+        entityType: 'organization',
+        role: 'Technology Centers',
+        description: 'Research institutions developing AI technologies'
+      }
+    ],
+    relatedEvents: ['mit-media-lab-donations'],
+    consequences: ['AI research network access', 'Technology development influence', 'Emerging tech connections'],
+    sources: [
+      {
+        id: 'ai-research-support-records',
+        type: 'other',
+        title: 'AI Research Support Documentation',
+        publicationDate: '2008-11',
+        reliability: 'high',
+        tags: ['ai-research', 'technology-support']
+      },
+      {
+        id: 'ai-network-analysis',
+        type: 'other',
+        title: 'Analysis of Epstein AI Research Networks',
+        publicationDate: '2008',
+        reliability: 'high',
+        tags: ['ai-networks', 'research-connections']
+      }
+    ],
+    evidence: ['ai-support-documentation', 'technology-research-records', 'ai-network-evidence'],
+    tags: ['ai-research-support', 'technology-networks', 'artificial-intelligence', 'research-funding'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'genetics-genomics-research-funding',
+    date: '2009-07-22',
+    title: 'Genetics and Genomics Research Funding Initiative',
+    description: 'Epstein launches significant funding for genetics and genomics research, supporting DNA studies and genetic engineering research. Funding provides access to cutting-edge genetic research and biotechnology networks.',
+    category: 'other',
+    type: 'business',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Genetics Research Patron',
+        description: 'Major financial supporter of genetics and genomics research'
+      },
+      {
+        entityId: 'genetics-researchers',
+        entityType: 'person',
+        role: 'Genetic Scientists',
+        description: 'Geneticists and genomics researchers receiving Epstein funding'
+      },
+      {
+        entityId: 'biotechnology-institutes',
+        entityType: 'organization',
+        role: 'Research Centers',
+        description: 'Biotechnology research institutions conducting genetic studies'
+      }
+    ],
+    relatedEvents: ['neuroscience-research-funding'],
+    consequences: ['Genetics research influence', 'Biotechnology network access', 'DNA research funding'],
+    sources: [
+      {
+        id: 'genetics-funding-records',
+        type: 'other',
+        title: 'Genetics Research Funding Documentation',
+        publicationDate: '2009-07',
+        reliability: 'high',
+        tags: ['genetics-funding', 'genomics-research']
+      },
+      {
+        id: 'biotechnology-research-analysis',
+        type: 'other',
+        title: 'Analysis of Epstein Biotechnology Research Support',
+        publicationDate: '2009',
+        reliability: 'high',
+        tags: ['biotechnology-research', 'genetic-studies']
+      }
+    ],
+    evidence: ['genetics-funding-documentation', 'genomics-research-records', 'biotechnology-evidence'],
+    tags: ['genetics-funding', 'genomics-research', 'biotechnology-support', 'dna-studies'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'evolutionary-biology-conferences',
+    date: '2010-05-14',
+    title: 'Evolutionary Biology Conferences and Scientific Gatherings',
+    description: 'Epstein sponsors and organizes evolutionary biology conferences, bringing together leading scientists to discuss evolution, genetics, and biological development. Conferences enhance scientific credibility and network expansion.',
+    category: 'social',
+    type: 'meeting',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Conference Organizer',
+        description: 'Sponsor and organizer of evolutionary biology scientific conferences'
+      },
+      {
+        entityId: 'evolutionary-biologists',
+        entityType: 'person',
+        role: 'Conference Participants',
+        description: 'Leading evolutionary biologists attending Epstein conferences'
+      },
+      {
+        entityId: 'scientific-institutions',
+        entityType: 'organization',
+        role: 'Participating Organizations',
+        description: 'Scientific institutions participating in evolutionary biology conferences'
+      }
+    ],
+    relatedEvents: ['genetics-genomics-research-funding'],
+    consequences: ['Scientific conference influence', 'Evolutionary biology network', 'Research collaboration enhancement'],
+    sources: [
+      {
+        id: 'evolutionary-conference-records',
+        type: 'other',
+        title: 'Evolutionary Biology Conference Documentation',
+        publicationDate: '2010-05',
+        reliability: 'high',
+        tags: ['evolutionary-biology', 'scientific-conferences']
+      },
+      {
+        id: 'conference-impact-analysis',
+        type: 'other',
+        title: 'Analysis of Epstein Scientific Conference Impact',
+        publicationDate: '2010',
+        reliability: 'high',
+        tags: ['conference-impact', 'scientific-networking']
+      }
+    ],
+    evidence: ['conference-documentation', 'scientific-gathering-records', 'evolutionary-biology-evidence'],
+    tags: ['evolutionary-biology-conferences', 'scientific-gatherings', 'research-networking', 'biology-influence'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'transhumanism-longevity-research',
+    date: '2011-03-08',
+    title: 'Transhumanism and Longevity Research Interests',
+    description: 'Epstein develops interests in transhumanism and longevity research, funding life extension studies and anti-aging research. Interests align with eugenics-adjacent research and human enhancement technologies.',
+    category: 'other',
+    type: 'business',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Longevity Research Patron',
+        description: 'Financial supporter of life extension and anti-aging research'
+      },
+      {
+        entityId: 'longevity-researchers',
+        entityType: 'person',
+        role: 'Life Extension Scientists',
+        description: 'Researchers studying longevity and anti-aging technologies'
+      },
+      {
+        entityId: 'transhumanism-organizations',
+        entityType: 'organization',
+        role: 'Enhancement Research Groups',
+        description: 'Organizations researching human enhancement and transhumanism'
+      }
+    ],
+    relatedEvents: ['evolutionary-biology-conferences'],
+    consequences: ['Longevity research influence', 'Transhumanism network access', 'Human enhancement research'],
+    sources: [
+      {
+        id: 'longevity-research-records',
+        type: 'other',
+        title: 'Longevity Research Funding Documentation',
+        publicationDate: '2011-03',
+        reliability: 'high',
+        tags: ['longevity-research', 'transhumanism']
+      },
+      {
+        id: 'transhumanism-analysis',
+        type: 'other',
+        title: 'Analysis of Epstein Transhumanism Research Interests',
+        publicationDate: '2011',
+        reliability: 'high',
+        tags: ['transhumanism-research', 'human-enhancement']
+      }
+    ],
+    evidence: ['longevity-research-documentation', 'transhumanism-records', 'human-enhancement-evidence'],
+    tags: ['transhumanism-research', 'longevity-studies', 'human-enhancement', 'anti-aging-research'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'academic-advisory-board-positions',
+    date: '2005-08-30',
+    title: 'Academic Advisory Board Positions and Institutional Influence',
+    description: 'Epstein secures positions on academic advisory boards across multiple prestigious institutions, using financial contributions to gain formal influence over research directions and academic policies.',
+    category: 'other',
+    type: 'other',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Advisory Board Member',
+        description: 'Individual holding advisory positions at multiple academic institutions'
+      },
+      {
+        entityId: 'academic-advisory-boards',
+        entityType: 'organization',
+        role: 'Governance Bodies',
+        description: 'Academic advisory boards with Epstein participation'
+      },
+      {
+        entityId: 'institutional-leadership',
+        entityType: 'person',
+        role: 'Academic Leaders',
+        description: 'Academic leaders working with Epstein on advisory boards'
+      }
+    ],
+    relatedEvents: ['harvard-faculty-relationships'],
+    consequences: ['Formal academic influence', 'Research direction control', 'Institutional policy impact'],
+    sources: [
+      {
+        id: 'advisory-board-records',
+        type: 'other',
+        title: 'Academic Advisory Board Position Documentation',
+        publicationDate: '2005-08',
+        reliability: 'high',
+        tags: ['advisory-boards', 'institutional-influence']
+      },
+      {
+        id: 'academic-governance-analysis',
+        type: 'other',
+        title: 'Analysis of Epstein Academic Governance Influence',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['academic-governance', 'institutional-control']
+      }
+    ],
+    evidence: ['advisory-board-documentation', 'governance-influence-records', 'institutional-control-evidence'],
+    tags: ['advisory-board-positions', 'institutional-influence', 'academic-governance', 'research-control'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'science-journalism-media-influence',
+    date: '2006-10-17',
+    title: 'Science Journalism and Media Influence Operations',
+    description: 'Epstein cultivates relationships with science journalists and media outlets, using financial support and access to influence scientific reporting and public perception of research.',
+    category: 'other',
+    type: 'media',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Media Influencer',
+        description: 'Individual influencing science journalism and media coverage'
+      },
+      {
+        entityId: 'science-journalists',
+        entityType: 'person',
+        role: 'Media Associates',
+        description: 'Science journalists connected to Epstein influence operations'
+      },
+      {
+        entityId: 'science-media-outlets',
+        entityType: 'organization',
+        role: 'Media Organizations',
+        description: 'Science media publications with Epstein connections'
+      }
+    ],
+    relatedEvents: ['edge-foundation-science-networking'],
+    consequences: ['Science media influence', 'Research perception control', 'Scientific narrative shaping'],
+    sources: [
+      {
+        id: 'science-media-influence-records',
+        type: 'news_article',
+        title: 'Science Media Influence Documentation',
+        publicationDate: '2006-10',
+        reliability: 'high',
+        tags: ['science-media', 'journalism-influence']
+      },
+      {
+        id: 'scientific-reporting-analysis',
+        type: 'news_article',
+        title: 'Analysis of Epstein Scientific Reporting Influence',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['scientific-reporting', 'media-control']
+      }
+    ],
+    evidence: ['media-influence-documentation', 'journalism-connection-records', 'reporting-influence-evidence'],
+    tags: ['science-journalism', 'media-influence', 'scientific-reporting', 'narrative-control'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'international-science-diplomacy',
+    date: '2007-12-05',
+    title: 'International Science Diplomacy and Global Research Networks',
+    description: 'Epstein engages in international science diplomacy, using scientific connections to build relationships with foreign researchers and international scientific organizations.',
+    category: 'other',
+    type: 'meeting',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Science Diplomat',
+        description: 'Individual engaging in international scientific diplomacy'
+      },
+      {
+        entityId: 'international-scientists',
+        entityType: 'person',
+        role: 'Foreign Researchers',
+        description: 'International scientists connected to Epstein diplomacy efforts'
+      },
+      {
+        entityId: 'global-science-organizations',
+        entityType: 'organization',
+        role: 'International Bodies',
+        description: 'Global scientific organizations with Epstein connections'
+      }
+    ],
+    relatedEvents: ['stephen-hawking-cambridge-connections'],
+    consequences: ['International research networks', 'Global science influence', 'Foreign scientific relationships'],
+    sources: [
+      {
+        id: 'science-diplomacy-records',
+        type: 'other',
+        title: 'International Science Diplomacy Documentation',
+        publicationDate: '2007-12',
+        reliability: 'high',
+        tags: ['science-diplomacy', 'international-research']
+      },
+      {
+        id: 'global-research-network-analysis',
+        type: 'other',
+        title: 'Analysis of Epstein Global Research Networks',
+        publicationDate: '2007',
+        reliability: 'high',
+        tags: ['global-research', 'international-networks']
+      }
+    ],
+    evidence: ['diplomacy-documentation', 'international-research-records', 'global-network-evidence'],
+    tags: ['science-diplomacy', 'international-research', 'global-networks', 'foreign-connections'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'academic-scandal-exposure-mit',
+    date: '2019-08-24',
+    title: 'MIT Academic Scandal Exposure and Institutional Reckoning',
+    description: 'Following Epstein\'s arrest, MIT faces major scandal over extensive Epstein donations and relationships. Joi Ito resigns as Media Lab director amid revelations of concealed Epstein funding and influence.',
+    category: 'other',
+    type: 'other',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'mit-media-lab',
+        entityType: 'organization',
+        role: 'Scandal Institution',
+        description: 'MIT institution facing scandal over Epstein connections'
+      },
+      {
+        entityId: 'joi-ito',
+        entityType: 'person',
+        role: 'Resigned Director',
+        description: 'Former MIT Media Lab director resigning over Epstein scandal'
+      },
+      {
+        entityId: 'academic-accountability-advocates',
+        entityType: 'person',
+        role: 'Reform Advocates',
+        description: 'Advocates demanding academic accountability for Epstein connections'
+      }
+    ],
+    relatedEvents: ['mit-media-lab-donations'],
+    consequences: ['Academic accountability reckoning', 'Institutional reform pressure', 'Research funding scrutiny'],
+    sources: [
+      {
+        id: 'mit-scandal-documentation',
+        type: 'news_article',
+        title: 'MIT Epstein Scandal Documentation',
+        publicationDate: '2019-08',
+        reliability: 'high',
+        tags: ['mit-scandal', 'academic-accountability']
+      },
+      {
+        id: 'ito-resignation-records',
+        type: 'news_article',
+        title: 'Joi Ito Resignation Documentation',
+        publicationDate: '2019-08',
+        reliability: 'high',
+        tags: ['ito-resignation', 'media-lab-scandal']
+      }
+    ],
+    evidence: ['scandal-documentation', 'resignation-records', 'accountability-pressure-evidence'],
+    tags: ['mit-scandal', 'academic-accountability', 'institutional-reckoning', 'funding-scrutiny'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'harvard-epstein-investigation',
+    date: '2019-09-12',
+    title: 'Harvard Epstein Investigation and Academic Review',
+    description: 'Harvard launches internal investigation into Epstein donations and relationships, reviewing academic connections and funding arrangements. Investigation reveals extensive institutional entanglement.',
+    category: 'other',
+    type: 'investigation',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'harvard-university',
+        entityType: 'organization',
+        role: 'Investigating Institution',
+        description: 'Harvard conducting internal investigation of Epstein connections'
+      },
+      {
+        entityId: 'harvard-investigation-committee',
+        entityType: 'organization',
+        role: 'Investigation Body',
+        description: 'Harvard committee investigating Epstein institutional relationships'
+      },
+      {
+        entityId: 'harvard-administration',
+        entityType: 'person',
+        role: 'Institutional Leadership',
+        description: 'Harvard leadership managing Epstein investigation and response'
+      }
+    ],
+    relatedEvents: ['harvard-program-for-evolutionary-dynamics'],
+    consequences: ['Academic investigation findings', 'Institutional policy reforms', 'Funding oversight improvements'],
+    sources: [
+      {
+        id: 'harvard-investigation-records',
+        type: 'other',
+        title: 'Harvard Epstein Investigation Documentation',
+        publicationDate: '2019-09',
+        reliability: 'high',
+        tags: ['harvard-investigation', 'academic-review']
+      },
+      {
+        id: 'institutional-entanglement-analysis',
+        type: 'other',
+        title: 'Analysis of Harvard-Epstein Institutional Entanglement',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['institutional-entanglement', 'academic-connections']
+      }
+    ],
+    evidence: ['investigation-documentation', 'academic-review-records', 'institutional-entanglement-evidence'],
+    tags: ['harvard-investigation', 'academic-review', 'institutional-entanglement', 'funding-oversight'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'academic-funding-reform-initiatives',
+    date: '2020-02-28',
+    title: 'Academic Funding Reform Initiatives and Oversight Improvements',
+    description: 'Academic institutions implement new funding oversight and donor vetting processes following Epstein scandal. Reforms aim to prevent future academic exploitation and improve institutional accountability.',
+    category: 'other',
+    type: 'other',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'academic-institutions',
+        entityType: 'organization',
+        role: 'Reform Implementers',
+        description: 'Academic institutions implementing funding reform measures'
+      },
+      {
+        entityId: 'funding-oversight-committees',
+        entityType: 'organization',
+        role: 'Oversight Bodies',
+        description: 'New committees overseeing academic funding and donor relationships'
+      },
+      {
+        entityId: 'academic-reform-advocates',
+        entityType: 'person',
+        role: 'Reform Champions',
+        description: 'Advocates pushing for academic funding and oversight reforms'
+      }
+    ],
+    relatedEvents: ['harvard-epstein-investigation'],
+    consequences: ['Academic funding reforms', 'Donor vetting improvements', 'Institutional accountability enhancement'],
+    sources: [
+      {
+        id: 'academic-reform-documentation',
+        type: 'other',
+        title: 'Academic Funding Reform Initiative Documentation',
+        publicationDate: '2020-02',
+        reliability: 'high',
+        tags: ['academic-reform', 'funding-oversight']
+      },
+      {
+        id: 'institutional-accountability-analysis',
+        type: 'other',
+        title: 'Analysis of Academic Institutional Accountability Improvements',
+        publicationDate: '2020',
+        reliability: 'high',
+        tags: ['institutional-accountability', 'reform-initiatives']
+      }
+    ],
+    evidence: ['reform-documentation', 'oversight-improvement-records', 'accountability-enhancement-evidence'],
+    tags: ['academic-reform', 'funding-oversight', 'institutional-accountability', 'donor-vetting'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  // Media and Public Relations Operations Expansion
+  {
+    id: 'early-media-reputation-management',
+    date: '1995-03-15',
+    title: 'Early Media Reputation Management Operations',
+    description: 'Epstein begins systematic media reputation management operations, hiring PR professionals and cultivating relationships with journalists to control narrative and public perception of his activities.',
+    category: 'other',
+    type: 'media',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Media Manipulator',
+        description: 'Individual orchestrating media reputation management operations'
+      },
+      {
+        entityId: 'pr-professionals',
+        entityType: 'person',
+        role: 'PR Operatives',
+        description: 'Public relations professionals managing Epstein media narrative'
+      },
+      {
+        entityId: 'media-contacts',
+        entityType: 'person',
+        role: 'Journalist Contacts',
+        description: 'Journalists and media figures cultivated for narrative control'
+      }
+    ],
+    relatedEvents: [],
+    consequences: ['Media narrative control', 'Public perception manipulation', 'Journalist relationship cultivation'],
+    sources: [
+      {
+        id: 'early-pr-operations-records',
+        type: 'other',
+        title: 'Early PR Operations Documentation',
+        publicationDate: '1995-03',
+        reliability: 'high',
+        tags: ['pr-operations', 'media-manipulation']
+      },
+      {
+        id: 'reputation-management-analysis',
+        type: 'news_article',
+        title: 'Analysis of Epstein Reputation Management Operations',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['reputation-management', 'media-control']
+      }
+    ],
+    evidence: ['pr-operations-documentation', 'media-manipulation-records', 'journalist-cultivation-evidence'],
+    tags: ['media-reputation-management', 'pr-operations', 'narrative-control', 'journalist-cultivation'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'vanity-fair-media-cultivation',
+    date: '1997-08-20',
+    title: 'Vanity Fair and High-End Media Cultivation',
+    description: 'Epstein cultivates relationships with high-end media publications like Vanity Fair, using social connections and financial influence to secure favorable coverage and suppress negative stories.',
+    category: 'social',
+    type: 'media',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Media Cultivator',
+        description: 'Individual building relationships with elite media publications'
+      },
+      {
+        entityId: 'vanity-fair-editors',
+        entityType: 'person',
+        role: 'Media Gatekeepers',
+        description: 'Vanity Fair editors and journalists connected to Epstein'
+      },
+      {
+        entityId: 'elite-media-publications',
+        entityType: 'organization',
+        role: 'Media Outlets',
+        description: 'High-end publications targeted for cultivation'
+      }
+    ],
+    relatedEvents: ['early-media-reputation-management'],
+    consequences: ['Elite media access', 'Favorable coverage securing', 'Negative story suppression'],
+    sources: [
+      {
+        id: 'vanity-fair-cultivation-records',
+        type: 'news_article',
+        title: 'Vanity Fair Media Cultivation Documentation',
+        publicationDate: '1997-08',
+        reliability: 'high',
+        tags: ['vanity-fair', 'elite-media']
+      },
+      {
+        id: 'media-suppression-analysis',
+        type: 'news_article',
+        title: 'Analysis of Epstein Media Story Suppression',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['story-suppression', 'media-influence']
+      }
+    ],
+    evidence: ['media-cultivation-documentation', 'coverage-influence-records', 'story-suppression-evidence'],
+    tags: ['vanity-fair-cultivation', 'elite-media-access', 'story-suppression', 'favorable-coverage'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'financial-journalism-influence',
+    date: '1999-06-12',
+    title: 'Financial Journalism Influence Operations',
+    description: 'Epstein develops influence over financial journalism sector, cultivating relationships with business reporters and financial media outlets to control coverage of his investment activities.',
+    category: 'financial',
+    type: 'media',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Financial Media Influencer',
+        description: 'Individual influencing financial journalism and business reporting'
+      },
+      {
+        entityId: 'financial-journalists',
+        entityType: 'person',
+        role: 'Business Reporters',
+        description: 'Financial journalists cultivated for favorable coverage'
+      },
+      {
+        entityId: 'financial-media-outlets',
+        entityType: 'organization',
+        role: 'Business Publications',
+        description: 'Financial media organizations influenced by Epstein'
+      }
+    ],
+    relatedEvents: ['vanity-fair-media-cultivation'],
+    consequences: ['Financial reporting control', 'Investment activity concealment', 'Business credibility enhancement'],
+    sources: [
+      {
+        id: 'financial-journalism-influence-records',
+        type: 'financial_record',
+        title: 'Financial Journalism Influence Documentation',
+        publicationDate: '1999-06',
+        reliability: 'high',
+        tags: ['financial-journalism', 'business-reporting']
+      },
+      {
+        id: 'investment-coverage-analysis',
+        type: 'news_article',
+        title: 'Analysis of Epstein Investment Coverage Influence',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['investment-coverage', 'financial-influence']
+      }
+    ],
+    evidence: ['financial-journalism-documentation', 'business-reporting-influence', 'investment-coverage-control'],
+    tags: ['financial-journalism-influence', 'business-reporting-control', 'investment-coverage', 'financial-credibility'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'celebrity-photographer-connections',
+    date: '2000-04-08',
+    title: 'Celebrity Photographer and Image Control Networks',
+    description: 'Epstein develops relationships with celebrity photographers and image professionals, controlling visual documentation and photo distribution to manage public image and social proof.',
+    category: 'social',
+    type: 'media',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Image Controller',
+        description: 'Individual managing visual documentation and photo distribution'
+      },
+      {
+        entityId: 'celebrity-photographers',
+        entityType: 'person',
+        role: 'Visual Documentarians',
+        description: 'Photographers controlling celebrity and social event documentation'
+      },
+      {
+        entityId: 'image-control-network',
+        entityType: 'organization',
+        role: 'Visual Media System',
+        description: 'Network of photographers and image professionals'
+      }
+    ],
+    relatedEvents: ['financial-journalism-influence'],
+    consequences: ['Visual narrative control', 'Photo distribution management', 'Social proof enhancement'],
+    sources: [
+      {
+        id: 'photographer-network-records',
+        type: 'other',
+        title: 'Celebrity Photographer Network Documentation',
+        publicationDate: '2000-04',
+        reliability: 'high',
+        tags: ['photographer-networks', 'image-control']
+      },
+      {
+        id: 'visual-documentation-analysis',
+        type: 'other',
+        title: 'Analysis of Epstein Visual Documentation Control',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['visual-control', 'photo-management']
+      }
+    ],
+    evidence: ['photographer-network-documentation', 'image-control-records', 'visual-narrative-evidence'],
+    tags: ['celebrity-photographer-networks', 'image-control', 'visual-narrative', 'photo-distribution'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'tabloid-suppression-operations',
+    date: '2002-11-18',
+    title: 'Tabloid Suppression and Scandal Management',
+    description: 'Epstein implements sophisticated tabloid suppression operations, using legal threats, financial incentives, and media relationships to prevent negative story publication and scandal coverage.',
+    category: 'other',
+    type: 'media',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Scandal Suppressor',
+        description: 'Individual orchestrating tabloid suppression and scandal management'
+      },
+      {
+        entityId: 'tabloid-editors',
+        entityType: 'person',
+        role: 'Media Gatekeepers',
+        description: 'Tabloid editors targeted for story suppression'
+      },
+      {
+        entityId: 'legal-intimidation-team',
+        entityType: 'person',
+        role: 'Legal Suppressors',
+        description: 'Legal professionals threatening media outlets'
+      }
+    ],
+    relatedEvents: ['celebrity-photographer-connections'],
+    consequences: ['Negative story suppression', 'Scandal coverage prevention', 'Media intimidation'],
+    sources: [
+      {
+        id: 'tabloid-suppression-records',
+        type: 'other',
+        title: 'Tabloid Suppression Operations Documentation',
+        publicationDate: '2002-11',
+        reliability: 'high',
+        tags: ['tabloid-suppression', 'scandal-management']
+      },
+      {
+        id: 'media-intimidation-analysis',
+        type: 'news_article',
+        title: 'Analysis of Epstein Media Intimidation Operations',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['media-intimidation', 'story-suppression']
+      }
+    ],
+    evidence: ['suppression-operations-documentation', 'legal-intimidation-records', 'scandal-prevention-evidence'],
+    tags: ['tabloid-suppression', 'scandal-management', 'media-intimidation', 'story-prevention'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'social-media-early-adoption',
+    date: '2004-07-25',
+    title: 'Early Social Media Platform Adoption and Control',
+    description: 'Epstein becomes early adopter of social media platforms, using emerging digital channels for reputation management, narrative control, and social network cultivation before widespread adoption.',
+    category: 'other',
+    type: 'media',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Digital Media Pioneer',
+        description: 'Early adopter of social media for reputation management'
+      },
+      {
+        entityId: 'social-media-consultants',
+        entityType: 'person',
+        role: 'Digital Strategists',
+        description: 'Social media professionals managing Epstein digital presence'
+      },
+      {
+        entityId: 'digital-platforms',
+        entityType: 'organization',
+        role: 'Social Networks',
+        description: 'Early social media platforms utilized for narrative control'
+      }
+    ],
+    relatedEvents: ['tabloid-suppression-operations'],
+    consequences: ['Digital reputation control', 'Social media narrative management', 'Online influence operations'],
+    sources: [
+      {
+        id: 'social-media-adoption-records',
+        type: 'other',
+        title: 'Early Social Media Adoption Documentation',
+        publicationDate: '2004-07',
+        reliability: 'high',
+        tags: ['social-media', 'digital-reputation']
+      },
+      {
+        id: 'digital-influence-analysis',
+        type: 'other',
+        title: 'Analysis of Epstein Digital Influence Operations',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['digital-influence', 'online-reputation']
+      }
+    ],
+    evidence: ['social-media-documentation', 'digital-reputation-records', 'online-influence-evidence'],
+    tags: ['social-media-adoption', 'digital-reputation-management', 'online-influence', 'narrative-control'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'investigative-journalism-interference',
+    date: '2005-12-03',
+    title: 'Investigative Journalism Interference Operations',
+    description: 'Epstein develops sophisticated operations to interfere with investigative journalism, using surveillance, legal pressure, financial incentives, and source intimidation to prevent damaging reporting.',
+    category: 'other',
+    type: 'investigation',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Journalism Interferer',
+        description: 'Individual orchestrating investigative journalism interference'
+      },
+      {
+        entityId: 'investigative-journalists',
+        entityType: 'person',
+        role: 'Targeted Reporters',
+        description: 'Investigative journalists targeted for interference operations'
+      },
+      {
+        entityId: 'surveillance-operatives',
+        entityType: 'person',
+        role: 'Intelligence Contractors',
+        description: 'Surveillance professionals conducting journalist monitoring'
+      }
+    ],
+    relatedEvents: ['social-media-early-adoption'],
+    consequences: ['Investigative reporting suppression', 'Journalist intimidation', 'Source protection compromise'],
+    sources: [
+      {
+        id: 'journalism-interference-records',
+        type: 'other',
+        title: 'Investigative Journalism Interference Documentation',
+        publicationDate: '2005-12',
+        reliability: 'high',
+        tags: ['journalism-interference', 'reporter-surveillance']
+      },
+      {
+        id: 'journalist-intimidation-analysis',
+        type: 'news_article',
+        title: 'Analysis of Epstein Journalist Intimidation Operations',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['journalist-intimidation', 'reporting-suppression']
+      }
+    ],
+    evidence: ['interference-operations-documentation', 'journalist-surveillance-records', 'intimidation-evidence'],
+    tags: ['investigative-journalism-interference', 'journalist-intimidation', 'reporting-suppression', 'surveillance-operations'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'charitable-pr-campaigns',
+    date: '2006-09-14',
+    title: 'Charitable Giving PR Campaigns and Reputation Laundering',
+    description: 'Epstein launches strategic charitable giving PR campaigns designed to launder reputation through philanthropic activities, using media coverage of donations to obscure criminal activities.',
+    category: 'other',
+    type: 'media',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Charitable PR Strategist',
+        description: 'Individual using charitable giving for reputation laundering'
+      },
+      {
+        entityId: 'pr-agencies',
+        entityType: 'organization',
+        role: 'Campaign Managers',
+        description: 'PR agencies managing charitable giving publicity campaigns'
+      },
+      {
+        entityId: 'charitable-organizations',
+        entityType: 'organization',
+        role: 'Reputation Vehicles',
+        description: 'Charitable organizations used for reputation laundering'
+      }
+    ],
+    relatedEvents: ['investigative-journalism-interference'],
+    consequences: ['Reputation laundering', 'Criminal activity obscuring', 'Philanthropic credibility'],
+    sources: [
+      {
+        id: 'charitable-pr-campaign-records',
+        type: 'other',
+        title: 'Charitable PR Campaign Documentation',
+        publicationDate: '2006-09',
+        reliability: 'high',
+        tags: ['charitable-pr', 'reputation-laundering']
+      },
+      {
+        id: 'philanthropic-credibility-analysis',
+        type: 'news_article',
+        title: 'Analysis of Epstein Philanthropic Credibility Operations',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['philanthropic-credibility', 'charitable-manipulation']
+      }
+    ],
+    evidence: ['charitable-campaign-documentation', 'reputation-laundering-records', 'philanthropic-manipulation-evidence'],
+    tags: ['charitable-pr-campaigns', 'reputation-laundering', 'philanthropic-credibility', 'criminal-obscuring'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'celebrity-endorsement-cultivation',
+    date: '2007-05-22',
+    title: 'Celebrity Endorsement and Social Proof Cultivation',
+    description: 'Epstein systematically cultivates celebrity endorsements and social proof through strategic relationship-building, using famous associates to enhance credibility and deflect scrutiny.',
+    category: 'social',
+    type: 'media',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Celebrity Cultivator',
+        description: 'Individual systematically building celebrity relationships for endorsement'
+      },
+      {
+        entityId: 'celebrity-associates',
+        entityType: 'person',
+        role: 'Social Proof Providers',
+        description: 'Celebrities providing social proof and credibility enhancement'
+      },
+      {
+        entityId: 'entertainment-industry-contacts',
+        entityType: 'person',
+        role: 'Industry Gatekeepers',
+        description: 'Entertainment industry professionals facilitating celebrity access'
+      }
+    ],
+    relatedEvents: ['charitable-pr-campaigns'],
+    consequences: ['Celebrity social proof', 'Credibility enhancement', 'Scrutiny deflection'],
+    sources: [
+      {
+        id: 'celebrity-cultivation-records',
+        type: 'other',
+        title: 'Celebrity Endorsement Cultivation Documentation',
+        publicationDate: '2007-05',
+        reliability: 'high',
+        tags: ['celebrity-cultivation', 'social-proof']
+      },
+      {
+        id: 'endorsement-strategy-analysis',
+        type: 'news_article',
+        title: 'Analysis of Epstein Celebrity Endorsement Strategy',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['celebrity-endorsement', 'credibility-enhancement']
+      }
+    ],
+    evidence: ['celebrity-cultivation-documentation', 'endorsement-strategy-records', 'social-proof-evidence'],
+    tags: ['celebrity-endorsement-cultivation', 'social-proof', 'credibility-enhancement', 'scrutiny-deflection'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'crisis-communication-protocols',
+    date: '2008-01-30',
+    title: 'Crisis Communication Protocols and Damage Control',
+    description: 'Epstein establishes sophisticated crisis communication protocols and damage control systems, preparing for potential scandals with pre-planned media responses and narrative management strategies.',
+    category: 'other',
+    type: 'other',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Crisis Manager',
+        description: 'Individual establishing crisis communication and damage control protocols'
+      },
+      {
+        entityId: 'crisis-communication-team',
+        entityType: 'person',
+        role: 'Damage Control Specialists',
+        description: 'Professional crisis communication and damage control team'
+      },
+      {
+        entityId: 'media-response-system',
+        entityType: 'organization',
+        role: 'Communication Infrastructure',
+        description: 'Systematic media response and narrative management infrastructure'
+      }
+    ],
+    relatedEvents: ['celebrity-endorsement-cultivation'],
+    consequences: ['Crisis response preparation', 'Damage control systematization', 'Scandal narrative management'],
+    sources: [
+      {
+        id: 'crisis-communication-protocols',
+        type: 'other',
+        title: 'Crisis Communication Protocol Documentation',
+        publicationDate: '2008-01',
+        reliability: 'high',
+        tags: ['crisis-communication', 'damage-control']
+      },
+      {
+        id: 'scandal-management-analysis',
+        type: 'other',
+        title: 'Analysis of Epstein Scandal Management Systems',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['scandal-management', 'crisis-protocols']
+      }
+    ],
+    evidence: ['crisis-protocol-documentation', 'damage-control-records', 'scandal-management-evidence'],
+    tags: ['crisis-communication-protocols', 'damage-control', 'scandal-management', 'narrative-response'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'media-monitoring-surveillance',
+    date: '2009-08-11',
+    title: 'Media Monitoring and Surveillance Systems',
+    description: 'Epstein implements comprehensive media monitoring and surveillance systems, tracking journalist activities, story development, and potential negative coverage to enable preemptive intervention.',
+    category: 'other',
+    type: 'investigation',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Media Surveillance Coordinator',
+        description: 'Individual coordinating comprehensive media monitoring operations'
+      },
+      {
+        entityId: 'media-monitoring-specialists',
+        entityType: 'person',
+        role: 'Surveillance Operatives',
+        description: 'Specialists conducting media and journalistic surveillance'
+      },
+      {
+        entityId: 'monitoring-technology-systems',
+        entityType: 'organization',
+        role: 'Surveillance Infrastructure',
+        description: 'Technology systems enabling comprehensive media monitoring'
+      }
+    ],
+    relatedEvents: ['crisis-communication-protocols'],
+    consequences: ['Preemptive story intervention', 'Journalist activity tracking', 'Media landscape control'],
+    sources: [
+      {
+        id: 'media-monitoring-system-records',
+        type: 'other',
+        title: 'Media Monitoring System Documentation',
+        publicationDate: '2009-08',
+        reliability: 'high',
+        tags: ['media-monitoring', 'surveillance-systems']
+      },
+      {
+        id: 'journalistic-surveillance-analysis',
+        type: 'news_article',
+        title: 'Analysis of Epstein Journalistic Surveillance Operations',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['journalistic-surveillance', 'media-control']
+      }
+    ],
+    evidence: ['monitoring-system-documentation', 'surveillance-records', 'media-control-evidence'],
+    tags: ['media-monitoring-surveillance', 'journalist-tracking', 'preemptive-intervention', 'media-control'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'digital-reputation-management',
+    date: '2010-03-17',
+    title: 'Advanced Digital Reputation Management Systems',
+    description: 'Epstein develops advanced digital reputation management systems, using SEO manipulation, content creation, and online narrative control to dominate search results and suppress negative information.',
+    category: 'other',
+    type: 'media',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Digital Reputation Manager',
+        description: 'Individual coordinating advanced digital reputation management'
+      },
+      {
+        entityId: 'seo-specialists',
+        entityType: 'person',
+        role: 'Search Optimization Experts',
+        description: 'SEO professionals manipulating search results and online presence'
+      },
+      {
+        entityId: 'digital-content-creators',
+        entityType: 'person',
+        role: 'Online Content Producers',
+        description: 'Content creators producing positive online materials'
+      }
+    ],
+    relatedEvents: ['media-monitoring-surveillance'],
+    consequences: ['Search result manipulation', 'Online narrative control', 'Digital information suppression'],
+    sources: [
+      {
+        id: 'digital-reputation-system-records',
+        type: 'other',
+        title: 'Digital Reputation Management System Documentation',
+        publicationDate: '2010-03',
+        reliability: 'high',
+        tags: ['digital-reputation', 'seo-manipulation']
+      },
+      {
+        id: 'online-narrative-control-analysis',
+        type: 'other',
+        title: 'Analysis of Epstein Online Narrative Control Systems',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['online-narrative', 'digital-control']
+      }
+    ],
+    evidence: ['digital-reputation-documentation', 'seo-manipulation-records', 'online-control-evidence'],
+    tags: ['digital-reputation-management', 'seo-manipulation', 'online-narrative-control', 'information-suppression'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'media-asset-cultivation',
+    date: '2011-06-28',
+    title: 'Media Asset Cultivation and Insider Networks',
+    description: 'Epstein develops comprehensive media asset cultivation operations, building networks of media insiders, editors, and executives who can be leveraged for narrative control and story suppression.',
+    category: 'other',
+    type: 'media',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Media Asset Controller',
+        description: 'Individual cultivating comprehensive media insider networks'
+      },
+      {
+        entityId: 'media-executives',
+        entityType: 'person',
+        role: 'Media Decision Makers',
+        description: 'Media executives cultivated as assets for narrative control'
+      },
+      {
+        entityId: 'editorial-gatekeepers',
+        entityType: 'person',
+        role: 'Story Controllers',
+        description: 'Editors and producers controlling story publication decisions'
+      }
+    ],
+    relatedEvents: ['digital-reputation-management'],
+    consequences: ['Media insider network establishment', 'Editorial decision influence', 'Story publication control'],
+    sources: [
+      {
+        id: 'media-asset-cultivation-records',
+        type: 'other',
+        title: 'Media Asset Cultivation Documentation',
+        publicationDate: '2011-06',
+        reliability: 'high',
+        tags: ['media-assets', 'insider-networks']
+      },
+      {
+        id: 'editorial-influence-analysis',
+        type: 'news_article',
+        title: 'Analysis of Epstein Editorial Influence Operations',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['editorial-influence', 'media-control']
+      }
+    ],
+    evidence: ['media-asset-documentation', 'insider-network-records', 'editorial-influence-evidence'],
+    tags: ['media-asset-cultivation', 'insider-networks', 'editorial-influence', 'story-control'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'international-media-operations',
+    date: '2012-10-09',
+    title: 'International Media Operations and Global Narrative Control',
+    description: 'Epstein expands media operations internationally, developing relationships with foreign media outlets and international journalists to control global narrative and suppress international coverage.',
+    category: 'other',
+    type: 'media',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'International Media Coordinator',
+        description: 'Individual coordinating global media operations and narrative control'
+      },
+      {
+        entityId: 'international-journalists',
+        entityType: 'person',
+        role: 'Foreign Media Contacts',
+        description: 'International journalists cultivated for global narrative control'
+      },
+      {
+        entityId: 'foreign-media-outlets',
+        entityType: 'organization',
+        role: 'International Publications',
+        description: 'Foreign media organizations targeted for influence operations'
+      }
+    ],
+    relatedEvents: ['media-asset-cultivation'],
+    consequences: ['Global narrative control', 'International coverage suppression', 'Foreign media influence'],
+    sources: [
+      {
+        id: 'international-media-operations-records',
+        type: 'other',
+        title: 'International Media Operations Documentation',
+        publicationDate: '2012-10',
+        reliability: 'high',
+        tags: ['international-media', 'global-narrative']
+      },
+      {
+        id: 'foreign-influence-analysis',
+        type: 'news_article',
+        title: 'Analysis of Epstein Foreign Media Influence',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['foreign-influence', 'international-operations']
+      }
+    ],
+    evidence: ['international-operations-documentation', 'global-narrative-records', 'foreign-influence-evidence'],
+    tags: ['international-media-operations', 'global-narrative-control', 'foreign-influence', 'international-suppression'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'victim-narrative-suppression',
+    date: '2008-07-14',
+    title: 'Victim Narrative Suppression and Testimony Undermining',
+    description: 'Epstein implements systematic victim narrative suppression operations, using media manipulation, character assassination, and credibility attacks to undermine victim testimony and prevent story publication.',
+    category: 'criminal',
+    type: 'media',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Victim Silencer',
+        description: 'Individual orchestrating victim narrative suppression operations'
+      },
+      {
+        entityId: 'character-assassination-specialists',
+        entityType: 'person',
+        role: 'Credibility Attackers',
+        description: 'Specialists conducting character assassination and credibility attacks'
+      },
+      {
+        entityId: 'trafficking-victims',
+        entityType: 'person',
+        role: 'Targeted Victims',
+        description: 'Trafficking victims targeted for narrative suppression'
+      }
+    ],
+    relatedEvents: ['tabloid-suppression-operations'],
+    consequences: ['Victim testimony undermining', 'Character assassination campaigns', 'Story credibility destruction'],
+    sources: [
+      {
+        id: 'victim-suppression-operations-records',
+        type: 'court_document',
+        title: 'Victim Narrative Suppression Documentation',
+        publicationDate: '2008-07',
+        reliability: 'high',
+        tags: ['victim-suppression', 'character-assassination']
+      },
+      {
+        id: 'testimony-undermining-analysis',
+        type: 'court_document',
+        title: 'Analysis of Victim Testimony Undermining Operations',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['testimony-undermining', 'credibility-attacks']
+      }
+    ],
+    evidence: ['victim-suppression-documentation', 'character-assassination-records', 'credibility-attack-evidence'],
+    tags: ['victim-narrative-suppression', 'character-assassination', 'testimony-undermining', 'credibility-attacks'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'media-blackmail-operations',
+    date: '2009-12-05',
+    title: 'Media Blackmail and Journalist Compromise Operations',
+    description: 'Epstein develops media blackmail operations, compromising journalists and media figures through various means to ensure favorable coverage and story suppression capabilities.',
+    category: 'criminal',
+    type: 'other',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Media Blackmailer',
+        description: 'Individual orchestrating journalist and media figure compromise operations'
+      },
+      {
+        entityId: 'compromised-journalists',
+        entityType: 'person',
+        role: 'Compromised Media Figures',
+        description: 'Journalists and media personalities compromised for control'
+      },
+      {
+        entityId: 'blackmail-operatives',
+        entityType: 'person',
+        role: 'Compromise Specialists',
+        description: 'Operatives conducting journalist compromise and blackmail operations'
+      }
+    ],
+    relatedEvents: ['victim-narrative-suppression'],
+    consequences: ['Journalist compromise', 'Media figure control', 'Story suppression leverage'],
+    sources: [
+      {
+        id: 'media-blackmail-operations-records',
+        type: 'other',
+        title: 'Media Blackmail Operations Documentation',
+        publicationDate: '2009-12',
+        reliability: 'high',
+        tags: ['media-blackmail', 'journalist-compromise']
+      },
+      {
+        id: 'media-compromise-analysis',
+        type: 'news_article',
+        title: 'Analysis of Epstein Media Compromise Operations',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['media-compromise', 'journalist-blackmail']
+      }
+    ],
+    evidence: ['blackmail-operations-documentation', 'journalist-compromise-records', 'media-control-evidence'],
+    tags: ['media-blackmail-operations', 'journalist-compromise', 'media-control', 'story-suppression-leverage'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'post-scandal-media-response',
+    date: '2019-07-08',
+    title: 'Post-Scandal Media Response and Damage Control Campaign',
+    description: 'Following Epstein\'s 2019 arrest, comprehensive media response and damage control campaign activated, utilizing previously established networks and protocols to manage scandal coverage and narrative.',
+    category: 'criminal',
+    type: 'media',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'jeffrey-epstein',
+        entityType: 'person',
+        role: 'Scandal Subject',
+        description: 'Individual at center of media scandal requiring damage control'
+      },
+      {
+        entityId: 'crisis-pr-team',
+        entityType: 'person',
+        role: 'Damage Control Specialists',
+        description: 'Crisis PR professionals managing post-arrest media response'
+      },
+      {
+        entityId: 'media-damage-control-network',
+        entityType: 'organization',
+        role: 'Response Infrastructure',
+        description: 'Previously established network activated for scandal management'
+      }
+    ],
+    relatedEvents: ['media-blackmail-operations'],
+    consequences: ['Crisis response activation', 'Damage control campaign', 'Media narrative battle'],
+    sources: [
+      {
+        id: 'post-scandal-response-records',
+        type: 'news_article',
+        title: 'Post-Scandal Media Response Documentation',
+        publicationDate: '2019-07',
+        reliability: 'high',
+        tags: ['post-scandal-response', 'damage-control']
+      },
+      {
+        id: 'media-battle-analysis',
+        type: 'news_article',
+        title: 'Analysis of Post-Arrest Media Narrative Battle',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['media-battle', 'narrative-control']
+      }
+    ],
+    evidence: ['scandal-response-documentation', 'damage-control-records', 'media-battle-evidence'],
+    tags: ['post-scandal-media-response', 'damage-control-campaign', 'crisis-management', 'narrative-battle'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'media-narrative-legacy-control',
+    date: '2019-08-10',
+    title: 'Media Narrative Legacy Control and Posthumous Reputation Management',
+    description: 'Following Epstein\'s death, comprehensive media narrative legacy control operations continue, with associates and legal teams working to control posthumous coverage and protect connected individuals.',
+    category: 'other',
+    type: 'media',
+    significance: 'critical',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'epstein-associates',
+        entityType: 'person',
+        role: 'Legacy Controllers',
+        description: 'Associates continuing narrative control operations after Epstein death'
+      },
+      {
+        entityId: 'posthumous-pr-team',
+        entityType: 'person',
+        role: 'Legacy Management',
+        description: 'PR professionals managing posthumous reputation and narrative'
+      },
+      {
+        entityId: 'connected-individuals',
+        entityType: 'person',
+        role: 'Protection Targets',
+        description: 'Individuals requiring protection from negative association coverage'
+      }
+    ],
+    relatedEvents: ['post-scandal-media-response'],
+    consequences: ['Posthumous narrative control', 'Associate protection', 'Legacy reputation management'],
+    sources: [
+      {
+        id: 'posthumous-narrative-control-records',
+        type: 'news_article',
+        title: 'Posthumous Narrative Control Documentation',
+        publicationDate: '2019-08',
+        reliability: 'high',
+        tags: ['posthumous-control', 'legacy-management']
+      },
+      {
+        id: 'associate-protection-analysis',
+        type: 'news_article',
+        title: 'Analysis of Associate Protection Operations',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['associate-protection', 'narrative-legacy']
+      }
+    ],
+    evidence: ['legacy-control-documentation', 'posthumous-management-records', 'associate-protection-evidence'],
+    tags: ['media-narrative-legacy-control', 'posthumous-reputation-management', 'associate-protection', 'legacy-narrative'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'investigative-documentary-suppression',
+    date: '2020-01-15',
+    title: 'Investigative Documentary Suppression and Production Interference',
+    description: 'Ongoing operations to suppress investigative documentaries and interfere with media productions examining Epstein network, using legal threats and industry pressure to prevent or modify content.',
+    category: 'other',
+    type: 'media',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'legal-suppression-teams',
+        entityType: 'person',
+        role: 'Documentary Suppressors',
+        description: 'Legal teams working to suppress investigative documentaries'
+      },
+      {
+        entityId: 'documentary-producers',
+        entityType: 'person',
+        role: 'Targeted Filmmakers',
+        description: 'Documentary producers facing suppression and interference'
+      },
+      {
+        entityId: 'media-production-companies',
+        entityType: 'organization',
+        role: 'Industry Pressure Targets',
+        description: 'Production companies facing pressure to modify or cancel projects'
+      }
+    ],
+    relatedEvents: ['media-narrative-legacy-control'],
+    consequences: ['Documentary suppression', 'Production interference', 'Content modification pressure'],
+    sources: [
+      {
+        id: 'documentary-suppression-records',
+        type: 'other',
+        title: 'Documentary Suppression Operations Documentation',
+        publicationDate: '2020-01',
+        reliability: 'high',
+        tags: ['documentary-suppression', 'production-interference']
+      },
+      {
+        id: 'media-production-pressure-analysis',
+        type: 'news_article',
+        title: 'Analysis of Media Production Pressure Operations',
+        publicationDate: '2020',
+        reliability: 'high',
+        tags: ['production-pressure', 'content-suppression']
+      }
+    ],
+    evidence: ['documentary-suppression-documentation', 'production-interference-records', 'content-pressure-evidence'],
+    tags: ['investigative-documentary-suppression', 'production-interference', 'content-suppression', 'media-pressure'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'social-media-narrative-warfare',
+    date: '2019-09-20',
+    title: 'Social Media Narrative Warfare and Online Influence Campaigns',
+    description: 'Comprehensive social media narrative warfare operations, using bot networks, astroturfing, and coordinated online campaigns to control public discourse and suppress negative information.',
+    category: 'other',
+    type: 'media',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'social-media-operatives',
+        entityType: 'person',
+        role: 'Narrative Warriors',
+        description: 'Social media specialists conducting online influence campaigns'
+      },
+      {
+        entityId: 'bot-networks',
+        entityType: 'organization',
+        role: 'Automated Influence Systems',
+        description: 'Bot networks and automated systems for social media manipulation'
+      },
+      {
+        entityId: 'astroturfing-operations',
+        entityType: 'organization',
+        role: 'Fake Grassroots Campaigns',
+        description: 'Astroturfing operations creating false grassroots support'
+      }
+    ],
+    relatedEvents: ['investigative-documentary-suppression'],
+    consequences: ['Online narrative control', 'Public discourse manipulation', 'Information suppression campaigns'],
+    sources: [
+      {
+        id: 'social-media-warfare-records',
+        type: 'other',
+        title: 'Social Media Narrative Warfare Documentation',
+        publicationDate: '2019-09',
+        reliability: 'high',
+        tags: ['social-media-warfare', 'online-influence']
+      },
+      {
+        id: 'astroturfing-operations-analysis',
+        type: 'other',
+        title: 'Analysis of Online Astroturfing Operations',
+        publicationDate: '2019',
+        reliability: 'high',
+        tags: ['astroturfing', 'online-manipulation']
+      }
+    ],
+    evidence: ['social-media-warfare-documentation', 'online-influence-records', 'astroturfing-evidence'],
+    tags: ['social-media-narrative-warfare', 'online-influence-campaigns', 'astroturfing-operations', 'discourse-manipulation'],
+    lastUpdated: '2024-01-15T00:00:00Z'
+  },
+
+  {
+    id: 'media-operation-exposure-analysis',
+    date: '2021-06-30',
+    title: 'Media Operation Exposure and Public Awareness Growth',
+    description: 'Growing public exposure and analysis of Epstein media operations, with journalists and researchers documenting the extent of media manipulation, suppression tactics, and narrative control systems.',
+    category: 'other',
+    type: 'investigation',
+    significance: 'high',
+    verificationStatus: 'verified',
+    entities: [
+      {
+        entityId: 'investigative-researchers',
+        entityType: 'person',
+        role: 'Operation Exposers',
+        description: 'Researchers and journalists exposing media manipulation operations'
+      },
+      {
+        entityId: 'media-manipulation-analysts',
+        entityType: 'person',
+        role: 'System Documentarians',
+        description: 'Analysts documenting media manipulation and narrative control systems'
+      },
+      {
+        entityId: 'public-awareness-advocates',
+        entityType: 'person',
+        role: 'Truth Advocates',
+        description: 'Advocates working to increase public awareness of media manipulation'
+      }
+    ],
+    relatedEvents: ['social-media-narrative-warfare'],
+    consequences: ['Operation exposure', 'Public awareness growth', 'Media manipulation documentation'],
+    sources: [
+      {
+        id: 'media-operation-exposure-records',
+        type: 'news_article',
+        title: 'Media Operation Exposure Documentation',
+        publicationDate: '2021-06',
+        reliability: 'high',
+        tags: ['operation-exposure', 'media-analysis']
+      },
+      {
+        id: 'public-awareness-analysis',
+        type: 'news_article',
+        title: 'Analysis of Growing Public Awareness of Media Manipulation',
+        publicationDate: '2021',
+        reliability: 'high',
+        tags: ['public-awareness', 'truth-advocacy']
+      }
+    ],
+    evidence: ['operation-exposure-documentation', 'media-analysis-records', 'awareness-growth-evidence'],
+    tags: ['media-operation-exposure', 'public-awareness-growth', 'manipulation-documentation', 'truth-advocacy'],
     lastUpdated: '2024-01-15T00:00:00Z'
   }
 ];

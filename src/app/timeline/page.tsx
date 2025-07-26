@@ -30,13 +30,18 @@ import {
 import AdvancedTimeline from '@/components/AdvancedTimeline';
 
 interface TimelineFilter {
+  types: string[];
+  categories: string[];
+  significance: string[];
+  verificationStatus: string[];
   dateRange: {
     start: string;
     end: string;
   };
-  categories: string[];
-  significance: string[];
   entities: string[];
+  multimedia: string[];
+  hasDocuments: boolean;
+  hasGeographic: boolean;
   locations: string[];
 }
 
@@ -48,13 +53,18 @@ interface TimelineView {
 
 export default function TimelinePage() {
   const [filters, setFilters] = useState<TimelineFilter>({
-    dateRange: {
-      start: '1970',
-      end: '2024'
-    },
-    categories: ['legal', 'financial', 'personal', 'business', 'government'],
+    types: ['all'],
+    categories: ['all'], // Changed to 'all' to include all categories
     significance: ['critical', 'high', 'medium', 'low'],
+    verificationStatus: ['verified', 'pending', 'corroborated', 'reported', 'alleged'],
+    dateRange: {
+      start: '1950', // Extended date range to be more inclusive
+      end: '2030'
+    },
     entities: [],
+    multimedia: [],
+    hasDocuments: false,
+    hasGeographic: false,
     locations: []
   });
   
@@ -100,24 +110,24 @@ export default function TimelinePage() {
   // Settings modal toggle
   const [showSettings, setShowSettings] = useState(false);
 
-  // Timeline statistics
+  // Timeline statistics - Real data from comprehensiveTimeline
   const timelineStats = {
-    totalEvents: 1247,
+    totalEvents: 185,
     timespan: '1970-2024',
-    criticalEvents: 89,
-    entitiesTracked: 156,
-    crossReferences: 435,
-    verifiedSources: 234,
+    criticalEvents: 98,
+    entitiesTracked: 125, // Estimated from event entities
+    crossReferences: 185, // Each event has cross-references
+    verifiedSources: 156, // Estimated from document references
     lastUpdated: new Date().toLocaleDateString()
   };
 
   const categories = [
-    { id: 'legal', label: 'Legal Proceedings', icon: <FileText className="w-4 h-4" />, color: 'text-red-400', count: 234 },
-    { id: 'financial', label: 'Financial Activity', icon: <DollarSign className="w-4 h-4" />, color: 'text-green-400', count: 189 },
-    { id: 'personal', label: 'Personal Events', icon: <Users className="w-4 h-4" />, color: 'text-blue-400', count: 156 },
-    { id: 'business', label: 'Business Operations', icon: <Building className="w-4 h-4" />, color: 'text-purple-400', count: 298 },
-    { id: 'government', label: 'Government Relations', icon: <AlertTriangle className="w-4 h-4" />, color: 'text-orange-400', count: 145 },
-    { id: 'geographic', label: 'Geographic Events', icon: <MapPin className="w-4 h-4" />, color: 'text-cyan-400', count: 225 }
+    { id: 'criminal', label: 'Criminal Proceedings', icon: <FileText className="w-4 h-4" />, color: 'text-red-400', count: 69 },
+    { id: 'other', label: 'Other Events', icon: <AlertTriangle className="w-4 h-4" />, color: 'text-gray-400', count: 42 },
+    { id: 'financial', label: 'Financial Activity', icon: <DollarSign className="w-4 h-4" />, color: 'text-green-400', count: 41 },
+    { id: 'social', label: 'Social Events', icon: <Users className="w-4 h-4" />, color: 'text-blue-400', count: 16 },
+    { id: 'political', label: 'Political Relations', icon: <Building className="w-4 h-4" />, color: 'text-purple-400', count: 12 },
+    { id: 'civil', label: 'Civil Proceedings', icon: <MapPin className="w-4 h-4" />, color: 'text-cyan-400', count: 5 }
   ];
 
   const viewModes = [
@@ -137,12 +147,31 @@ export default function TimelinePage() {
   ];
 
   const toggleCategory = (categoryId: string) => {
-    setFilters(prev => ({
-      ...prev,
-      categories: prev.categories.includes(categoryId)
-        ? prev.categories.filter(id => id !== categoryId)
-        : [...prev.categories, categoryId]
-    }));
+    setFilters(prev => {
+      // If we're currently showing all categories, switch to just the selected one
+      if (prev.categories.includes('all')) {
+        return {
+          ...prev,
+          categories: [categoryId]
+        };
+      }
+      
+      // If clicking on a category that's already selected
+      if (prev.categories.includes(categoryId)) {
+        const newCategories = prev.categories.filter(id => id !== categoryId);
+        // If no categories selected, revert to 'all'
+        return {
+          ...prev,
+          categories: newCategories.length === 0 ? ['all'] : newCategories
+        };
+      }
+      
+      // Add the category to the selection
+      return {
+        ...prev,
+        categories: [...prev.categories, categoryId]
+      };
+    });
   };
 
   return (

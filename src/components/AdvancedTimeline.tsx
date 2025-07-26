@@ -21,11 +21,9 @@ interface NetworkNode {
 }
 import { 
   Calendar, 
-  Filter, 
   Search, 
   ZoomIn, 
   ZoomOut, 
-  RotateCcw,
   List,
   BarChart3,
   ExternalLink,
@@ -114,7 +112,7 @@ interface AdvancedTimelineProps {
 
 export default function AdvancedTimeline({ 
   view: externalView, 
-  externalFilters, 
+  externalFilters,
   onEventSelect,
   onViewChange 
 }: AdvancedTimelineProps = {}) {
@@ -123,7 +121,7 @@ export default function AdvancedTimeline({
   const [selectedNetworkNode, setSelectedNetworkNode] = useState<NetworkNode | null>(null);
   const [hoveredEvent, setHoveredEvent] = useState<TimelineEvent | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [currentDecade, setCurrentDecade] = useState(2000);
   
@@ -291,8 +289,8 @@ export default function AdvancedTimeline({
 
   // Enhanced event processing with multimedia integration
   const enhancedEvents = useMemo(() => {
-    return comprehensiveTimeline.map(event => {
-      const enhanced: EnhancedTimelineEvent = {
+    const enhanced = comprehensiveTimeline.map(event => {
+      const enhancedEvent: EnhancedTimelineEvent = {
         ...event,
         // Mock multimedia attachments based on event characteristics
         multimedia: generateMultimediaForEvent(event),
@@ -310,8 +308,9 @@ export default function AdvancedTimeline({
           verificationLevel: event.verificationStatus as 'verified' | 'corroborated' | 'reported' | 'alleged'
         }
       };
-      return enhanced;
+      return enhancedEvent;
     });
+    return enhanced;
   }, []);
 
   // Filter and process events
@@ -344,6 +343,14 @@ export default function AdvancedTimeline({
         return false;
       }
 
+      // Date range filter
+      const eventDate = new Date(event.date);
+      const startDate = new Date(filters.dateRange.start);
+      const endDate = new Date(filters.dateRange.end);
+      if (eventDate < startDate || eventDate > endDate) {
+        return false;
+      }
+
       // Multimedia filter
       if (filters.multimedia.length && !filters.multimedia.includes('all')) {
         const hasRequestedMedia = event.multimedia?.some(media => 
@@ -359,14 +366,6 @@ export default function AdvancedTimeline({
 
       // Geographic filter
       if (filters.hasGeographic && !event.geographicData) {
-        return false;
-      }
-
-      // Date range filter
-      const eventDate = new Date(event.date);
-      const startDate = new Date(filters.dateRange.start);
-      const endDate = new Date(filters.dateRange.end);
-      if (eventDate < startDate || eventDate > endDate) {
         return false;
       }
 
@@ -660,23 +659,6 @@ export default function AdvancedTimeline({
               <Search className="w-4 h-4" />
             </button>
 
-            {/* Action Buttons */}
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`p-2 border border-gray-300 dark:border-dark-600 rounded-lg hover:bg-gray-100 dark:hover:bg-dark-700 ${showFilters ? 'bg-primary-100 dark:bg-primary-900' : ''}`}
-              title="Toggle Filters"
-            >
-              <Filter className="w-4 h-4" />
-            </button>
-
-            <button
-              onClick={resetFilters}
-              className="p-2 border border-gray-300 dark:border-dark-600 rounded-lg hover:bg-gray-100 dark:hover:bg-dark-700"
-              title="Reset Filters"
-            >
-              <RotateCcw className="w-4 h-4" />
-            </button>
-
             <button
               onClick={exportTimeline}
               className="p-2 border border-gray-300 dark:border-dark-600 rounded-lg hover:bg-gray-100 dark:hover:bg-dark-700"
@@ -719,31 +701,126 @@ export default function AdvancedTimeline({
         </div>
       </div>
 
-      {/* Enhanced Filters Panel */}
-      {showFilters && (
+      {/* Quick Filters Bar - Streamlined horizontal filter controls */}
+      <div className="border-b border-gray-200 dark:border-dark-700 px-4 py-3 bg-gray-50 dark:bg-dark-800">
+        <div className="flex flex-wrap items-center gap-4">
+          {/* Search Filter */}
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="Search events..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-3 py-1 text-sm border border-gray-300 dark:border-dark-600 rounded-lg bg-white dark:bg-dark-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent w-64"
+            />
+          </div>
+
+          {/* Quick Category Filters */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Categories:</span>
+            {['all', 'financial', 'political', 'criminal', 'social', 'other'].map(category => (
+              <button
+                key={category}
+                onClick={() => {
+                  if (category === 'all') {
+                    setFilters(prev => ({ ...prev, categories: ['all'] }));
+                  } else {
+                    setFilters(prev => ({
+                      ...prev,
+                      categories: prev.categories.includes('all') 
+                        ? [category] 
+                        : prev.categories.includes(category)
+                          ? prev.categories.filter(c => c !== category)
+                          : [...prev.categories.filter(c => c !== 'all'), category]
+                    }));
+                  }
+                }}
+                className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+                  filters.categories.includes(category) || (category === 'all' && filters.categories.includes('all'))
+                    ? 'bg-primary-100 dark:bg-primary-900 border-primary-300 dark:border-primary-700 text-primary-700 dark:text-primary-300'
+                    : 'bg-white dark:bg-dark-700 border-gray-300 dark:border-dark-600 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-600'
+                }`}
+              >
+                {category === 'all' ? 'All' : category.charAt(0).toUpperCase() + category.slice(1)}
+              </button>
+            ))}
+          </div>
+
+          {/* Quick Significance Filters */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Significance:</span>
+            {['critical', 'high', 'medium', 'low'].map(significance => (
+              <button
+                key={significance}
+                onClick={() => {
+                  setFilters(prev => ({
+                    ...prev,
+                    significance: prev.significance.includes(significance)
+                      ? prev.significance.filter(s => s !== significance)
+                      : [...prev.significance, significance]
+                  }));
+                }}
+                className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+                  filters.significance.includes(significance)
+                    ? 'bg-primary-100 dark:bg-primary-900 border-primary-300 dark:border-primary-700 text-primary-700 dark:text-primary-300'
+                    : 'bg-white dark:bg-dark-700 border-gray-300 dark:border-dark-600 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-600'
+                }`}
+              >
+                {significance.charAt(0).toUpperCase() + significance.slice(1)}
+              </button>
+            ))}
+          </div>
+
+          {/* Active Filter Count and Reset */}
+          <div className="ml-auto flex items-center gap-3">
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              {filteredEvents.length} of {enhancedEvents.length} events
+            </span>
+            <button
+              onClick={resetFilters}
+              className="px-3 py-1 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border border-gray-300 dark:border-dark-600 rounded-full hover:bg-gray-100 dark:hover:bg-dark-600 transition-colors"
+              title="Reset All Filters"
+            >
+              Clear Filters
+            </button>
+            <button
+              onClick={() => setShowFilterPanel(!showFilterPanel)}
+              className={`px-3 py-1 text-xs border rounded-full transition-colors ${
+                showFilterPanel 
+                  ? 'bg-primary-100 dark:bg-primary-900 border-primary-300 dark:border-primary-700 text-primary-700 dark:text-primary-300'
+                  : 'bg-white dark:bg-dark-700 border-gray-300 dark:border-dark-600 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-600'
+              }`}
+            >
+              Advanced Filters
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Advanced Filters Panel - Detailed filter controls */}
+      {showFilterPanel && (
         <div className="border-b border-gray-200 dark:border-dark-700 p-4 bg-gray-50 dark:bg-dark-800">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Multimedia Filters */}
+            {/* Event Types */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Multimedia Type
+                Event Types
               </label>
               <div className="space-y-2">
-                {['all', 'image', 'video', 'document', 'audio'].map(type => (
+                {['all', 'legal', 'business', 'media', 'meeting', 'investigation'].map(type => (
                   <label key={type} className="flex items-center">
                     <input
                       type="checkbox"
-                      checked={filters.multimedia.includes(type)}
+                      checked={filters.types.includes(type)}
                       onChange={(e) => {
-                        if (e.target.checked) {
-                          setFilters(prev => ({
-                            ...prev,
-                            multimedia: type === 'all' ? ['all'] : prev.multimedia.filter(m => m !== 'all').concat(type)
-                          }));
+                        if (type === 'all') {
+                          setFilters(prev => ({ ...prev, types: e.target.checked ? ['all'] : [] }));
                         } else {
                           setFilters(prev => ({
                             ...prev,
-                            multimedia: prev.multimedia.filter(m => m !== type)
+                            types: e.target.checked
+                              ? [...prev.types.filter(t => t !== 'all'), type]
+                              : prev.types.filter(t => t !== type)
                           }));
                         }
                       }}
@@ -757,7 +834,36 @@ export default function AdvancedTimeline({
               </div>
             </div>
 
-            {/* Content Filters */}
+            {/* Verification Status */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Verification Status
+              </label>
+              <div className="space-y-2">
+                {['verified', 'corroborated', 'reported', 'alleged'].map(status => (
+                  <label key={status} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={filters.verificationStatus.includes(status)}
+                      onChange={(e) => {
+                        setFilters(prev => ({
+                          ...prev,
+                          verificationStatus: e.target.checked
+                            ? [...prev.verificationStatus, status]
+                            : prev.verificationStatus.filter(s => s !== status)
+                        }));
+                      }}
+                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                    />
+                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300 capitalize">
+                      {status}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Content Features */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Content Features
@@ -771,7 +877,7 @@ export default function AdvancedTimeline({
                     className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                   />
                   <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                    Has Linked Documents
+                    Has Documents
                   </span>
                 </label>
                 <label className="flex items-center">
@@ -788,41 +894,7 @@ export default function AdvancedTimeline({
               </div>
             </div>
 
-            {/* Significance Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Significance Level
-              </label>
-              <div className="space-y-2">
-                {['critical', 'high', 'medium', 'low'].map(level => (
-                  <label key={level} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={filters.significance.includes(level)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setFilters(prev => ({
-                            ...prev,
-                            significance: [...prev.significance, level]
-                          }));
-                        } else {
-                          setFilters(prev => ({
-                            ...prev,
-                            significance: prev.significance.filter(s => s !== level)
-                          }));
-                        }
-                      }}
-                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                    />
-                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300 capitalize">
-                      {level}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Date Range Filter */}
+            {/* Date Range */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Date Range
@@ -848,18 +920,6 @@ export default function AdvancedTimeline({
                 />
               </div>
             </div>
-          </div>
-
-          <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200 dark:border-dark-600">
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {filteredEvents.length} of {enhancedEvents.length} events
-            </div>
-            <button
-              onClick={resetFilters}
-              className="text-sm text-primary-600 hover:text-primary-800 font-medium"
-            >
-              Clear All Filters
-            </button>
           </div>
         </div>
       )}
@@ -1962,12 +2022,12 @@ export default function AdvancedTimeline({
         </div>
 
         {/* Filters Panel */}
-        {showFilters && (
+        {showFilterPanel && (
           <div className="w-80 bg-white dark:bg-dark-800 border-l border-gray-200 dark:border-dark-700 p-6 overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Filters</h3>
               <button
-                onClick={() => setShowFilters(false)}
+                onClick={() => setShowFilterPanel(false)}
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               >
                 ✕

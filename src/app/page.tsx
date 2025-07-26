@@ -51,11 +51,14 @@ interface InvestigationStats {
 }
 
 export default function InvestigationDashboard() {
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [animationProgress, setAnimationProgress] = useState(0);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
+    // Set initial time on client to prevent hydration mismatch
+    setCurrentTime(new Date());
+    
     const timer = setInterval(() => {
       setCurrentTime(new Date());
       setAnimationProgress(prev => (prev + 1) % 100);
@@ -82,7 +85,7 @@ export default function InvestigationDashboard() {
     entitiesTracked: corePeople.length + coreOrganizations.length,
     connectionsMapping: coreRelationships.length,
     activeInvestigations: 7,
-    lastUpdated: currentTime.toISOString()
+    lastUpdated: currentTime ? currentTime.toISOString() : new Date().toISOString()
   };
 
   const investigationModules: InvestigationModule[] = [
@@ -251,7 +254,7 @@ export default function InvestigationDashboard() {
                 <div className="text-center sm:text-right">
                   <p className="text-xs sm:text-sm text-gray-400">Updated</p>
                   <p className="text-cyan-400 font-mono text-xs sm:text-sm">
-                    {currentTime.toLocaleTimeString()}
+                    {currentTime ? currentTime.toLocaleTimeString() : '--:--:--'}
                   </p>
                 </div>
               </div>
