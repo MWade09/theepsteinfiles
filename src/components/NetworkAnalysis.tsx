@@ -63,7 +63,8 @@ export default function NetworkAnalysis({
   const [filters, setFilters] = useState<NetworkFilter>({
     relationshipTypes: ['all'],
     significanceLevel: ['critical', 'high', 'medium'],
-    verificationStatus: ['verified', 'pending'],
+    // Include disputed by default to avoid hiding many relationships and ending up with 0 nodes
+    verificationStatus: ['verified', 'pending', 'disputed'],
     entityTypes: ['person', 'organization', 'location'],
     minConnectionStrength: 0
   });
@@ -576,10 +577,9 @@ export default function NetworkAnalysis({
             ref={svgRef}
             width="100%"
             height="600"
+            viewBox="0 0 800 600"
+            preserveAspectRatio="xMidYMid meet"
             className="bg-gray-50 dark:bg-dark-800"
-            style={{
-              transform: `scale(${zoomLevel}) translate(${panOffset.x}px, ${panOffset.y}px)`
-            }}
           >
             {/* Define arrow markers for directed edges */}
             <defs>
@@ -598,82 +598,84 @@ export default function NetworkAnalysis({
               </marker>
             </defs>
 
-            {/* Edges */}
-            {networkData.edges.map(edge => {
-              const source = networkData.nodes.find(n => n.id === edge.source);
-              const target = networkData.nodes.find(n => n.id === edge.target);
-              if (!source || !target) return null;
+            <g transform={`translate(${panOffset.x}, ${panOffset.y}) scale(${zoomLevel})`}>
+              {/* Edges */}
+              {networkData.edges.map(edge => {
+                const source = networkData.nodes.find(n => n.id === edge.source);
+                const target = networkData.nodes.find(n => n.id === edge.target);
+                if (!source || !target) return null;
 
-              return (
-                <line
-                  key={edge.id}
-                  x1={source.x}
-                  y1={source.y}
-                  x2={target.x}
-                  y2={target.y}
-                  stroke={getEdgeColor(edge.significance, edge.verified)}
-                  strokeWidth={edge.strength * 3}
-                  strokeDasharray={edge.verified ? 'none' : '5,5'}
-                  className="cursor-pointer hover:opacity-80"
-                  onClick={() => handleEdgeClick(edge)}
-                  markerEnd="url(#arrowhead)"
-                />
-              );
-            })}
+                return (
+                  <line
+                    key={edge.id}
+                    x1={source.x}
+                    y1={source.y}
+                    x2={target.x}
+                    y2={target.y}
+                    stroke={getEdgeColor(edge.significance, edge.verified)}
+                    strokeWidth={edge.strength * 3}
+                    strokeDasharray={edge.verified ? undefined : '5,5'}
+                    className="cursor-pointer hover:opacity-80"
+                    onClick={() => handleEdgeClick(edge)}
+                    markerEnd="url(#arrowhead)"
+                  />
+                );
+              })}
 
-            {/* Nodes */}
-            {networkData.nodes.map(node => (
-              <g key={node.id}>
-                <circle
-                  cx={node.x}
-                  cy={node.y}
-                  r={node.size}
-                  fill={node.color}
-                  stroke={selectedNode?.id === node.id ? '#dc2626' : '#fff'}
-                  strokeWidth={selectedNode?.id === node.id ? 3 : 2}
-                  className="cursor-pointer hover:opacity-80"
-                  onClick={() => handleNodeClick(node)}
-                  onMouseEnter={() => setHoveredNode(node)}
-                  onMouseLeave={() => setHoveredNode(null)}
-                />
-                <text
-                  x={node.x}
-                  y={node.y + node.size + 15}
-                  textAnchor="middle"
-                  className="text-xs font-medium fill-gray-700 dark:fill-gray-300 pointer-events-none"
-                >
-                  {node.name}
-                </text>
-              </g>
-            ))}
+              {/* Nodes */}
+              {networkData.nodes.map(node => (
+                <g key={node.id}>
+                  <circle
+                    cx={node.x}
+                    cy={node.y}
+                    r={node.size}
+                    fill={node.color}
+                    stroke={selectedNode?.id === node.id ? '#dc2626' : '#fff'}
+                    strokeWidth={selectedNode?.id === node.id ? 3 : 2}
+                    className="cursor-pointer hover:opacity-80"
+                    onClick={() => handleNodeClick(node)}
+                    onMouseEnter={() => setHoveredNode(node)}
+                    onMouseLeave={() => setHoveredNode(null)}
+                  />
+                  <text
+                    x={node.x}
+                    y={node.y + node.size + 15}
+                    textAnchor="middle"
+                    className="text-xs font-medium fill-gray-700 dark:fill-gray-300 pointer-events-none"
+                  >
+                    {node.name}
+                  </text>
+                </g>
+              ))}
 
-            {/* Hover tooltip */}
-            {hoveredNode && hoveredNode.x !== undefined && hoveredNode.y !== undefined && (
-              <g>
-                <rect
-                  x={hoveredNode.x + 15}
-                  y={hoveredNode.y - 25}
-                  width="200"
-                  height="40"
-                  fill="rgba(0,0,0,0.8)"
-                  rx="4"
-                />
-                <text
-                  x={hoveredNode.x + 25}
-                  y={hoveredNode.y - 10}
-                  className="text-sm font-medium fill-white"
-                >
-                  {hoveredNode.name}
-                </text>
-                <text
-                  x={hoveredNode.x + 25}
-                  y={hoveredNode.y + 5}
-                  className="text-xs fill-gray-300"
-                >
-                  {hoveredNode.significance} significance
-                </text>
-              </g>
-            )}
+              {/* Hover tooltip */}
+              {hoveredNode && hoveredNode.x !== undefined && hoveredNode.y !== undefined && (
+                <g>
+                  <rect
+                    x={hoveredNode.x + 15}
+                    y={hoveredNode.y - 25}
+                    width="200"
+                    height="40"
+                    fill="rgba(0,0,0,0.8)"
+                    rx="4"
+                  />
+                  <text
+                    x={hoveredNode.x + 25}
+                    y={hoveredNode.y - 10}
+                    className="text-sm font-medium fill-white"
+                  >
+                    {hoveredNode.name}
+                  </text>
+                  <text
+                    x={hoveredNode.x + 25}
+                    y={hoveredNode.y + 5}
+                    className="text-xs fill-gray-300"
+                  >
+                    {hoveredNode.significance} significance
+                  </text>
+                </g>
+              )}
+            </g>
           </svg>
 
           {/* Legend */}

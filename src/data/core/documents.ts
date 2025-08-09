@@ -12,6 +12,7 @@ export const coreDocuments: Evidence[] = [
     significance: 'critical',
     verificationStatus: 'verified',
     confidenceLevel: 'high',
+    preferredUrl: 'https://www.documentcloud.org/documents/1508272-epstein-non-prosecution-agreement',
     sources: [
       {
         id: 'src_npa_001',
@@ -20,7 +21,7 @@ export const coreDocuments: Evidence[] = [
         author: 'U.S. Attorney\'s Office, Southern District of Florida',
         publication: 'Federal Court Records',
         publicationDate: '2008-09-24',
-        url: 'https://www.miamiherald.com/latest-news/article220097825.html',
+        url: 'https://www.documentcloud.org/documents/1508272-epstein-non-prosecution-agreement',
         reliability: 'high',
         description: 'Official federal court document',
         tags: ['legal', 'federal', 'prosecution']
@@ -100,6 +101,7 @@ export const coreDocuments: Evidence[] = [
     significance: 'critical',
     verificationStatus: 'verified',
     confidenceLevel: 'high',
+    defaultDisplayMode: 'preview',
     sources: [
       {
         id: 'src_fbi_001',
@@ -138,6 +140,7 @@ export const coreDocuments: Evidence[] = [
     significance: 'critical',
     verificationStatus: 'verified',
     confidenceLevel: 'high',
+    preferredUrl: 'https://www.miamiherald.com/news/local/article220097825.html',
     sources: [
       {
         id: 'src_herald_001',
@@ -215,6 +218,7 @@ export const coreDocuments: Evidence[] = [
     significance: 'high',
     verificationStatus: 'verified',
     confidenceLevel: 'high',
+    defaultDisplayMode: 'preview',
     sources: [
       {
         id: 'src_property_001',
@@ -253,6 +257,7 @@ export const coreDocuments: Evidence[] = [
     significance: 'high',
     verificationStatus: 'verified',
     confidenceLevel: 'high',
+    preferredUrl: 'https://www.bbc.co.uk/programmes/m000bw3y',
     sources: [
       {
         id: 'src_bbc_001',

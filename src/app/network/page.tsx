@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Network, 
@@ -26,7 +26,20 @@ import {
   MapPin,
   Activity
 } from 'lucide-react';
-import NetworkAnalysis from '@/components/NetworkAnalysis';
+import NetworkVisualization, { NetworkVisualizationHandle } from '@/components/NetworkVisualization';
+import { comprehensiveTimeline } from '@/data/core/timeline';
+import { corePeople } from '@/data/core/people';
+import { coreOrganizations } from '@/data/core/organizations';
+import { enhancedProperties } from '@/data/geographic/properties';
+import { useMemo } from 'react';
+import type { TimelineEvent, EventEntity } from '@/types/investigation';
+
+type VisNode = {
+  id: string;
+  name: string;
+  type: 'person' | 'event' | 'organization' | 'location';
+  significance?: 'critical' | 'high' | 'medium' | 'low';
+};
 
 interface NetworkFilter {
   entityTypes: string[];
@@ -64,6 +77,52 @@ export default function NetworkPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilterPanel, setShowFilterPanel] = useState(true);
   const [isSimulating, setIsSimulating] = useState(true);
+  const [showLegend, setShowLegend] = useState(true);
+  const vizRef = useRef<NetworkVisualizationHandle | null>(null);
+  const [selectedNode, setSelectedNode] = useState<VisNode | null>(null);
+  const [focusEntityId, setFocusEntityId] = useState<string | null>(null);
+  const [transitionDurationMs, setTransitionDurationMs] = useState<number>(600);
+  const [transitionEasing, setTransitionEasing] = useState<'linear' | 'quadInOut' | 'cubicInOut'>('cubicInOut');
+  const [showLabels, setShowLabels] = useState(true);
+  const [labelFontSize, setLabelFontSize] = useState(12);
+  const [labelMaxLength, setLabelMaxLength] = useState(20);
+  const [layoutPadding, setLayoutPadding] = useState(60);
+  const [pinnedNodeIds, setPinnedNodeIds] = useState<string[]>([]);
+  const [labelCollisionAvoidance, setLabelCollisionAvoidance] = useState(true);
+  const [labelShowTypes, setLabelShowTypes] = useState<Array<'person' | 'event' | 'organization' | 'location'>>(['person', 'event', 'organization', 'location']);
+  const [labelMinSignificance, setLabelMinSignificance] = useState<'low' | 'medium' | 'high' | 'critical'>('low');
+  // Persist UI preferences
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('network_ui_prefs');
+      if (saved) {
+        const prefs = JSON.parse(saved);
+        if (typeof prefs.transitionDurationMs === 'number') setTransitionDurationMs(prefs.transitionDurationMs);
+        if (prefs.transitionEasing) setTransitionEasing(prefs.transitionEasing);
+        if (typeof prefs.showLabels === 'boolean') setShowLabels(prefs.showLabels);
+        if (typeof prefs.labelFontSize === 'number') setLabelFontSize(prefs.labelFontSize);
+        if (typeof prefs.labelMaxLength === 'number') setLabelMaxLength(prefs.labelMaxLength);
+        if (typeof prefs.layoutPadding === 'number') setLayoutPadding(prefs.layoutPadding);
+        if (typeof prefs.labelCollisionAvoidance === 'boolean') setLabelCollisionAvoidance(prefs.labelCollisionAvoidance);
+        if (Array.isArray(prefs.labelShowTypes)) setLabelShowTypes(prefs.labelShowTypes);
+        if (prefs.labelMinSignificance) setLabelMinSignificance(prefs.labelMinSignificance);
+      }
+    } catch {}
+  }, []);
+  useEffect(() => {
+    const prefs = {
+      transitionDurationMs,
+      transitionEasing,
+      showLabels,
+      labelFontSize,
+      labelMaxLength,
+      layoutPadding,
+      labelCollisionAvoidance,
+      labelShowTypes,
+      labelMinSignificance
+    };
+    try { localStorage.setItem('network_ui_prefs', JSON.stringify(prefs)); } catch {}
+  }, [transitionDurationMs, transitionEasing, showLabels, labelFontSize, labelMaxLength, layoutPadding, labelCollisionAvoidance, labelShowTypes, labelMinSignificance]);
 
   // Network statistics
   const networkStats = {
@@ -123,6 +182,89 @@ export default function NetworkPage() {
     setTimeout(() => setView(prev => ({ ...prev, physics: true })), 100);
   };
 
+  // Map sidebar filters to visualization filters
+  const minSignificance = (() => {
+    const order = ['low', 'medium', 'high', 'critical'];
+    if (!filters.significanceLevels || filters.significanceLevels.length === 0) return 'low';
+    const indices = filters.significanceLevels
+      .map(level => order.indexOf(level))
+      .filter(i => i >= 0);
+    const minIndex = Math.min(...indices);
+    return order[minIndex] as 'low' | 'medium' | 'high' | 'critical';
+  })();
+
+  const externalFilters = {
+    showPeople: filters.entityTypes.includes('individual'),
+    showOrganizations: filters.entityTypes.includes('organization') || filters.entityTypes.includes('company') || filters.entityTypes.includes('government'),
+    showLocations: filters.entityTypes.includes('location'),
+    showEvents: true,
+    minSignificance
+  } as const;
+
+  // Filter timeline events based on UI filters and search
+  const filteredEvents = useMemo(() => {
+    const selectedSigs = new Set(filters.significanceLevels);
+    const selectedRel = new Set(filters.relationshipTypes);
+    const search = searchQuery.trim().toLowerCase();
+
+    const matchesTimeRange = (dateStr: string) => {
+      if (!filters.timeRanges || filters.timeRanges.length === 0) return true;
+      const year = parseInt(dateStr.slice(0, 4), 10);
+      return filters.timeRanges.some(range => {
+        const [startStr, endStr] = range.split('-');
+        const start = parseInt(startStr, 10);
+        const end = parseInt(endStr, 10);
+        return year >= start && year <= end;
+      });
+    };
+
+  const matchesRelationshipType = (event: TimelineEvent) => {
+      // If all types are selected, do not filter
+      if (selectedRel.size === 0) return true;
+      const coversAll = ['business', 'personal', 'financial', 'legal', 'travel'].every(t => selectedRel.has(t));
+      if (coversAll) return true;
+
+    const eventType = event.type;
+    const eventCategory = event.category;
+    const roles = (event.entities || []).map((e: EventEntity) => (e.role || '').toLowerCase());
+
+      const typeMatches: Record<string, boolean> = {
+        business: eventType === 'business' || eventCategory === 'financial' || roles.some(r => r.includes('board') || r.includes('employer') || r.includes('client')),
+        financial: eventCategory === 'financial' || roles.some(r => r.includes('owner') || r.includes('investor') || r.includes('donor') || r.includes('payment')),
+        legal: eventType === 'legal' || eventCategory === 'criminal' || eventCategory === 'civil' || roles.some(r => r.includes('defendant') || r.includes('prosecutor') || r.includes('witness')),
+        travel: eventType === 'travel' || roles.some(r => r.includes('pilot') || r.includes('passenger')),
+        personal: eventCategory === 'social' || eventType === 'meeting' || roles.some(r => r.includes('associate') || r.includes('partner') || r.includes('friend') || r.includes('romantic'))
+      };
+
+      return Array.from(selectedRel).some(key => typeMatches[key as keyof typeof typeMatches]);
+    };
+
+  const matchesSearch = (event: TimelineEvent) => {
+      if (!search) return true;
+      const inText = (event.title + ' ' + event.description).toLowerCase().includes(search);
+      if (inText) return true;
+      // Match against involved entity names
+    return (event.entities || []).some((ent: EventEntity) => {
+        if (ent.entityType === 'person') {
+          const p = corePeople.find(pp => pp.id === ent.entityId);
+          if (!p) return false;
+          return p.name.toLowerCase().includes(search) || p.tags.some(t => t.toLowerCase().includes(search));
+        }
+        if (ent.entityType === 'organization') {
+          const o = coreOrganizations.find(oo => oo.id === ent.entityId);
+          if (!o) return false;
+          return o.name.toLowerCase().includes(search) || o.tags.some(t => t.toLowerCase().includes(search));
+        }
+        return String(ent.entityId).toLowerCase().includes(search);
+      });
+    };
+
+    return comprehensiveTimeline.filter(event => {
+      const sigOk = selectedSigs.size === 0 ? true : selectedSigs.has(event.significance);
+      return sigOk && matchesTimeRange(event.date) && matchesRelationshipType(event) && matchesSearch(event);
+    });
+  }, [filters.significanceLevels, filters.timeRanges, filters.relationshipTypes, searchQuery]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
       {/* Header - Enhanced Mobile Layout */}
@@ -175,7 +317,7 @@ export default function NetworkPage() {
                   </button>
                   
                 <button
-                  onClick={resetNetwork}
+                  onClick={() => { resetNetwork(); vizRef.current?.resetZoom(); }}
                   className="p-2 hover:bg-gray-600 rounded transition-colors touch-target"
                   title="Reset layout"
                 >
@@ -185,6 +327,7 @@ export default function NetworkPage() {
                 <button
                   className="p-2 hover:bg-gray-600 rounded transition-colors touch-target"
                   title="Zoom In"
+                  onClick={() => vizRef.current?.zoomIn()}
                 >
                   <ZoomIn className="w-4 h-4" />
                 </button>
@@ -192,6 +335,7 @@ export default function NetworkPage() {
                 <button
                   className="p-2 hover:bg-gray-600 rounded transition-colors touch-target"
                   title="Zoom Out"
+                  onClick={() => vizRef.current?.zoomOut()}
                 >
                   <ZoomOut className="w-4 h-4" />
                 </button>
@@ -207,10 +351,24 @@ export default function NetworkPage() {
               </button>
 
               {/* Export */}
-              <button className="flex items-center justify-center gap-2 px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-lg hover:border-gray-500 transition-colors touch-target">
-                <Download className="w-4 h-4" />
-                <span className="text-sm hidden sm:inline">Export</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => vizRef.current?.exportPNG()}
+                  className="flex items-center justify-center gap-2 px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-lg hover:border-gray-500 transition-colors touch-target"
+                  title="Export PNG"
+                >
+                  <Download className="w-4 h-4" />
+                  <span className="text-sm hidden sm:inline">PNG</span>
+                </button>
+                <button
+                  onClick={() => vizRef.current?.exportSVG()}
+                  className="flex items-center justify-center gap-2 px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-lg hover:border-gray-500 transition-colors touch-target"
+                  title="Export SVG"
+                >
+                  <Download className="w-4 h-4" />
+                  <span className="text-sm hidden sm:inline">SVG</span>
+                </button>
+              </div>
               </div>
             </div>
           </div>
@@ -308,6 +466,75 @@ export default function NetworkPage() {
                   </div>
                   <span className="text-sm text-white">Physics Simulation</span>
                 </label>
+
+                <div>
+                  <label className="block text-sm text-gray-300 mb-2">Transition Duration: {transitionDurationMs}ms</label>
+                  <input
+                    type="range"
+                    min={200}
+                    max={2000}
+                    step={50}
+                    value={transitionDurationMs}
+                    onChange={(e) => setTransitionDurationMs(parseInt(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm text-gray-300 mb-2">Transition Easing</label>
+                  <select
+                    value={transitionEasing}
+                    onChange={(e) => setTransitionEasing(e.target.value as 'linear' | 'quadInOut' | 'cubicInOut')}
+                    className="w-full bg-gray-800/50 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-400"
+                  >
+                    <option value="linear">Linear</option>
+                    <option value="quadInOut">Quad InOut</option>
+                    <option value="cubicInOut">Cubic InOut</option>
+                  </select>
+                </div>
+
+              <div className="pt-2 border-t border-gray-700 space-y-3">
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" checked={showLabels} onChange={(e) => setShowLabels(e.target.checked)} />
+                  <span className="text-sm text-gray-300">Show Labels</span>
+                </label>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-2">Label Font Size: {labelFontSize}px</label>
+                  <input type="range" min={8} max={18} value={labelFontSize} onChange={(e) => setLabelFontSize(parseInt(e.target.value))} className="w-full" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-2">Label Max Length: {labelMaxLength}</label>
+                  <input type="range" min={10} max={40} value={labelMaxLength} onChange={(e) => setLabelMaxLength(parseInt(e.target.value))} className="w-full" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-2">Layout Padding: {layoutPadding}px</label>
+                  <input type="range" min={20} max={120} step={5} value={layoutPadding} onChange={(e) => setLayoutPadding(parseInt(e.target.value))} className="w-full" />
+                </div>
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" checked={labelCollisionAvoidance} onChange={(e) => setLabelCollisionAvoidance(e.target.checked)} />
+                  <span className="text-sm text-gray-300">Label Collision Avoidance</span>
+                </label>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-2">Show Labels For Types</label>
+                  <div className="grid grid-cols-2 gap-2 text-sm text-gray-300">
+                    {(['person','event','organization','location'] as const).map(t => (
+                      <label key={t} className="flex items-center gap-2">
+                        <input type="checkbox" checked={labelShowTypes.includes(t)} onChange={(e) => setLabelShowTypes(prev => e.target.checked ? [...prev, t] : prev.filter(x => x !== t))} />
+                        <span className="capitalize">{t}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-2">Minimum Label Significance</label>
+                  <select value={labelMinSignificance} onChange={(e) => setLabelMinSignificance(e.target.value as 'low' | 'medium' | 'high' | 'critical')} className="w-full bg-gray-800/50 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-400">
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="critical">Critical</option>
+                  </select>
+                </div>
+              </div>
               </div>
             </div>
 
@@ -421,7 +648,31 @@ export default function NetworkPage() {
         {/* Main Network Area - Mobile Responsive */}
         <div className="flex-1 relative min-h-[60vh] lg:min-h-0">
           <div className="h-full bg-gradient-to-br from-gray-900 to-black p-2 sm:p-4 lg:p-0">
-            <NetworkAnalysis />
+            <NetworkVisualization 
+              ref={vizRef}
+              events={filteredEvents}
+              externalFilters={externalFilters}
+              showUI={false}
+              layout={view.layout}
+              clustering={view.clustering}
+              physics={view.physics}
+              nodeSizeMode={view.nodeSize}
+              edgeWeightMode={view.edgeWeight}
+              className="w-full h-full"
+              showLegend={showLegend}
+              focusEntityId={focusEntityId}
+              onNodeSelect={(n) => setSelectedNode(n)}
+              transitionDurationMs={transitionDurationMs}
+              transitionEasing={transitionEasing}
+              showLabels={showLabels}
+              labelFontSize={labelFontSize}
+              labelMaxLength={labelMaxLength}
+              layoutPadding={layoutPadding}
+              pinnedNodeIds={pinnedNodeIds}
+              labelCollisionAvoidance={labelCollisionAvoidance}
+              labelShowTypes={labelShowTypes}
+              labelMinSignificance={labelMinSignificance}
+            />
           </div>
           
           {/* Toggle Filter Panel Button (when hidden) - Mobile Optimized */}
@@ -443,7 +694,188 @@ export default function NetworkPage() {
               <span className="hidden sm:inline">Network Analysis Engine v2.1</span>
               <span className="sm:hidden">Network v2.1</span>
             </p>
+            <div className="mt-1 flex items-center gap-2">
+              <button
+                onClick={() => setShowLegend(v => !v)}
+                className="px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded hover:border-gray-500"
+              >
+                {showLegend ? 'Hide Legend' : 'Show Legend'}
+              </button>
+              {selectedNode && (
+                <button
+                  onClick={() => setFocusEntityId(prev => prev === selectedNode.id ? null : selectedNode.id)}
+                  className="px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded hover:border-gray-500"
+                >
+                  {focusEntityId === selectedNode.id ? 'Unfocus' : 'Focus'}
+                </button>
+              )}
+            </div>
           </div>
+
+          {/* Right-side Detail Panel */}
+          {selectedNode && (
+            <div className="absolute top-0 right-0 h-full w-80 bg-gray-900/95 border-l border-gray-700/50 backdrop-blur-sm z-40 p-6 overflow-y-auto">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-white">{selectedNode.name}</h3>
+                <button onClick={() => setSelectedNode(null)} className="text-gray-400 hover:text-white">✕</button>
+              </div>
+
+              <div className="space-y-4 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400">Type</span>
+                  <span className="capitalize">{selectedNode.type}</span>
+                </div>
+                {selectedNode.significance && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400">Significance</span>
+                    <span className="capitalize">{selectedNode.significance}</span>
+                  </div>
+                )}
+
+                {(() => {
+                  const id: string = selectedNode.id;
+                  if (selectedNode.type === 'person') {
+                    const person = corePeople.find(p => p.id === id);
+                    if (!person) return null;
+                    const involvedEvents = filteredEvents.filter(e => e.entities.some(ent => ent.entityId === id));
+                    return (
+                      <div className="space-y-3">
+                        <div>
+                          <span className="text-gray-400">Occupations</span>
+                          <div className="mt-1">{person.occupations.join(', ')}</div>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">Tags</span>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {person.tags.map(tag => (
+                              <span key={tag} className="px-2 py-1 bg-gray-800 text-gray-300 rounded text-xs">{tag}</span>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">Events Involved</span>
+                          <div className="mt-1 text-gray-300">{involvedEvents.length}</div>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">Biography</span>
+                          <div className="mt-1 text-gray-300 leading-relaxed">{person.biography}</div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  if (selectedNode.type === 'organization') {
+                    const org = coreOrganizations.find(o => o.id === id);
+                    if (!org) return null;
+                    return (
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-400">Type</span>
+                          <span className="capitalize">{org.type}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-400">Status</span>
+                          <span className="capitalize">{org.currentStatus}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">Tags</span>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {org.tags.map(tag => (
+                              <span key={tag} className="px-2 py-1 bg-gray-800 text-gray-300 rounded text-xs">{tag}</span>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">Description</span>
+                          <div className="mt-1 text-gray-300 leading-relaxed">{org.description}</div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  if (selectedNode.type === 'event') {
+                    const event = filteredEvents.find(e => e.id === id);
+                    if (!event) return null;
+                    return (
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-400">Date</span>
+                          <span>{new Date(event.date).toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-400">Category</span>
+                          <span className="capitalize">{event.category}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">Involved Entities</span>
+                          <div className="mt-1 space-y-1 text-gray-300">
+                            {event.entities.slice(0, 5).map(ent => (
+                              <div key={ent.entityId} className="flex justify-between">
+                                <span className="font-medium">{ent.role}</span>
+                                <span className="text-gray-400">{ent.entityType}</span>
+                              </div>
+                            ))}
+                            {event.entities.length > 5 && (
+                              <div className="text-xs text-gray-500">+{event.entities.length - 5} more</div>
+                            )}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">Description</span>
+                          <div className="mt-1 text-gray-300 leading-relaxed">{event.description}</div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  if (selectedNode.type === 'location') {
+                    const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    const prop = enhancedProperties.find(p => normalize(p.id.replace(/^property_/, '')) === normalize(id) || normalize(p.name) === normalize(selectedNode.name));
+                    if (!prop) return null;
+                    return (
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-400">Type</span>
+                          <span className="capitalize">{prop.type}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-400">Status</span>
+                          <span className="capitalize">{prop.currentStatus}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">Description</span>
+                          <div className="mt-1 text-gray-300 leading-relaxed">{prop.description}</div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-400">Coordinates</span>
+                          <span>{prop.coordinates[0].toFixed(3)}, {prop.coordinates[1].toFixed(3)}</span>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+
+                <div className="pt-2 border-t border-gray-700 flex items-center gap-2">
+                  <button
+                    onClick={() => setFocusEntityId(prev => prev === selectedNode.id ? null : selectedNode.id)}
+                    className="px-3 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-xs"
+                  >
+                    {focusEntityId === selectedNode.id ? 'Unfocus' : 'Focus on Node'}
+                  </button>
+                <button
+                  onClick={() => setPinnedNodeIds(prev => prev.includes(selectedNode.id) ? prev.filter(id => id !== selectedNode.id) : [...prev, selectedNode.id])}
+                  className="px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-xs"
+                >
+                  {pinnedNodeIds.includes(selectedNode.id) ? 'Unpin' : 'Pin Node'}
+                </button>
+                  <button
+                    onClick={() => setSelectedNode(null)}
+                    className="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-xs"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

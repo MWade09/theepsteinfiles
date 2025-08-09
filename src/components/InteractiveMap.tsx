@@ -20,8 +20,11 @@ import { flightLogs as flights, travelPatterns } from '@/data/geographic/travelP
 const initializeLeafletIcons = () => {
   try {
     if (typeof window !== 'undefined' && L && L.Icon && L.Icon.Default) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
+      // Leaflet types do not expose _getIconUrl; guard and cast narrowly
+      const proto = L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown };
+      if (proto._getIconUrl) {
+        delete proto._getIconUrl;
+      }
       L.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
         iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
@@ -342,8 +345,8 @@ export default function InteractiveMap({
   useEffect(() => {
     if (isMapReady && mapRef.current) {
       // Clear any existing map instance
-      const mapElement = mapRef.current.querySelector('.leaflet-container');
-      if (mapElement && (mapElement as HTMLElement & { _leaflet_id?: string })._leaflet_id) {
+      const mapElement = mapRef.current.querySelector('.leaflet-container') as (HTMLElement & { _leaflet_id?: string }) | null;
+      if (mapElement && mapElement._leaflet_id) {
         // Force recreation if map already exists
         setMapKey(prev => prev + 1);
       }

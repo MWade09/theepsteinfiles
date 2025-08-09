@@ -21,6 +21,9 @@ export default function FinancialPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilterPanel, setShowFilterPanel] = useState(true);
   const [selectedView, setSelectedView] = useState<'flow' | 'network' | 'timeline'>('flow');
+  const [quickFilter, setQuickFilter] = useState<
+    'high_value' | 'offshore' | 'cash' | 'flagged' | null
+  >(null);
 
   // Financial statistics
   const financialStats = {
@@ -174,28 +177,40 @@ export default function FinancialPage() {
               </h3>
               
               <div className="space-y-3">
-                <button className="w-full text-left p-3 bg-gray-800/30 border border-gray-700 rounded-lg hover:border-gray-600 transition-all">
+                <button
+                  onClick={() => setQuickFilter('high_value')}
+                  className="w-full text-left p-3 bg-gray-800/30 border border-gray-700 rounded-lg hover:border-gray-600 transition-all"
+                >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-white">High Value (&gt;$10M)</span>
                     <span className="text-xs text-gray-400">(45)</span>
                   </div>
                 </button>
                 
-                <button className="w-full text-left p-3 bg-gray-800/30 border border-gray-700 rounded-lg hover:border-gray-600 transition-all">
+                <button
+                  onClick={() => setQuickFilter('offshore')}
+                  className="w-full text-left p-3 bg-gray-800/30 border border-gray-700 rounded-lg hover:border-gray-600 transition-all"
+                >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-white">Offshore Transfers</span>
                     <span className="text-xs text-gray-400">(127)</span>
                   </div>
                 </button>
                 
-                <button className="w-full text-left p-3 bg-gray-800/30 border border-gray-700 rounded-lg hover:border-gray-600 transition-all">
+                <button
+                  onClick={() => setQuickFilter('cash')}
+                  className="w-full text-left p-3 bg-gray-800/30 border border-gray-700 rounded-lg hover:border-gray-600 transition-all"
+                >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-white">Cash Transactions</span>
                     <span className="text-xs text-gray-400">(89)</span>
                   </div>
                 </button>
                 
-                <button className="w-full text-left p-3 bg-red-900/30 border border-red-700 rounded-lg hover:border-red-600 transition-all">
+                <button
+                  onClick={() => setQuickFilter('flagged')}
+                  className="w-full text-left p-3 bg-red-900/30 border border-red-700 rounded-lg hover:border-red-600 transition-all"
+                >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-red-400">Flagged Patterns</span>
                     <span className="text-xs text-red-400">(23)</span>
@@ -222,7 +237,11 @@ export default function FinancialPage() {
         {/* Main Financial Analysis Area - Mobile Responsive */}
         <div className="flex-1 relative min-h-[60vh] lg:min-h-0">
           <div className="h-full bg-gradient-to-br from-gray-900 to-black p-2 sm:p-4 lg:p-6">
-            <FinancialFlowAnalysis />
+            <FinancialFlowAnalysis
+              externalSearch={searchQuery}
+              externalQuickFilter={quickFilter}
+              onAppliedQuickFilter={() => setQuickFilter(null)}
+            />
           </div>
           
           {/* Toggle Filter Panel Button (when hidden) - Mobile Optimized */}

@@ -381,6 +381,16 @@ export interface Evidence {
   relatedEvents: string[]; // Timeline Event IDs
   tags: string[];
   content?: DocumentContent;
+  /**
+   * Preferred external URL to preview this document from.
+   * If provided, the viewer will attempt to embed or link to this first.
+   */
+  preferredUrl?: string;
+  /**
+   * Optional default display mode for this document in the viewer.
+   * If omitted, the viewer will default to 'preview' when a URL exists, otherwise 'text'.
+   */
+  defaultDisplayMode?: 'preview' | 'text';
   annotations: Annotation[];
   accessLevel: 'public' | 'restricted' | 'sealed';
   lastUpdated: string;

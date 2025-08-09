@@ -40,6 +40,8 @@ export default function DocumentViewer({ documentId, isEmbedded = false }: Docum
   const [selectedText, setSelectedText] = useState('');
   const [annotationMode, setAnnotationMode] = useState<'highlight' | 'note' | 'cross-reference' | null>(null);
   const [sidebarTab, setSidebarTab] = useState<'info' | 'annotations' | 'references' | 'analysis'>('info');
+  const [displayMode, setDisplayMode] = useState<'preview' | 'text'>('text');
+  const PREVIEW_ALLOW_LIST = ['documentcloud.org', 'miamiherald.com', 'bbc.co.uk'];
   
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -50,10 +52,29 @@ export default function DocumentViewer({ documentId, isEmbedded = false }: Docum
       if (doc) {
         setSelectedDoc(doc);
         setAnnotations(doc.annotations || []);
+        // user preference overrides
+        const saved = typeof window !== 'undefined' ? localStorage.getItem(`doc_display_${doc.id}`) as 'preview' | 'text' | null : null;
+        if (saved === 'preview' || saved === 'text') {
+          setDisplayMode(saved);
+        } else if (doc.defaultDisplayMode) {
+          setDisplayMode(doc.defaultDisplayMode);
+        } else {
+          const url = doc.preferredUrl || doc.content?.url || doc.sources.find(s => !!s.url)?.url;
+          setDisplayMode(url ? 'preview' : 'text');
+        }
       }
     } else if (coreDocuments.length > 0) {
       setSelectedDoc(coreDocuments[0]);
       setAnnotations(coreDocuments[0].annotations || []);
+      const saved = typeof window !== 'undefined' ? localStorage.getItem(`doc_display_${coreDocuments[0].id}`) as 'preview' | 'text' | null : null;
+      if (saved === 'preview' || saved === 'text') {
+        setDisplayMode(saved);
+      } else if (coreDocuments[0].defaultDisplayMode) {
+        setDisplayMode(coreDocuments[0].defaultDisplayMode);
+      } else {
+        const url = coreDocuments[0].preferredUrl || coreDocuments[0].content?.url || coreDocuments[0].sources.find(s => !!s.url)?.url;
+        setDisplayMode(url ? 'preview' : 'text');
+      }
     }
   }, [documentId]);
 
@@ -165,6 +186,28 @@ export default function DocumentViewer({ documentId, isEmbedded = false }: Docum
             </div>
             
             <div className="flex items-center space-x-2">
+              <div className="flex items-center border border-gray-200 dark:border-dark-600 rounded overflow-hidden">
+                <button
+                  onClick={() => {
+                    setDisplayMode('preview');
+                    if (selectedDoc) localStorage.setItem(`doc_display_${selectedDoc.id}`, 'preview');
+                  }}
+                  className={`px-3 py-2 text-sm ${displayMode === 'preview' ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' : 'text-gray-600 dark:text-gray-300'}`}
+                  title="Preview from source"
+                >
+                  <ExternalLink className="w-4 h-4 inline mr-1" /> Preview
+                </button>
+                <button
+                  onClick={() => {
+                    setDisplayMode('text');
+                    if (selectedDoc) localStorage.setItem(`doc_display_${selectedDoc.id}`, 'text');
+                  }}
+                  className={`px-3 py-2 text-sm ${displayMode === 'text' ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' : 'text-gray-600 dark:text-gray-300'}`}
+                  title="View extracted text"
+                >
+                  <FileText className="w-4 h-4 inline mr-1" /> Text
+                </button>
+              </div>
               <div className="relative">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
@@ -262,12 +305,12 @@ export default function DocumentViewer({ documentId, isEmbedded = false }: Docum
         <div className="flex-1 overflow-auto p-6">
           <div 
             ref={contentRef}
-            className="max-w-4xl mx-auto bg-white dark:bg-dark-800 shadow-lg rounded-lg p-8"
+            className="max-w-5xl mx-auto bg-white dark:bg-dark-800 shadow-lg rounded-lg p-0"
             style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }}
             onMouseUp={handleTextSelection}
           >
             {/* Document Header */}
-            <div className="border-b pb-6 mb-6">
+            <div className="border-b pb-4 px-8 pt-6">
               <div className="flex items-start justify-between">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
@@ -288,7 +331,7 @@ export default function DocumentViewer({ documentId, isEmbedded = false }: Docum
                     </div>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right pr-8">
                   <p className="text-sm text-gray-600 dark:text-gray-400">Confidence Level</p>
                   <p className="font-semibold text-gray-900 dark:text-gray-100">
                     {selectedDoc.confidenceLevel.toUpperCase()}
@@ -296,45 +339,81 @@ export default function DocumentViewer({ documentId, isEmbedded = false }: Docum
                 </div>
               </div>
             </div>
-
-            {/* Document Text Content */}
-            <div className="prose prose-lg max-w-none dark:prose-invert">
-              <div 
-                className="whitespace-pre-wrap font-mono text-sm leading-relaxed"
-                onMouseUp={handleTextSelection}
-                ref={contentRef}
-              >
-                {(() => {
-                  const content = selectedDoc.content?.text || 'Document content not available.';
-                  
-                  if (highlightedText.length > 0 && searchTerm) {
-                    // Create highlighted content
-                    const regex = new RegExp(`(${searchTerm})`, 'gi');
-                    const parts = content.split(regex);
-                    
-                    return parts.map((part, index) => {
-                      if (part.toLowerCase() === searchTerm.toLowerCase()) {
-                        return (
-                          <mark 
-                            key={index}
-                            className="bg-yellow-200 dark:bg-yellow-600 px-1 rounded"
-                          >
-                            {part}
-                          </mark>
-                        );
+            {(() => {
+              const pickPreviewUrl = (): string | undefined => {
+                const candidates = [selectedDoc.preferredUrl, selectedDoc.content?.url, ...(selectedDoc.sources.map(s => s.url).filter(Boolean) as string[])];
+                for (const u of candidates) {
+                  try {
+                    const host = new URL(u).hostname.replace(/^www\./, '');
+                    if (PREVIEW_ALLOW_LIST.some(d => host.endsWith(d))) return u;
+                  } catch {}
+                }
+                return candidates.find(Boolean);
+              };
+              const externalUrl = pickPreviewUrl();
+              const isPdf = selectedDoc.content?.fileType === 'pdf' || (externalUrl ? externalUrl.toLowerCase().endsWith('.pdf') : false);
+              if (displayMode === 'preview' && externalUrl) {
+                return (
+                  <div className="w-full" style={{ height: '70vh' }}>
+                    {isPdf ? (
+                      <iframe
+                        src={`https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(externalUrl)}`}
+                        className="w-full h-full"
+                        title="Document preview"
+                      />
+                    ) : (
+                      <iframe
+                        src={externalUrl}
+                        className="w-full h-full"
+                        title="Source preview"
+                        sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                        referrerPolicy="no-referrer"
+                      />
+                    )}
+                    <div className="flex items-center justify-between px-8 py-3 border-t border-gray-200 dark:border-dark-700 bg-white dark:bg-dark-800">
+                      <div className="text-xs text-gray-500">
+                        If the preview does not load due to site restrictions, use the button to open the source in a new tab.
+                      </div>
+                      <a
+                        href={externalUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
+                      >
+                        <ExternalLink className="w-4 h-4" /> Open Source
+                      </a>
+                    </div>
+                  </div>
+                );
+              }
+              return (
+                <div className="prose prose-lg max-w-none dark:prose-invert px-8 py-6">
+                  <div 
+                    className="whitespace-pre-wrap font-mono text-sm leading-relaxed"
+                    onMouseUp={handleTextSelection}
+                    ref={contentRef}
+                  >
+                    {(() => {
+                      const content = selectedDoc.content?.text || 'Document content not available.';
+                      if (highlightedText.length > 0 && searchTerm) {
+                        const regex = new RegExp(`(${searchTerm})`, 'gi');
+                        const parts = content.split(regex);
+                        return parts.map((part, index) => (
+                          part.toLowerCase() === searchTerm.toLowerCase()
+                            ? <mark key={index} className="bg-yellow-200 dark:bg-yellow-600 px-1 rounded">{part}</mark>
+                            : <span key={index}>{part}</span>
+                        ));
                       }
-                      return part;
-                    });
-                  }
-                  
-                  return content;
-                })()}
-              </div>
-            </div>
+                      return content;
+                    })()}
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Annotations Overlay */}
             {showAnnotations && annotations.length > 0 && (
-              <div className="mt-8 border-t pt-6">
+              <div className="mt-8 border-t pt-6 px-8 pb-8">
                 <h3 className="text-lg font-semibold mb-4">Annotations</h3>
                 <div className="space-y-3">
                   {annotations.map((annotation) => (

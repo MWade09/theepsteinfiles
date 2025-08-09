@@ -34,6 +34,9 @@ import { coreRelationships } from '@/data/core/relationships';
 
 interface FinancialFlowProps {
   className?: string;
+  externalSearch?: string;
+  externalQuickFilter?: 'high_value' | 'offshore' | 'cash' | 'flagged' | null;
+  onAppliedQuickFilter?: () => void;
 }
 
 interface FlowFilters {
@@ -51,12 +54,12 @@ interface FlowFilters {
   verificationStatus: string[];
 }
 
-export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowProps) {
+export default function FinancialFlowAnalysis({ className = '', externalSearch, externalQuickFilter, onAppliedQuickFilter }: FinancialFlowProps) {
   const [viewMode, setViewMode] = useState<'network' | 'flow' | 'timeline' | 'analytics'>('flow');
   const [selectedTransaction, setSelectedTransaction] = useState<string | null>(null);
   const [selectedEntity, setSelectedEntity] = useState<string | null>(null);
   const [showSuspiciousOnly, setShowSuspiciousOnly] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(externalSearch || '');
   const [showFilters, setShowFilters] = useState(false);
   const [hoveredNode, setHoveredNode] = useState<FinancialNetworkNode | null>(null);
   const [animationSpeed, setAnimationSpeed] = useState(1);
@@ -110,13 +113,27 @@ export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowP
   const filteredTransactions = useMemo(() => {
     let txns = showSuspiciousOnly ? getSuspiciousTransactions() : financialTransactions;
     
-    if (searchTerm) {
+    const appliedSearch = (externalSearch ?? searchTerm).trim();
+    if (appliedSearch) {
       txns = txns.filter(txn => 
-        txn.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        txn.purpose?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        getEntityById(txn.fromEntity)?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        getEntityById(txn.toEntity)?.name.toLowerCase().includes(searchTerm.toLowerCase())
+        txn.description.toLowerCase().includes(appliedSearch.toLowerCase()) ||
+        txn.purpose?.toLowerCase().includes(appliedSearch.toLowerCase()) ||
+        getEntityById(txn.fromEntity)?.name.toLowerCase().includes(appliedSearch.toLowerCase()) ||
+        getEntityById(txn.toEntity)?.name.toLowerCase().includes(appliedSearch.toLowerCase())
       );
+    }
+
+    // Apply quick filter
+    if (externalQuickFilter) {
+      if (externalQuickFilter === 'high_value') {
+        txns = txns.filter(txn => txn.amountUSD >= 10_000_000);
+      } else if (externalQuickFilter === 'offshore') {
+        txns = txns.filter(txn => txn.suspiciousActivity.some(sa => sa.type === 'offshore_transfer'));
+      } else if (externalQuickFilter === 'cash') {
+        txns = txns.filter(txn => txn.method === 'cash');
+      } else if (externalQuickFilter === 'flagged') {
+        txns = txns.filter(txn => txn.suspiciousActivity.length > 0);
+      }
     }
 
     return txns.filter(txn => {
@@ -133,7 +150,14 @@ export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowP
       
       return inDateRange && inAmountRange && matchesType && matchesEntity && matchesVerification;
     });
-  }, [showSuspiciousOnly, searchTerm, filters]);
+  }, [showSuspiciousOnly, searchTerm, filters, externalQuickFilter, externalSearch]);
+
+  // Clear the external quick filter after it has been applied for one render
+  useEffect(() => {
+    if (externalQuickFilter) {
+      onAppliedQuickFilter?.();
+    }
+  }, [externalQuickFilter, onAppliedQuickFilter]);
 
   // Generate network data for visualization
   const networkData = useMemo(() => {
@@ -285,13 +309,14 @@ export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowP
   };
 
   const renderNetworkView = () => (
-    <div className="relative w-full h-[600px] bg-white dark:bg-dark-800 rounded-lg border border-gray-200 dark:border-dark-700">
+    <div className="relative w-full h-[600px] bg-white dark:bg-dark-800 rounded-lg border border-gray-200 dark:border-dark-700 overflow-hidden">
       <svg
         ref={svgRef}
         width="100%"
         height="100%"
         viewBox="0 0 1000 600"
-        className="overflow-visible"
+        preserveAspectRatio="xMidYMid meet"
+        className="block"
       >
         {/* Grid lines */}
         <defs>
@@ -363,7 +388,7 @@ export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowP
         {networkData.nodes.map(node => (
           <g
             key={node.id}
-            className="cursor-pointer transition-transform hover:scale-110"
+            className="cursor-pointer transition-transform hover:scale-105"
             onClick={() => setSelectedEntity(node.id)}
             onMouseEnter={() => setHoveredNode(node)}
             onMouseLeave={() => setHoveredNode(null)}
@@ -371,11 +396,11 @@ export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowP
             <circle
               cx={node.x}
               cy={node.y}
-              r={node.size}
+              r={Math.min(node.size, 40)}
               fill={node.color}
-              stroke={node.suspicious ? '#dc2626' : '#ffffff'}
-              strokeWidth={node.suspicious ? 3 : 2}
-              opacity={0.9}
+              stroke={node.suspicious ? '#dc2626' : '#111827'}
+              strokeWidth={node.suspicious ? 2 : 1}
+              opacity={0.95}
             />
             
             {/* Suspicious flag */}
@@ -403,14 +428,14 @@ export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowP
             {/* Node label */}
             <text
               x={node.x}
-              y={node.y! + node.size + 15}
+              y={node.y! + Math.min(node.size, 40) + 14}
               textAnchor="middle"
               fontSize="12"
               fill="#374151"
               fontWeight="500"
               className="pointer-events-none"
             >
-              {node.name.length > 20 ? `${node.name.substring(0, 20)}...` : node.name}
+              {node.name.length > 18 ? `${node.name.substring(0, 18)}...` : node.name}
             </text>
           </g>
         ))}
@@ -566,22 +591,21 @@ export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowP
 
   // Interactive Flow Visualization
   const renderFlowView = () => {
-    const filteredTransactions = financialTransactions.filter(txn => {
-      if (showSuspiciousOnly && txn.suspiciousActivity.length === 0) return false;
-      if (searchTerm && 
-          !txn.purpose?.toLowerCase().includes(searchTerm.toLowerCase()) &&
-          !txn.description.toLowerCase().includes(searchTerm.toLowerCase())) return false;
-      
+    // Start from globally filtered transactions so quick filters and external search apply here too
+    const flowFilteredTransactions = filteredTransactions.filter(txn => {
       const txnDate = new Date(txn.transactionDate);
       const filterStartDate = new Date(filters.dateRange.start);
       const filterEndDate = new Date(timelineDate);
-      
-      return txnDate >= filterStartDate && txnDate <= filterEndDate &&
-             txn.amountUSD >= filters.amountRange.min && txn.amountUSD <= filters.amountRange.max;
+      return (
+        txnDate >= filterStartDate &&
+        txnDate <= filterEndDate &&
+        txn.amountUSD >= filters.amountRange.min &&
+        txn.amountUSD <= filters.amountRange.max
+      );
     });
 
     const entitiesMap = new Map();
-    filteredTransactions.forEach(txn => {
+    flowFilteredTransactions.forEach(txn => {
       if (!entitiesMap.has(txn.fromEntity)) {
         const entity = getEntityById(txn.fromEntity);
         if (entity) entitiesMap.set(txn.fromEntity, entity);
@@ -593,7 +617,15 @@ export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowP
     });
 
     const entities = Array.from(entitiesMap.values());
-    const maxAmount = Math.max(...filteredTransactions.map(t => t.amountUSD));
+    const maxAmount = Math.max(...flowFilteredTransactions.map(t => t.amountUSD));
+
+    const columns = 4;
+    const rows = Math.max(1, Math.ceil(entities.length / columns));
+    const maxRadius = 60;
+    const topMargin = 100;
+    const rowGap = 150;
+    const bottomLabelSpace = 50; // space for labels under last row
+    const containerHeight = topMargin + (rows - 1) * rowGap + maxRadius + bottomLabelSpace;
 
     return (
       <div className="bg-white dark:bg-dark-800 rounded-lg p-6 border border-gray-200 dark:border-dark-700">
@@ -623,23 +655,23 @@ export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowP
             </div>
           </div>
           <div className="text-sm text-gray-600">
-            {filteredTransactions.length} transactions • ${(filteredTransactions.reduce((sum, t) => sum + t.amountUSD, 0) / 1000000).toFixed(1)}M total
+            {flowFilteredTransactions.length} transactions • ${(flowFilteredTransactions.reduce((sum, t) => sum + t.amountUSD, 0) / 1000000).toFixed(1)}M total
           </div>
         </div>
 
         {/* Flow Diagram */}
-        <div className="relative h-96 border border-gray-200 dark:border-dark-600 rounded-lg overflow-hidden">
+        <div className="relative border border-gray-200 dark:border-dark-600 rounded-lg" style={{ height: containerHeight }}>
           <svg width="100%" height="100%" className="bg-gray-50 dark:bg-dark-900">
             {/* Entity Nodes */}
             {entities.map((entity, index) => {
-              const x = 100 + (index % 4) * 200;
-              const y = 100 + Math.floor(index / 4) * 150;
+              const x = 100 + (index % columns) * 200;
+              const y = topMargin + Math.floor(index / columns) * rowGap;
               const entityTransactions = filteredTransactions.filter(t => 
                 t.fromEntity === entity.id || t.toEntity === entity.id
               );
               const totalValue = entityTransactions.reduce((sum, t) => sum + t.amountUSD, 0);
               const suspiciousCount = entityTransactions.filter(t => t.suspiciousActivity.length > 0).length;
-              const nodeSize = Math.max(20, Math.min(60, Math.log(totalValue + 1) * 5));
+              const nodeSize = Math.max(20, Math.min(maxRadius, Math.log(totalValue + 1) * 5));
 
               return (
                 <g key={entity.id}>
@@ -683,17 +715,17 @@ export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowP
             })}
 
             {/* Transaction Flows */}
-            {filteredTransactions.slice(0, 20).map((txn, index) => {
+            {flowFilteredTransactions.slice(0, 20).map((txn, index) => {
               const fromEntity = entities.find(e => e.id === txn.fromEntity);
               const toEntity = entities.find(e => e.id === txn.toEntity);
               if (!fromEntity || !toEntity) return null;
 
               const fromIndex = entities.indexOf(fromEntity);
               const toIndex = entities.indexOf(toEntity);
-              const x1 = 100 + (fromIndex % 4) * 200;
-              const y1 = 100 + Math.floor(fromIndex / 4) * 150;
-              const x2 = 100 + (toIndex % 4) * 200;
-              const y2 = 100 + Math.floor(toIndex / 4) * 150;
+              const x1 = 100 + (fromIndex % columns) * 200;
+              const y1 = topMargin + Math.floor(fromIndex / columns) * rowGap;
+              const x2 = 100 + (toIndex % columns) * 200;
+              const y2 = topMargin + Math.floor(toIndex / columns) * rowGap;
 
               const strokeWidth = Math.max(1, Math.min(8, (txn.amountUSD / maxAmount) * 8));
               const isSuspicious = txn.suspiciousActivity.length > 0;
@@ -781,7 +813,7 @@ export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowP
         {selectedTransaction && (
           <div className="mt-6 p-4 bg-gray-50 dark:bg-dark-700 rounded-lg">
             {(() => {
-              const txn = filteredTransactions.find(t => t.id === selectedTransaction);
+              const txn = flowFilteredTransactions.find(t => t.id === selectedTransaction);
               if (!txn) return null;
               
               return (
@@ -838,11 +870,9 @@ export default function FinancialFlowAnalysis({ className = '' }: FinancialFlowP
 
   // Timeline View
   const renderTimelineView = () => {
-    const timelineTransactions = financialTransactions
-      .filter(txn => {
-        if (showSuspiciousOnly && txn.suspiciousActivity.length === 0) return false;
-        return true;
-      })
+    // Base timeline on globally filtered transactions so quick filters/search apply
+    const timelineTransactions = filteredTransactions
+      .slice()
       .sort((a, b) => new Date(a.transactionDate).getTime() - new Date(b.transactionDate).getTime());
 
     return (

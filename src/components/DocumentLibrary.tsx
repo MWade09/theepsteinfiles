@@ -21,6 +21,7 @@ import {
   Clock,
   AlertTriangle,
   ExternalLink,
+  Link as LinkIcon,
   ChevronDown,
   ChevronRight
 } from 'lucide-react';
@@ -571,6 +572,23 @@ export default function DocumentLibrary() {
                               <ExternalLink className="w-3 h-3" />
                             </button>
                           )}
+
+                          {/* Copy link to preview */}
+                          {(() => {
+                            const previewUrl = doc.preferredUrl || doc.content?.url || doc.sources.find(s => !!s.url)?.url;
+                            return previewUrl ? (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigator.clipboard.writeText(previewUrl);
+                                }}
+                                className="p-1 text-gray-400 hover:text-cyan-500 transition-colors"
+                                title="Copy preview link"
+                              >
+                                <LinkIcon className="w-3 h-3" />
+                              </button>
+                            ) : null;
+                          })()}
                         </div>
                       </div>
                     </div>
