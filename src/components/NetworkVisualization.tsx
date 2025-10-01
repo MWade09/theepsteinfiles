@@ -174,6 +174,30 @@ const NetworkVisualization = forwardRef<NetworkVisualizationHandle, NetworkVisua
       const nodes: NetworkNode[] = [];
       const links: NetworkLink[] = [];
       const nodeMap = new Map<string, NetworkNode>();
+      const entityConnections = new Map<string, Set<string>>();
+      const entityTypes = new Map<string, string>();
+
+      // Enhanced data processing for better network relationships
+      events.forEach(event => {
+        const eventEntities = event.entities || [];
+
+        // Track entity connections for better relationship mapping
+        eventEntities.forEach(entity => {
+          if (!entityConnections.has(entity.entityId)) {
+            entityConnections.set(entity.entityId, new Set());
+            entityTypes.set(entity.entityId, entity.entityType);
+          }
+
+          // Connect all entities in the same event
+          eventEntities.forEach(otherEntity => {
+            if (entity.entityId !== otherEntity.entityId) {
+              entityConnections.get(entity.entityId)!.add(otherEntity.entityId);
+            }
+          });
+        });
+      });
+
+      // Create person nodes with enhanced data
       const peopleInEvents = new Set<string>();
       events.forEach(event => {
         event.entities.forEach(entity => {
@@ -182,19 +206,26 @@ const NetworkVisualization = forwardRef<NetworkVisualizationHandle, NetworkVisua
           }
         });
       });
+
       Array.from(peopleInEvents).forEach(personId => {
         const person = corePeople.find(p => p.id === personId);
         if (person && effectiveFilters.showPeople) {
-          const eventCount = events.filter(e => 
+          const eventCount = events.filter(e =>
             e.entities.some(ent => ent.entityId === personId)
           ).length;
+
+          // Calculate centrality based on connections
+          const connections = entityConnections.get(personId)?.size || 0;
+          const baseSize = Math.max(8, Math.min(20, eventCount * 2));
+          const centralitySize = Math.max(0, Math.min(8, connections / 2));
+
           const node: NetworkNode = {
             id: personId,
             name: person.name,
             type: 'person',
             group: 1,
             significance: person.significance,
-            size: Math.max(8, Math.min(20, eventCount * 2)),
+            size: baseSize + centralitySize,
             color: getPersonColor(person.significance)
           };
           nodes.push(node);
@@ -217,11 +248,26 @@ const NetworkVisualization = forwardRef<NetworkVisualizationHandle, NetworkVisua
           nodeMap.set(event.id, eventNode);
           event.entities.forEach(entity => {
             if (entity.entityType === 'person' && effectiveFilters.showPeople && nodeMap.has(entity.entityId)) {
+              const strength = getConnectionStrength(event.significance, entity.role);
               links.push({
                 source: entity.entityId,
                 target: event.id,
-                strength: getConnectionStrength(event.significance, entity.role),
+                strength,
                 type: entity.role
+              });
+
+              // Also create direct connections between people in the same event (co-occurrence)
+              event.entities.forEach(otherEntity => {
+                if (entity.entityId !== otherEntity.entityId &&
+                    otherEntity.entityType === 'person' &&
+                    nodeMap.has(otherEntity.entityId)) {
+                  links.push({
+                    source: entity.entityId,
+                    target: otherEntity.entityId,
+                    strength: strength * 0.3, // Weaker co-occurrence links
+                    type: 'co-occurrence'
+                  });
+                }
               });
             } else if (entity.entityType === 'organization' && effectiveFilters.showOrganizations) {
               if (!nodeMap.has(entity.entityId)) {
@@ -232,7 +278,7 @@ const NetworkVisualization = forwardRef<NetworkVisualizationHandle, NetworkVisua
                   type: 'organization',
                   group: 3,
                   significance: org?.significance ?? 'medium',
-                  size: 8,
+                  size: 10,
                   color: getOrgColor()
                 };
                 nodes.push(orgNode);
@@ -241,7 +287,7 @@ const NetworkVisualization = forwardRef<NetworkVisualizationHandle, NetworkVisua
               links.push({
                 source: entity.entityId,
                 target: event.id,
-                strength: 0.6,
+                strength: 0.7,
                 type: entity.role || 'involved'
               });
             } else if (entity.entityType === 'location' && effectiveFilters.showLocations) {
@@ -591,9 +637,27 @@ const NetworkVisualization = forwardRef<NetworkVisualizationHandle, NetworkVisua
       .selectAll<SVGLineElement, NetworkLink>("line")
       .data(links, linkKey)
       .enter().append<SVGLineElement>("line")
-      .attr("stroke", d => d.type === 'co-occurrence' ? "#6b7280" : "#9ca3af")
-      .attr("stroke-opacity", d => d.type === 'co-occurrence' ? 0.3 : 0.6)
-      .attr("stroke-width", d => Math.sqrt(d.strength * 5));
+      .attr("stroke", d => {
+        // Color links based on relationship type and strength
+        const sourceType = (d.source as NetworkNode).type;
+        const targetType = (d.target as NetworkNode).type;
+        const strength = d.strength;
+
+        if (sourceType === 'person' && targetType === 'event') {
+          return `rgba(59, 130, 246, ${0.3 + strength * 0.4})`; // Blue for person-event
+        } else if (sourceType === 'event' && targetType === 'person') {
+          return `rgba(59, 130, 246, ${0.3 + strength * 0.4})`; // Blue for event-person
+        } else if (sourceType === 'organization' || targetType === 'organization') {
+          return `rgba(16, 185, 129, ${0.3 + strength * 0.4})`; // Green for organizations
+        } else if (sourceType === 'location' || targetType === 'location') {
+          return `rgba(245, 158, 11, ${0.3 + strength * 0.4})`; // Amber for locations
+        } else {
+          return `rgba(107, 114, 128, ${0.3 + strength * 0.4})`; // Gray for others
+        }
+      })
+      .attr("stroke-opacity", d => 0.4 + d.strength * 0.3)
+      .attr("stroke-width", d => Math.max(1, d.strength * 3))
+      .attr("stroke-linecap", "round");
 
     // Create nodes with transition from previous positions
     const node = g.append("g")
@@ -603,9 +667,18 @@ const NetworkVisualization = forwardRef<NetworkVisualizationHandle, NetworkVisua
       .enter().append<SVGCircleElement>("circle")
       .attr("r", d => d.size)
       .attr("fill", d => d.color)
-      .attr("stroke", "#fff")
-      .attr("stroke-width", 2)
+      .attr("stroke", d => {
+        switch (d.significance) {
+          case 'critical': return '#fbbf24'; // Amber for critical
+          case 'high': return '#f3f4f6'; // Light gray for high
+          case 'medium': return '#d1d5db'; // Medium gray for medium
+          case 'low': return '#9ca3af'; // Dark gray for low
+          default: return '#6b7280'; // Default gray
+        }
+      })
+      .attr("stroke-width", d => d.significance === 'critical' ? 4 : d.significance === 'high' ? 3 : 2)
       .style("cursor", "pointer")
+      .style("filter", d => d.significance === 'critical' ? 'drop-shadow(0 0 8px rgba(251, 191, 36, 0.5))' : d.significance === 'high' ? 'drop-shadow(0 0 4px rgba(243, 244, 246, 0.3))' : 'none')
       .call(d3.drag<SVGCircleElement, NetworkNode>()
         .on("start", dragstarted)
         .on("drag", dragged)
@@ -652,10 +725,22 @@ const NetworkVisualization = forwardRef<NetworkVisualizationHandle, NetworkVisua
       .append<SVGTextElement>('text')
       .text(d => d.name.length > labelMaxLength ? d.name.substring(0, labelMaxLength - 3) + '...' : d.name)
       .attr('font-size', `${labelFontSize}px`)
+      .attr('font-family', 'Inter, system-ui, -apple-system, sans-serif')
+      .attr('font-weight', d => d.significance === 'critical' ? '600' : d.significance === 'high' ? '500' : '400')
       .attr('dx', d => d.size + 5)
       .attr('dy', '0.35em')
-      .attr('fill', '#9CA3AF')
-      .style('pointer-events', 'none');
+      .attr('fill', d => {
+        switch (d.significance) {
+          case 'critical': return '#fbbf24'; // Amber for critical
+          case 'high': return '#f3f4f6'; // Light gray for high
+          case 'medium': return '#d1d5db'; // Medium gray for medium
+          case 'low': return '#9ca3af'; // Dark gray for low
+          default: return '#6b7280'; // Default gray
+        }
+      })
+      .style('pointer-events', 'none')
+      .style('text-shadow', '0 1px 2px rgba(0, 0, 0, 0.5)')
+      .style('opacity', d => d.significance === 'critical' ? 0.9 : d.significance === 'high' ? 0.8 : 0.7);
 
     // Update positions on tick
     if (simulation) {

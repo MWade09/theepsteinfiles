@@ -34,6 +34,80 @@ import { enhancedProperties } from '@/data/geographic/properties';
 import { useMemo } from 'react';
 import type { TimelineEvent, EventEntity } from '@/types/investigation';
 
+// Network Analytics Hook
+const useNetworkAnalytics = (events: TimelineEvent[]) => {
+  return useMemo(() => {
+    const entityConnections = new Map<string, Set<string>>();
+    const entityTypes = new Map<string, string>();
+    const eventCategories = new Map<string, number>();
+
+    // Build connection graph
+    events.forEach(event => {
+      const entities = event.entities || [];
+      entities.forEach(entity => {
+        if (!entityConnections.has(entity.entityId)) {
+          entityConnections.set(entity.entityId, new Set());
+          entityTypes.set(entity.entityId, entity.entityType);
+        }
+
+        entities.forEach(otherEntity => {
+          if (entity.entityId !== otherEntity.entityId) {
+            entityConnections.get(entity.entityId)!.add(otherEntity.entityId);
+          }
+        });
+      });
+
+      // Count event categories
+      const category = event.category || 'other';
+      eventCategories.set(category, (eventCategories.get(category) || 0) + 1);
+    });
+
+    // Calculate centrality metrics
+    const centrality = Array.from(entityConnections.entries()).map(([id, connections]) => ({
+      id,
+      degree: connections.size,
+      type: entityTypes.get(id) || 'unknown'
+    })).sort((a, b) => b.degree - a.degree);
+
+    // Find communities (simple clustering by connection density)
+    const communities = new Map<number, Set<string>>();
+    let communityId = 0;
+
+    centrality.forEach(node => {
+      const connections = entityConnections.get(node.id) || new Set();
+      let foundCommunity = false;
+
+      for (const [cid, members] of communities.entries()) {
+        const overlap = Array.from(connections).filter(conn => members.has(conn)).length;
+        if (overlap > 0) {
+          members.add(node.id);
+          foundCommunity = true;
+          break;
+        }
+      }
+
+      if (!foundCommunity) {
+        communities.set(communityId++, new Set([node.id]));
+      }
+    });
+
+    return {
+      totalEntities: entityConnections.size,
+      totalConnections: Array.from(entityConnections.values()).reduce((sum, conn) => sum + conn.size, 0) / 2,
+      centrality,
+      communities: Array.from(communities.entries()).map(([id, members]) => ({
+        id,
+        size: members.size,
+        members: Array.from(members)
+      })).sort((a, b) => b.size - a.size),
+      eventCategories: Array.from(eventCategories.entries()).map(([category, count]) => ({
+        category,
+        count
+      })).sort((a, b) => b.count - a.count)
+    };
+  }, [events]);
+};
+
 type VisNode = {
   id: string;
   name: string;
@@ -91,6 +165,11 @@ export default function NetworkPage() {
   const [labelCollisionAvoidance, setLabelCollisionAvoidance] = useState(true);
   const [labelShowTypes, setLabelShowTypes] = useState<Array<'person' | 'event' | 'organization' | 'location'>>(['person', 'event', 'organization', 'location']);
   const [labelMinSignificance, setLabelMinSignificance] = useState<'low' | 'medium' | 'high' | 'critical'>('low');
+  const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
+  const [showPath, setShowPath] = useState(false);
+
+  // Network analytics
+  const networkAnalytics = useNetworkAnalytics(filteredEvents);
   // Persist UI preferences
   useEffect(() => {
     try {
@@ -201,11 +280,20 @@ export default function NetworkPage() {
     minSignificance
   } as const;
 
-  // Filter timeline events based on UI filters and search
+  // Optimized filtered events computation with better performance
   const filteredEvents = useMemo(() => {
+    const startTime = performance.now();
+
     const selectedSigs = new Set(filters.significanceLevels);
     const selectedRel = new Set(filters.relationshipTypes);
     const search = searchQuery.trim().toLowerCase();
+
+    // Early returns for common cases
+    if (selectedSigs.size === 0 && selectedRel.size === 0 && !search && (!filters.timeRanges || filters.timeRanges.length === 0)) {
+      const endTime = performance.now();
+      console.log(`Network filtering took ${endTime - startTime}ms`);
+      return comprehensiveTimeline;
+    }
 
     const matchesTimeRange = (dateStr: string) => {
       if (!filters.timeRanges || filters.timeRanges.length === 0) return true;
@@ -218,15 +306,14 @@ export default function NetworkPage() {
       });
     };
 
-  const matchesRelationshipType = (event: TimelineEvent) => {
-      // If all types are selected, do not filter
+    const matchesRelationshipType = (event: TimelineEvent) => {
       if (selectedRel.size === 0) return true;
       const coversAll = ['business', 'personal', 'financial', 'legal', 'travel'].every(t => selectedRel.has(t));
       if (coversAll) return true;
 
-    const eventType = event.type;
-    const eventCategory = event.category;
-    const roles = (event.entities || []).map((e: EventEntity) => (e.role || '').toLowerCase());
+      const eventType = event.type;
+      const eventCategory = event.category;
+      const roles = (event.entities || []).map((e: EventEntity) => (e.role || '').toLowerCase());
 
       const typeMatches: Record<string, boolean> = {
         business: eventType === 'business' || eventCategory === 'financial' || roles.some(r => r.includes('board') || r.includes('employer') || r.includes('client')),
@@ -239,30 +326,33 @@ export default function NetworkPage() {
       return Array.from(selectedRel).some(key => typeMatches[key as keyof typeof typeMatches]);
     };
 
-  const matchesSearch = (event: TimelineEvent) => {
+    const matchesSearch = (event: TimelineEvent) => {
       if (!search) return true;
       const inText = (event.title + ' ' + event.description).toLowerCase().includes(search);
       if (inText) return true;
-      // Match against involved entity names
-    return (event.entities || []).some((ent: EventEntity) => {
+
+      // Optimized entity search
+      return (event.entities || []).some((ent: EventEntity) => {
         if (ent.entityType === 'person') {
           const p = corePeople.find(pp => pp.id === ent.entityId);
-          if (!p) return false;
-          return p.name.toLowerCase().includes(search) || p.tags.some(t => t.toLowerCase().includes(search));
+          return p && (p.name.toLowerCase().includes(search) || p.tags.some(t => t.toLowerCase().includes(search)));
         }
         if (ent.entityType === 'organization') {
           const o = coreOrganizations.find(oo => oo.id === ent.entityId);
-          if (!o) return false;
-          return o.name.toLowerCase().includes(search) || o.tags.some(t => t.toLowerCase().includes(search));
+          return o && (o.name.toLowerCase().includes(search) || o.tags.some(t => t.toLowerCase().includes(search)));
         }
         return String(ent.entityId).toLowerCase().includes(search);
       });
     };
 
-    return comprehensiveTimeline.filter(event => {
+    const result = comprehensiveTimeline.filter(event => {
       const sigOk = selectedSigs.size === 0 ? true : selectedSigs.has(event.significance);
       return sigOk && matchesTimeRange(event.date) && matchesRelationshipType(event) && matchesSearch(event);
     });
+
+    const endTime = performance.now();
+    console.log(`Network filtering took ${endTime - startTime}ms, filtered from ${comprehensiveTimeline.length} to ${result.length} events`);
+    return result;
   }, [filters.significanceLevels, filters.timeRanges, filters.relationshipTypes, searchQuery]);
 
   return (
@@ -376,62 +466,181 @@ export default function NetworkPage() {
       </header>
 
       <div className="flex flex-col lg:flex-row h-auto lg:h-screen">
-        {/* Filter & Control Panel - Mobile Responsive */}
+        {/* Filter & Control Panel - Enhanced Mobile Responsive */}
         {showFilterPanel && (
-          <div className="w-full lg:w-80 bg-gray-900/95 border-b lg:border-r lg:border-b-0 border-gray-700/50 backdrop-blur-sm relative z-40 flex flex-col max-h-screen lg:h-auto overflow-y-auto">
-            {/* Statistics - Mobile Layout */}
+          <div className="w-full lg:w-80 xl:w-96 bg-gradient-to-br from-gray-900/98 to-gray-800/95 border-b lg:border-r lg:border-b-0 border-gray-700/50 backdrop-blur-md relative z-40 flex flex-col max-h-screen lg:h-auto overflow-y-auto shadow-2xl">
+            {/* Statistics - Enhanced Mobile Layout */}
             <div className="p-4 lg:p-6 border-b border-gray-700/50">
               <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                <Activity className="w-5 h-5 text-green-400" />
-                Network Overview
+                <Activity className="w-5 h-5 text-green-400 animate-pulse" />
+                Network Intelligence Dashboard
               </h3>
-              
+
               <div className="grid grid-cols-2 lg:grid-cols-2 gap-3 lg:gap-4 mb-4 lg:mb-6">
-                <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3">
-                  <p className="text-xl lg:text-2xl font-bold text-green-400">{networkStats.totalEntities}</p>
-                  <p className="text-xs text-gray-400">Total Entities</p>
+                <div className="bg-gradient-to-br from-gray-800/60 to-gray-700/40 border border-gray-600/50 rounded-xl p-4 hover:border-green-400/50 transition-all group">
+                  <div className="flex items-center justify-between mb-2">
+                    <Users className="w-4 h-4 text-blue-400" />
+                    <span className="text-xs font-medium text-gray-400">Entities</span>
+                  </div>
+                  <p className="text-2xl lg:text-3xl font-bold text-blue-400 group-hover:text-blue-300 transition-colors">{networkStats.totalEntities.toLocaleString()}</p>
+                  <p className="text-xs text-gray-500 mt-1">People, organizations & locations</p>
                 </div>
-                <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3">
-                  <p className="text-xl lg:text-2xl font-bold text-blue-400">{networkStats.totalConnections}</p>
-                  <p className="text-xs text-gray-400">Connections</p>
+                <div className="bg-gradient-to-br from-gray-800/60 to-gray-700/40 border border-gray-600/50 rounded-xl p-4 hover:border-purple-400/50 transition-all group">
+                  <div className="flex items-center justify-between mb-2">
+                    <Zap className="w-4 h-4 text-purple-400" />
+                    <span className="text-xs font-medium text-gray-400">Connections</span>
+                  </div>
+                  <p className="text-2xl lg:text-3xl font-bold text-purple-400 group-hover:text-purple-300 transition-colors">{networkStats.totalConnections.toLocaleString()}</p>
+                  <p className="text-xs text-gray-500 mt-1">Active relationships</p>
                 </div>
-                <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3">
-                  <p className="text-xl lg:text-2xl font-bold text-purple-400">{networkStats.clusters}</p>
-                  <p className="text-xs text-gray-400">Clusters</p>
+                <div className="bg-gradient-to-br from-gray-800/60 to-gray-700/40 border border-gray-600/50 rounded-xl p-4 hover:border-cyan-400/50 transition-all group">
+                  <div className="flex items-center justify-between mb-2">
+                    <Network className="w-4 h-4 text-cyan-400" />
+                    <span className="text-xs font-medium text-gray-400">Clusters</span>
+                  </div>
+                  <p className="text-2xl lg:text-3xl font-bold text-cyan-400 group-hover:text-cyan-300 transition-colors">{networkStats.clusters}</p>
+                  <p className="text-xs text-gray-500 mt-1">Network communities</p>
                 </div>
-                <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3">
-                  <p className="text-xl lg:text-2xl font-bold text-red-400">{networkStats.criticalNodes}</p>
-                  <p className="text-xs text-gray-400">Critical Nodes</p>
+                <div className="bg-gradient-to-br from-gray-800/60 to-gray-700/40 border border-gray-600/50 rounded-xl p-4 hover:border-red-400/50 transition-all group">
+                  <div className="flex items-center justify-between mb-2">
+                    <CheckCircle className="w-4 h-4 text-red-400" />
+                    <span className="text-xs font-medium text-gray-400">Critical</span>
+                  </div>
+                  <p className="text-2xl lg:text-3xl font-bold text-red-400 group-hover:text-red-300 transition-colors">{networkStats.criticalNodes}</p>
+                  <p className="text-xs text-gray-500 mt-1">High-priority nodes</p>
                 </div>
               </div>
 
-              <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3">
-                <p className="text-sm font-semibold text-white mb-1">Network Density</p>
-                <p className="text-lg font-bold text-green-400">{networkStats.averageConnections}</p>
-                <p className="text-xs text-gray-400">Average connections per entity</p>
+              <div className="bg-gradient-to-br from-gray-800/60 to-gray-700/40 border border-gray-600/50 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4 text-green-400" />
+                    <span className="text-sm font-semibold text-white">Network Health</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span className="text-xs text-green-400">Live</span>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-xs text-gray-400">Connectivity</span>
+                      <span className="text-sm font-medium text-green-400">{networkStats.averageConnections}/10</span>
+                    </div>
+                    <div className="w-full bg-gray-700 rounded-full h-2">
+                      <div className="bg-gradient-to-r from-green-500 to-green-400 h-2 rounded-full" style={{ width: `${(networkStats.averageConnections / 10) * 100}%` }}></div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-400">Max Degree:</span>
+                    <span className="text-white font-medium">{networkStats.maxDegree}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-400">Last Updated:</span>
+                    <span className="text-white font-medium">{networkStats.lastUpdated}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Network Analytics Section */}
+              <div className="p-6 border-b border-gray-700/50">
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-green-400" />
+                  Network Intelligence
+                </h3>
+
+                <div className="grid grid-cols-1 gap-4 mb-6">
+                  <div className="bg-gradient-to-br from-blue-900/20 to-blue-800/10 border border-blue-700/30 rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Network className="w-4 h-4 text-blue-400" />
+                        <span className="text-sm font-semibold text-white">Top Influencers</span>
+                      </div>
+                      <span className="text-xs text-blue-400">{networkAnalytics.centrality.slice(0, 3).length} shown</span>
+                    </div>
+                    <div className="space-y-2">
+                      {networkAnalytics.centrality.slice(0, 3).map((node, idx) => (
+                        <div key={node.id} className="flex items-center justify-between text-sm">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${idx === 0 ? 'bg-yellow-400' : idx === 1 ? 'bg-gray-400' : 'bg-orange-400'}`}></div>
+                            <span className="text-gray-300 capitalize">{node.type}</span>
+                          </div>
+                          <span className="text-white font-medium">{node.degree} connections</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-purple-900/20 to-purple-800/10 border border-purple-700/30 rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4 text-purple-400" />
+                        <span className="text-sm font-semibold text-white">Community Structure</span>
+                      </div>
+                      <span className="text-xs text-purple-400">{networkAnalytics.communities.length} clusters</span>
+                    </div>
+                    <div className="space-y-2">
+                      {networkAnalytics.communities.slice(0, 3).map((community, idx) => (
+                        <div key={community.id} className="flex items-center justify-between text-sm">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${idx === 0 ? 'bg-purple-400' : idx === 1 ? 'bg-indigo-400' : 'bg-pink-400'}`}></div>
+                            <span className="text-gray-300">Cluster {community.id + 1}</span>
+                          </div>
+                          <span className="text-white font-medium">{community.size} members</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-gray-800/60 to-gray-700/40 border border-gray-600/50 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Activity className="w-4 h-4 text-green-400" />
+                    <span className="text-sm font-semibold text-white">Live Analytics</span>
+                    <div className="ml-auto flex items-center gap-1">
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                      <span className="text-xs text-green-400">Real-time</span>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-400">Entities</span>
+                      <p className="text-lg font-bold text-blue-400">{networkAnalytics.totalEntities}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Connections</span>
+                      <p className="text-lg font-bold text-purple-400">{Math.round(networkAnalytics.totalConnections)}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Layout Controls */}
+            {/* Layout Controls - Enhanced */}
             <div className="p-6 border-b border-gray-700/50">
               <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                 <Settings className="w-5 h-5 text-green-400" />
-                Layout & View
+                Network Layout & Visualization
               </h3>
-              
-              <div className="space-y-2 mb-6">
+
+              <div className="space-y-3 mb-6">
                 {layoutOptions.map((layout) => (
                   <button
                     key={layout.id}
                     onClick={() => setView(prev => ({ ...prev, layout: layout.id as 'force' | 'circular' | 'hierarchical' | 'geographic' }))}
-                    className={`w-full text-left p-3 rounded-lg border transition-all ${
+                    className={`w-full text-left p-4 rounded-xl border transition-all duration-200 ${
                       view.layout === layout.id
-                        ? 'bg-green-500/20 border-green-500 text-green-400'
-                        : 'bg-gray-800/30 border-gray-700 hover:border-gray-600 text-gray-300'
+                        ? 'bg-gradient-to-r from-green-500/20 to-green-400/10 border-green-400/50 text-green-300 shadow-lg'
+                        : 'bg-gradient-to-r from-gray-800/40 to-gray-700/20 border-gray-600/50 hover:border-gray-500/70 text-gray-300 hover:bg-gray-700/30'
                     }`}
                   >
-                    <div className="font-semibold">{layout.label}</div>
-                    <div className="text-sm opacity-75">{layout.description}</div>
+                    <div className="font-semibold text-white mb-1">{layout.label}</div>
+                    <div className="text-sm opacity-80 text-gray-400">{layout.description}</div>
+                    <div className="mt-2 flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${view.layout === layout.id ? 'bg-green-400' : 'bg-gray-500'}`}></div>
+                      <span className="text-xs text-gray-500">Click to select</span>
+                    </div>
                   </button>
                 ))}
               </div>
@@ -645,34 +854,56 @@ export default function NetworkPage() {
           </div>
         )}
 
-        {/* Main Network Area - Mobile Responsive */}
+        {/* Main Network Area - Enhanced Mobile Responsive */}
         <div className="flex-1 relative min-h-[60vh] lg:min-h-0">
-          <div className="h-full bg-gradient-to-br from-gray-900 to-black p-2 sm:p-4 lg:p-0">
-            <NetworkVisualization 
-              ref={vizRef}
-              events={filteredEvents}
-              externalFilters={externalFilters}
-              showUI={false}
-              layout={view.layout}
-              clustering={view.clustering}
-              physics={view.physics}
-              nodeSizeMode={view.nodeSize}
-              edgeWeightMode={view.edgeWeight}
-              className="w-full h-full"
-              showLegend={showLegend}
-              focusEntityId={focusEntityId}
-              onNodeSelect={(n) => setSelectedNode(n)}
-              transitionDurationMs={transitionDurationMs}
-              transitionEasing={transitionEasing}
-              showLabels={showLabels}
-              labelFontSize={labelFontSize}
-              labelMaxLength={labelMaxLength}
-              layoutPadding={layoutPadding}
-              pinnedNodeIds={pinnedNodeIds}
-              labelCollisionAvoidance={labelCollisionAvoidance}
-              labelShowTypes={labelShowTypes}
-              labelMinSignificance={labelMinSignificance}
-            />
+          <div className="h-full bg-gradient-to-br from-gray-900 via-gray-800 to-black p-2 sm:p-4 lg:p-0 relative overflow-hidden">
+            {/* Network Background Pattern */}
+            <div className="absolute inset-0 opacity-5">
+              <div className="absolute inset-0" style={{
+                backgroundImage: `radial-gradient(circle at 50% 50%, rgba(34, 197, 94, 0.1) 0%, transparent 50%),
+                                  radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                                  radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 50%)`
+              }}></div>
+            </div>
+
+            {/* Network Visualization with Enhanced Container */}
+            <div className="relative w-full h-full rounded-xl border border-gray-700/30 bg-gray-900/20 backdrop-blur-sm overflow-hidden shadow-2xl">
+              <NetworkVisualization
+                ref={vizRef}
+                events={filteredEvents}
+                externalFilters={externalFilters}
+                showUI={false}
+                layout={view.layout}
+                clustering={view.clustering}
+                physics={view.physics}
+                nodeSizeMode={view.nodeSize}
+                edgeWeightMode={view.edgeWeight}
+                className="w-full h-full"
+                showLegend={showLegend}
+                focusEntityId={focusEntityId}
+                onNodeSelect={(n) => setSelectedNode(n)}
+                transitionDurationMs={transitionDurationMs}
+                transitionEasing={transitionEasing}
+                showLabels={showLabels}
+                labelFontSize={labelFontSize}
+                labelMaxLength={labelMaxLength}
+                layoutPadding={layoutPadding}
+                pinnedNodeIds={pinnedNodeIds}
+                labelCollisionAvoidance={labelCollisionAvoidance}
+                labelShowTypes={labelShowTypes}
+                labelMinSignificance={labelMinSignificance}
+              />
+
+              {/* Performance Overlay */}
+              <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-sm rounded-lg px-3 py-2 text-xs text-gray-300 border border-gray-600/50">
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${filteredEvents.length > 100 ? 'bg-yellow-400' : 'bg-green-400'}`}></div>
+                  <span>{filteredEvents.length} events</span>
+                  <span>•</span>
+                  <span>{Math.round(filteredEvents.length / comprehensiveTimeline.length * 100)}% filtered</span>
+                </div>
+              </div>
+            </div>
           </div>
           
           {/* Toggle Filter Panel Button (when hidden) - Mobile Optimized */}
@@ -687,30 +918,85 @@ export default function NetworkPage() {
             </button>
           )}
 
-          {/* Network Status - Mobile Responsive */}
-          <div className="absolute bottom-2 sm:bottom-4 right-2 sm:right-4 z-30 bg-gray-900/90 border border-gray-600 rounded-lg px-2 sm:px-3 py-2 backdrop-blur-sm">
-            <p className="text-xs text-gray-400 flex items-center gap-2">
-              <Network className="w-3 h-3" />
-              <span className="hidden sm:inline">Network Analysis Engine v2.1</span>
-              <span className="sm:hidden">Network v2.1</span>
-            </p>
-            <div className="mt-1 flex items-center gap-2">
-              <button
-                onClick={() => setShowLegend(v => !v)}
-                className="px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded hover:border-gray-500"
-              >
-                {showLegend ? 'Hide Legend' : 'Show Legend'}
-              </button>
-              {selectedNode && (
-                <button
-                  onClick={() => setFocusEntityId(prev => prev === selectedNode.id ? null : selectedNode.id)}
-                  className="px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded hover:border-gray-500"
-                >
-                  {focusEntityId === selectedNode.id ? 'Unfocus' : 'Focus'}
-                </button>
-              )}
-            </div>
-          </div>
+              {/* Network Status & Controls - Enhanced Mobile Responsive */}
+              <div className="absolute bottom-2 sm:bottom-4 right-2 sm:right-4 z-30 bg-gray-900/90 border border-gray-600 rounded-lg px-2 sm:px-3 py-2 backdrop-blur-sm">
+                <p className="text-xs text-gray-400 flex items-center gap-2">
+                  <Network className="w-3 h-3" />
+                  <span className="hidden sm:inline">Network Analysis Engine v2.1</span>
+                  <span className="sm:hidden">Network v2.1</span>
+                </p>
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={() => setShowLegend(v => !v)}
+                    className="px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded hover:border-gray-500 transition-colors"
+                  >
+                    {showLegend ? 'Hide Legend' : 'Show Legend'}
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      if (selectedNodes.length === 2) {
+                        setShowPath(!showPath);
+                      }
+                    }}
+                    className={`px-2 py-1 text-xs rounded transition-colors ${
+                      selectedNodes.length === 2
+                        ? 'bg-blue-600 border border-blue-500 hover:bg-blue-700'
+                        : 'bg-gray-800 border border-gray-700 opacity-50 cursor-not-allowed'
+                    }`}
+                    disabled={selectedNodes.length !== 2}
+                    title={selectedNodes.length === 2 ? 'Find connection path' : 'Select 2 nodes to find path'}
+                  >
+                    {showPath ? 'Hide Path' : 'Find Path'}
+                  </button>
+
+                  {selectedNode && (
+                    <>
+                      <button
+                        onClick={() => setFocusEntityId(prev => prev === selectedNode.id ? null : selectedNode.id)}
+                        className="px-2 py-1 text-xs bg-purple-600 border border-purple-500 rounded hover:bg-purple-700 transition-colors"
+                      >
+                        {focusEntityId === selectedNode.id ? 'Unfocus' : 'Focus'}
+                      </button>
+
+                      {selectedNodes.length < 2 && (
+                        <button
+                          onClick={() => {
+                            if (!selectedNodes.includes(selectedNode.id)) {
+                              setSelectedNodes(prev => [...prev, selectedNode.id]);
+                            }
+                          }}
+                          className={`px-2 py-1 text-xs rounded transition-colors ${
+                            selectedNodes.includes(selectedNode.id)
+                              ? 'bg-gray-700 border border-gray-600'
+                              : 'bg-green-600 border border-green-500 hover:bg-green-700'
+                          }`}
+                        >
+                          {selectedNodes.includes(selectedNode.id) ? 'Selected' : 'Select'}
+                        </button>
+                      )}
+                    </>
+                  )}
+
+                  {selectedNodes.length > 0 && (
+                    <button
+                      onClick={() => {
+                        setSelectedNodes([]);
+                        setShowPath(false);
+                      }}
+                      className="px-2 py-1 text-xs bg-red-600 border border-red-500 rounded hover:bg-red-700 transition-colors"
+                    >
+                      Clear ({selectedNodes.length})
+                    </button>
+                  )}
+                </div>
+
+                {selectedNodes.length > 0 && (
+                  <div className="mt-2 text-xs text-gray-300">
+                    {selectedNodes.length}/2 nodes selected for path analysis
+                  </div>
+                )}
+              </div>
 
           {/* Right-side Detail Panel */}
           {selectedNode && (
