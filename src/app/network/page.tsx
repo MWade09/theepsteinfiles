@@ -2,8 +2,8 @@
 
 import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
-import { 
-  Network, 
+import {
+  Network,
   ArrowLeft,
   Filter,
   Search,
@@ -24,7 +24,8 @@ import {
   DollarSign,
   Scale,
   MapPin,
-  Activity
+  Activity,
+  BarChart3
 } from 'lucide-react';
 import NetworkVisualization, { NetworkVisualizationHandle } from '@/components/NetworkVisualization';
 import { comprehensiveTimeline } from '@/data/core/timeline';
@@ -34,79 +35,6 @@ import { enhancedProperties } from '@/data/geographic/properties';
 import { useMemo } from 'react';
 import type { TimelineEvent, EventEntity } from '@/types/investigation';
 
-// Network Analytics Hook
-const useNetworkAnalytics = (events: TimelineEvent[]) => {
-  return useMemo(() => {
-    const entityConnections = new Map<string, Set<string>>();
-    const entityTypes = new Map<string, string>();
-    const eventCategories = new Map<string, number>();
-
-    // Build connection graph
-    events.forEach(event => {
-      const entities = event.entities || [];
-      entities.forEach(entity => {
-        if (!entityConnections.has(entity.entityId)) {
-          entityConnections.set(entity.entityId, new Set());
-          entityTypes.set(entity.entityId, entity.entityType);
-        }
-
-        entities.forEach(otherEntity => {
-          if (entity.entityId !== otherEntity.entityId) {
-            entityConnections.get(entity.entityId)!.add(otherEntity.entityId);
-          }
-        });
-      });
-
-      // Count event categories
-      const category = event.category || 'other';
-      eventCategories.set(category, (eventCategories.get(category) || 0) + 1);
-    });
-
-    // Calculate centrality metrics
-    const centrality = Array.from(entityConnections.entries()).map(([id, connections]) => ({
-      id,
-      degree: connections.size,
-      type: entityTypes.get(id) || 'unknown'
-    })).sort((a, b) => b.degree - a.degree);
-
-    // Find communities (simple clustering by connection density)
-    const communities = new Map<number, Set<string>>();
-    let communityId = 0;
-
-    centrality.forEach(node => {
-      const connections = entityConnections.get(node.id) || new Set();
-      let foundCommunity = false;
-
-      for (const [cid, members] of communities.entries()) {
-        const overlap = Array.from(connections).filter(conn => members.has(conn)).length;
-        if (overlap > 0) {
-          members.add(node.id);
-          foundCommunity = true;
-          break;
-        }
-      }
-
-      if (!foundCommunity) {
-        communities.set(communityId++, new Set([node.id]));
-      }
-    });
-
-    return {
-      totalEntities: entityConnections.size,
-      totalConnections: Array.from(entityConnections.values()).reduce((sum, conn) => sum + conn.size, 0) / 2,
-      centrality,
-      communities: Array.from(communities.entries()).map(([id, members]) => ({
-        id,
-        size: members.size,
-        members: Array.from(members)
-      })).sort((a, b) => b.size - a.size),
-      eventCategories: Array.from(eventCategories.entries()).map(([category, count]) => ({
-        category,
-        count
-      })).sort((a, b) => b.count - a.count)
-    };
-  }, [events]);
-};
 
 type VisNode = {
   id: string;
@@ -128,7 +56,7 @@ interface NetworkView {
   clustering: boolean;
   physics: boolean;
   nodeSize: 'connections' | 'significance' | 'uniform';
-  edgeWeight: 'strength' | 'frequency' | 'uniform';
+  edgeWeight: 'strength' | 'uniform';
 }
 
 export default function NetworkPage() {
@@ -168,8 +96,6 @@ export default function NetworkPage() {
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
   const [showPath, setShowPath] = useState(false);
 
-  // Network analytics
-  const networkAnalytics = useNetworkAnalytics(filteredEvents);
   // Persist UI preferences
   useEffect(() => {
     try {
@@ -282,7 +208,6 @@ export default function NetworkPage() {
 
   // Optimized filtered events computation with better performance
   const filteredEvents = useMemo(() => {
-    const startTime = performance.now();
 
     const selectedSigs = new Set(filters.significanceLevels);
     const selectedRel = new Set(filters.relationshipTypes);
@@ -290,8 +215,6 @@ export default function NetworkPage() {
 
     // Early returns for common cases
     if (selectedSigs.size === 0 && selectedRel.size === 0 && !search && (!filters.timeRanges || filters.timeRanges.length === 0)) {
-      const endTime = performance.now();
-      console.log(`Network filtering took ${endTime - startTime}ms`);
       return comprehensiveTimeline;
     }
 
@@ -350,10 +273,80 @@ export default function NetworkPage() {
       return sigOk && matchesTimeRange(event.date) && matchesRelationshipType(event) && matchesSearch(event);
     });
 
-    const endTime = performance.now();
-    console.log(`Network filtering took ${endTime - startTime}ms, filtered from ${comprehensiveTimeline.length} to ${result.length} events`);
     return result;
   }, [filters.significanceLevels, filters.timeRanges, filters.relationshipTypes, searchQuery]);
+
+  // Network analytics calculation (now after filteredEvents)
+  const networkAnalytics = useMemo(() => {
+    const entityConnections = new Map<string, Set<string>>();
+    const entityTypes = new Map<string, string>();
+    const eventCategories = new Map<string, number>();
+
+    // Build connection graph
+    filteredEvents.forEach(event => {
+      const entities = event.entities || [];
+      entities.forEach(entity => {
+        if (!entityConnections.has(entity.entityId)) {
+          entityConnections.set(entity.entityId, new Set());
+          entityTypes.set(entity.entityId, entity.entityType);
+        }
+
+        entities.forEach(otherEntity => {
+          if (entity.entityId !== otherEntity.entityId) {
+            entityConnections.get(entity.entityId)!.add(otherEntity.entityId);
+          }
+        });
+      });
+
+      // Count event categories
+      const category = event.category || 'other';
+      eventCategories.set(category, (eventCategories.get(category) || 0) + 1);
+    });
+
+    // Calculate centrality metrics
+    const centrality = Array.from(entityConnections.entries()).map(([id, connections]) => ({
+      id,
+      degree: connections.size,
+      type: entityTypes.get(id) || 'unknown'
+    })).sort((a, b) => b.degree - a.degree);
+
+    // Find communities (simple clustering by connection density)
+    const communities = new Map<number, Set<string>>();
+    let communityId = 0;
+
+    centrality.forEach(node => {
+      const connections = entityConnections.get(node.id) || new Set();
+      let foundCommunity = false;
+
+      for (const [, members] of Array.from(communities.entries())) {
+        const overlap = Array.from(connections).filter(conn => members.has(conn)).length;
+        if (overlap > 0) {
+          members.add(node.id);
+          foundCommunity = true;
+          break;
+        }
+      }
+
+      if (!foundCommunity) {
+        communities.set(communityId++, new Set([node.id]));
+      }
+    });
+
+    return {
+      totalEntities: entityConnections.size,
+      totalConnections: Array.from(entityConnections.values()).reduce((sum, conn) => sum + conn.size, 0) / 2,
+      centrality,
+      communities: Array.from(communities.entries()).map(([id, members]) => ({
+        id,
+        size: members.size,
+        members: Array.from(members)
+      })).sort((a, b) => b.size - a.size),
+      eventCategories: Array.from(eventCategories.entries()).map(([category, count]) => ({
+        category,
+        count
+      })).sort((a, b) => b.count - a.count)
+    };
+  }, [filteredEvents]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">

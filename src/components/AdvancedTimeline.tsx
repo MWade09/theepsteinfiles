@@ -8,17 +8,8 @@ import { coreDocuments } from '@/data/core/documents';
 import { enhancedProperties } from '@/data/geographic/properties';
 import NetworkVisualization from './NetworkVisualization';
 
-// Define NetworkNode interface to match the one in NetworkVisualization
-interface NetworkNode {
-  id: string;
-  name: string;
-  type: 'person' | 'event';
-  group: number;
-  significance?: string;
-  eventType?: string;
-  size: number;
-  color: string;
-}
+// Use NetworkNode from NetworkVisualization component
+import type { NetworkNode } from './NetworkVisualization';
 import { 
   Calendar, 
   Search, 

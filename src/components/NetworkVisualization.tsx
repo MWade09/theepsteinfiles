@@ -8,7 +8,7 @@ import { coreOrganizations } from '@/data/core/organizations';
 import { enhancedProperties } from '@/data/geographic/properties';
 import { ZoomIn, ZoomOut, RotateCcw, Filter } from 'lucide-react';
 
-interface NetworkNode extends d3.SimulationNodeDatum {
+export interface NetworkNode extends d3.SimulationNodeDatum {
   id: string;
   name: string;
   type: 'person' | 'event' | 'organization' | 'location';
@@ -360,65 +360,6 @@ const NetworkVisualization = forwardRef<NetworkVisualizationHandle, NetworkVisua
   useEffect(() => {
     if (!svgRef.current) return;
 
-    const getPersonColor = (significance: string): string => {
-      switch (significance) {
-        case 'critical': return '#ef4444';
-        case 'high': return '#f97316';
-        case 'medium': return '#eab308';
-        case 'low': return '#22c55e';
-        default: return '#6b7280';
-      }
-    };
-
-    const getEventColor = (eventType: string): string => {
-      switch (eventType) {
-        case 'arrest': return '#dc2626';
-        case 'legal': return '#2563eb';
-        case 'business': return '#059669';
-        case 'media': return '#7c3aed';
-        case 'travel': return '#0891b2';
-        default: return '#4b5563';
-      }
-    };
-
-    const getOrgColor = (): string => '#10b981';
-    const getLocationColor = (): string => '#f59e0b';
-
-    const getEventSize = (significance: string): number => {
-      switch (significance) {
-        case 'critical': return 12;
-        case 'high': return 10;
-        case 'medium': return 8;
-        case 'low': return 6;
-        default: return 6;
-      }
-    };
-
-    const getConnectionStrength = (significance: string, role: string): number => {
-      let baseStrength = 0.5;
-      
-      // Adjust by significance
-      switch (significance) {
-        case 'critical': baseStrength = 1.0; break;
-        case 'high': baseStrength = 0.8; break;
-        case 'medium': baseStrength = 0.6; break;
-        case 'low': baseStrength = 0.4; break;
-      }
-
-      // Adjust by role
-      if (role.includes('defendant') || role.includes('accused')) baseStrength *= 1.2;
-      if (role.includes('witness')) baseStrength *= 0.8;
-      if (role.includes('associate')) baseStrength *= 0.9;
-
-      return baseStrength;
-    };
-
-    const passesSignificanceFilter = (significance: string): boolean => {
-      const levels = ['low', 'medium', 'high', 'critical'];
-      const minIndex = levels.indexOf(effectiveFilters.minSignificance);
-      const sigIndex = levels.indexOf(significance);
-      return sigIndex >= minIndex;
-    };
 
     const svg = d3.select<SVGSVGElement, unknown>(svgRef.current);
     svg.selectAll("*").remove();
@@ -496,7 +437,7 @@ const NetworkVisualization = forwardRef<NetworkVisualizationHandle, NetworkVisua
     let simulation: d3.Simulation<NetworkNode, undefined> | null = null;
     if (layout === 'force') {
       simulation = d3.forceSimulation<NetworkNode>(nodes)
-        .force("link", d3.forceLink<NetworkNode, NetworkLink>(links as any)
+        .force("link", d3.forceLink<NetworkNode, NetworkLink>(links)
           .id(d => d.id)
           .strength(d => (edgeWeightMode === 'strength' ? d.strength : 0.6))
           .distance(d => d.type === 'co-occurrence' ? 60 : 90))
@@ -510,9 +451,9 @@ const NetworkVisualization = forwardRef<NetworkVisualizationHandle, NetworkVisua
         event: innerWidth * 0.5,
         organization: innerWidth * 0.75,
         location: innerWidth * 0.85
-      } as any;
+      } as Record<string, number>;
       if (clustering) {
-        simulation.force('x', d3.forceX<NetworkNode>().strength(0.05).x((d: any) => typeToX[d.type] || innerWidth / 2));
+        simulation.force('x', d3.forceX<NetworkNode>().strength(0.05).x((d: NetworkNode) => typeToX[d.type] || innerWidth / 2));
         simulation.force('y', d3.forceY<NetworkNode>().strength(0.02).y(innerHeight / 2));
       }
       if (!physics) {
@@ -543,8 +484,8 @@ const NetworkVisualization = forwardRef<NetworkVisualizationHandle, NetworkVisua
       // Relax to avoid overlap
       const relax = d3.forceSimulation<NetworkNode>(nodes)
         .alpha(0.6)
-        .force('x', d3.forceX<NetworkNode>().x((d: any) => d.x as number).strength(0.2))
-        .force('y', d3.forceY<NetworkNode>().y((d: any) => d.y as number).strength(0.2))
+        .force('x', d3.forceX<NetworkNode>().x((d: NetworkNode) => d.x as number).strength(0.2))
+        .force('y', d3.forceY<NetworkNode>().y((d: NetworkNode) => d.y as number).strength(0.2))
         .force('collide', d3.forceCollide().radius((d) => (d as NetworkNode).size + 6).iterations(2));
       for (let i = 0; i < 80; i++) relax.tick();
       relax.stop();
@@ -571,8 +512,8 @@ const NetworkVisualization = forwardRef<NetworkVisualizationHandle, NetworkVisua
       // Relax within layers
       const relax = d3.forceSimulation<NetworkNode>(nodes)
         .alpha(0.6)
-        .force('x', d3.forceX<NetworkNode>().x((d: any) => d.x as number).strength(0.3))
-        .force('y', d3.forceY<NetworkNode>().y((d: any) => d.y as number).strength(0.3))
+        .force('x', d3.forceX<NetworkNode>().x((d: NetworkNode) => d.x as number).strength(0.3))
+        .force('y', d3.forceY<NetworkNode>().y((d: NetworkNode) => d.y as number).strength(0.3))
         .force('collide', d3.forceCollide().radius((d) => (d as NetworkNode).size + 6).iterations(2));
       for (let i = 0; i < 80; i++) relax.tick();
       relax.stop();
@@ -619,8 +560,8 @@ const NetworkVisualization = forwardRef<NetworkVisualizationHandle, NetworkVisua
       // Relax with strong anchoring to positions
       const relax = d3.forceSimulation<NetworkNode>(nodes)
         .alpha(0.7)
-        .force('x', d3.forceX<NetworkNode>().x((d: any) => d.x as number).strength(0.5))
-        .force('y', d3.forceY<NetworkNode>().y((d: any) => d.y as number).strength(0.5))
+        .force('x', d3.forceX<NetworkNode>().x((d: NetworkNode) => d.x as number).strength(0.5))
+        .force('y', d3.forceY<NetworkNode>().y((d: NetworkNode) => d.y as number).strength(0.5))
         .force('collide', d3.forceCollide().radius((d) => (d as NetworkNode).size + 6).iterations(2));
       for (let i = 0; i < 120; i++) relax.tick();
       relax.stop();
@@ -663,7 +604,7 @@ const NetworkVisualization = forwardRef<NetworkVisualizationHandle, NetworkVisua
     const node = g.append("g")
       .attr('class', 'nodes')
       .selectAll<SVGCircleElement, NetworkNode>("circle")
-      .data(nodes, (d) => d.id)
+      .data(nodes, (d: any) => (d as NetworkNode).id)
       .enter().append<SVGCircleElement>("circle")
       .attr("r", d => d.size)
       .attr("fill", d => d.color)
@@ -706,7 +647,7 @@ const NetworkVisualization = forwardRef<NetworkVisualizationHandle, NetworkVisua
     // Labels
     const labelGroup = g.append("g")
       .attr('class', 'labels')
-      .style('display', showLabels ? null : 'none');
+      .style('display', showLabels ? 'block' : 'none');
 
     const significanceOrder = ['low', 'medium', 'high', 'critical'];
     const minSigIndex = significanceOrder.indexOf(labelMinSignificance);
@@ -720,7 +661,7 @@ const NetworkVisualization = forwardRef<NetworkVisualizationHandle, NetworkVisua
 
     const label = labelGroup
       .selectAll('text')
-      .data<NetworkNode>(labelData, (d) => d.id)
+      .data(labelData, (d: any) => (d as NetworkNode).id)
       .enter()
       .append<SVGTextElement>('text')
       .text(d => d.name.length > labelMaxLength ? d.name.substring(0, labelMaxLength - 3) + '...' : d.name)
@@ -910,7 +851,7 @@ const NetworkVisualization = forwardRef<NetworkVisualizationHandle, NetworkVisua
       linkSelRef.current = null;
       labelSelRef.current = null;
     };
-  }, [graphData, width, height, onNodeSelect, layout, edgeWeightMode, showLabels, labelMaxLength, labelFontSize, layoutPadding, pinnedNodeIds, labelCollisionAvoidance, labelShowTypes, labelMinSignificance]);
+  }, [graphData, width, height, onNodeSelect, layout, clustering, physics, effectiveFilters.minSignificance, edgeWeightMode, showLabels, labelMaxLength, labelFontSize, layoutPadding, pinnedNodeIds, labelCollisionAvoidance, labelShowTypes, labelMinSignificance, transitionDurationMs, transitionEasing]);
 
   // Smoothly update simulation when clustering/physics toggled
   useEffect(() => {

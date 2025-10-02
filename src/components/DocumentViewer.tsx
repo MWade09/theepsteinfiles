@@ -343,6 +343,7 @@ export default function DocumentViewer({ documentId, isEmbedded = false }: Docum
               const pickPreviewUrl = (): string | undefined => {
                 const candidates = [selectedDoc.preferredUrl, selectedDoc.content?.url, ...(selectedDoc.sources.map(s => s.url).filter(Boolean) as string[])];
                 for (const u of candidates) {
+                  if (!u) continue;
                   try {
                     const host = new URL(u).hostname.replace(/^www\./, '');
                     if (PREVIEW_ALLOW_LIST.some(d => host.endsWith(d))) return u;
