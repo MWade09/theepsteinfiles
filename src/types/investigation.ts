@@ -147,6 +147,7 @@ export interface FinancialTransaction {
   suspiciousActivity: SuspiciousActivityFlag[];
   verificationStatus: 'verified' | 'pending' | 'disputed';
   confidenceLevel: 'high' | 'medium' | 'low';
+  significance: 'critical' | 'high' | 'medium' | 'low';
   sources: Source[];
   tags: string[];
   lastUpdated: string;
@@ -553,6 +554,7 @@ export interface FinancialTransaction {
   suspiciousActivity: SuspiciousActivityFlag[];
   verificationStatus: 'verified' | 'pending' | 'disputed';
   confidenceLevel: 'high' | 'medium' | 'low';
+  significance: 'critical' | 'high' | 'medium' | 'low';
   sources: Source[];
   tags: string[];
   lastUpdated: string;

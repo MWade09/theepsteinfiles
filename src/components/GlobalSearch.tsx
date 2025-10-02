@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useMemo, useRef, useEffect } from 'react';
-import { 
-  Search, 
-  Filter, 
-  Calendar, 
-  User, 
-  FileText, 
-  DollarSign, 
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
+import Fuse from 'fuse.js';
+import {
+  Search,
+  Filter,
+  Calendar,
+  User,
+  FileText,
+  DollarSign,
   Star,
   BookOpen,
   ChevronUp,
@@ -19,7 +20,6 @@ import {
 } from 'lucide-react';
 import { corePeople } from '@/data/core/people';
 import { comprehensiveTimeline } from '@/data/core/timeline';
-import { coreRelationships } from '@/data/core/relationships';
 import { financialTransactions } from '@/data/financial/transactions';
 import { coreOrganizations } from '@/data/core/organizations';
 
@@ -103,224 +103,114 @@ const GlobalSearch = () => {
   }, []);
 
   // Enhanced comprehensive search across all data types
+  // Enhanced Fuse.js search configuration
+  const fuseSearch = useMemo(() => {
+    const searchData = [
+      ...corePeople.map(person => ({
+        id: person.id,
+        type: 'person',
+        title: person.name,
+        content: `${person.name} ${person.aliases.join(' ')} ${person.biography} ${person.tags.join(' ')} ${person.occupations.join(' ')}`,
+        significance: person.significance,
+        tags: person.tags,
+        url: `/timeline#${person.id}`,
+        metadata: { entityType: 'person', ...person }
+      })),
+      ...comprehensiveTimeline.map(event => ({
+        id: event.id,
+        type: 'event',
+        title: event.title,
+        content: `${event.title} ${event.description} ${event.tags?.join(' ') || ''}`,
+        significance: event.significance,
+        tags: event.tags || [],
+        date: event.date,
+        url: `/timeline#${event.id}`,
+        metadata: { entityType: 'event', ...event }
+      })),
+      ...coreOrganizations.map(org => ({
+        id: org.id,
+        type: 'organization',
+        title: org.name,
+        content: `${org.name} ${org.description} ${org.tags.join(' ')} ${org.type}`,
+        significance: org.significance,
+        tags: org.tags,
+        url: `/network#${org.id}`,
+        metadata: { entityType: 'organization', ...org }
+      })),
+      ...financialTransactions.map(transaction => ({
+        id: transaction.id,
+        type: 'transaction',
+        title: `$${transaction.amountUSD.toLocaleString()} Transaction`,
+        content: `${transaction.description} ${transaction.purpose || ''} ${transaction.tags.join(' ')}`,
+        significance: transaction.significance,
+        tags: transaction.tags,
+        date: transaction.transactionDate,
+        url: `/financial#${transaction.id}`,
+        metadata: { entityType: 'transaction', ...transaction }
+      }))
+    ];
+
+    return new Fuse(searchData, {
+      keys: [
+        { name: 'title', weight: 0.4 },
+        { name: 'content', weight: 0.3 },
+        { name: 'tags', weight: 0.3 }
+      ],
+      includeScore: true,
+      includeMatches: true,
+      threshold: 0.3,
+      minMatchCharLength: 2,
+      shouldSort: true
+    });
+  }, []);
+
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
 
     setIsSearching(true);
-    addToHistory(searchQuery);
-    const results: SearchResult[] = [];
 
-    // Search People with enhanced logic
-    corePeople.forEach(person => {
-      let totalRelevance = 0;
-      const highlights: string[] = [];
-      
-      const nameSearch = enhancedSearch(searchQuery, person.name);
-      const aliasSearch = person.aliases.some(alias => enhancedSearch(searchQuery, alias).match);
-      const bioSearch = enhancedSearch(searchQuery, person.biography);
-      const tagSearch = person.tags.some(tag => enhancedSearch(searchQuery, tag).match);
+    // Use Fuse.js for advanced search
+    const fuseResults = fuseSearch.search(searchQuery);
 
-      if (nameSearch.match) {
-        totalRelevance += nameSearch.relevance;
-        highlights.push('name');
-      }
-      if (aliasSearch) totalRelevance += 80;
-      if (bioSearch.match) {
-        totalRelevance += bioSearch.relevance;
-        highlights.push('biography');
-      }
-      if (tagSearch) {
-        totalRelevance += 60;
-        highlights.push('tags');
-      }
+    const results: SearchResult[] = fuseResults.map(result => {
+      const item = result.item;
+      const score = result.score || 1;
+      const relevance = Math.max(0, 100 - (score * 100));
 
-      if (totalRelevance > 0) {
-        results.push({
-          id: person.id,
-          type: 'person',
-          title: person.name,
-          description: person.biography.substring(0, 200) + '...',
-          relevance: totalRelevance,
-          tags: person.tags,
-          significance: person.significance,
-          url: `/people/${person.id}`,
-          highlight: highlights.join(', ')
-        });
-      }
+      return {
+        id: item.id,
+        type: item.type as SearchResult['type'],
+        title: item.title,
+        description: item.content.substring(0, 200) + (item.content.length > 200 ? '...' : ''),
+        relevance,
+        tags: item.tags,
+        date: (item as any).date || (item as any).transactionDate,
+        significance: item.significance,
+        url: item.url,
+        highlight: result.matches?.map(match => match.key).join(', ') || ''
+      };
     });
 
-    // Search Timeline Events with enhanced logic
-    comprehensiveTimeline.forEach(event => {
-      let totalRelevance = 0;
-      const highlights: string[] = [];
-      
-      const titleSearch = enhancedSearch(searchQuery, event.title);
-      const descSearch = enhancedSearch(searchQuery, event.description);
-      const tagSearch = event.tags?.some(tag => enhancedSearch(searchQuery, tag).match);
-
-      if (titleSearch.match) {
-        totalRelevance += titleSearch.relevance;
-        highlights.push('title');
-      }
-      if (descSearch.match) {
-        totalRelevance += descSearch.relevance;
-        highlights.push('description');
-      }
-      if (tagSearch) {
-        totalRelevance += 40;
-        highlights.push('tags');
-      }
-
-      if (totalRelevance > 0) {
-        results.push({
-          id: event.id,
-          type: 'event',
-          title: event.title,
-          description: event.description.substring(0, 200) + '...',
-          relevance: totalRelevance,
-          tags: event.tags || [],
-          date: event.date,
-          significance: event.significance,
-          url: `/timeline#${event.id}`,
-          highlight: highlights.join(', ')
-        });
-      }
-    });
-
-    // Search Relationships with enhanced logic
-    coreRelationships.forEach(relationship => {
-      let totalRelevance = 0;
-      const highlights: string[] = [];
-      
-      const descSearch = enhancedSearch(searchQuery, relationship.description);
-      const tagSearch = relationship.tags.some(tag => enhancedSearch(searchQuery, tag).match);
-
-      if (descSearch.match) {
-        totalRelevance += descSearch.relevance;
-        highlights.push('description');
-      }
-      if (tagSearch) {
-        totalRelevance += 40;
-        highlights.push('tags');
-      }
-
-      if (totalRelevance > 0) {
-        results.push({
-          id: relationship.id,
-          type: 'relationship',
-          title: `${relationship.entity1Id} - ${relationship.entity2Id}`,
-          description: relationship.description.substring(0, 200) + '...',
-          relevance: totalRelevance,
-          tags: relationship.tags,
-          significance: relationship.significance,
-          url: `/network#${relationship.id}`,
-          highlight: highlights.join(', ')
-        });
-      }
-    });
-
-    // Search Financial Transactions with enhanced logic
-    financialTransactions.forEach(transaction => {
-      let totalRelevance = 0;
-      const highlights: string[] = [];
-      
-      const descSearch = enhancedSearch(searchQuery, transaction.description);
-      const purposeSearch = transaction.purpose ? enhancedSearch(searchQuery, transaction.purpose) : { match: false, relevance: 0 };
-      const tagSearch = transaction.tags.some(tag => enhancedSearch(searchQuery, tag).match);
-
-      if (descSearch.match) {
-        totalRelevance += descSearch.relevance;
-        highlights.push('description');
-      }
-      if (purposeSearch.match) {
-        totalRelevance += purposeSearch.relevance;
-        highlights.push('purpose');
-      }
-      if (tagSearch) {
-        totalRelevance += 40;
-        highlights.push('tags');
-      }
-
-      if (totalRelevance > 0) {
-        results.push({
-          id: transaction.id,
-          type: 'transaction',
-          title: `$${transaction.amountUSD.toLocaleString()} Transaction`,
-          description: transaction.description.substring(0, 200) + '...',
-          relevance: totalRelevance,
-          tags: transaction.tags,
-          date: transaction.transactionDate,
-          url: `/financial#${transaction.id}`,
-          highlight: highlights.join(', ')
-        });
-      }
-    });
-
-    // Search Organizations with enhanced logic
-    coreOrganizations.forEach(organization => {
-      let totalRelevance = 0;
-      const highlights: string[] = [];
-      
-      const nameSearch = enhancedSearch(searchQuery, organization.name);
-      const descSearch = enhancedSearch(searchQuery, organization.description);
-      const tagSearch = organization.tags.some(tag => enhancedSearch(searchQuery, tag).match);
-
-      if (nameSearch.match) {
-        totalRelevance += nameSearch.relevance;
-        highlights.push('name');
-      }
-      if (descSearch.match) {
-        totalRelevance += descSearch.relevance;
-        highlights.push('description');
-      }
-      if (tagSearch) {
-        totalRelevance += 40;
-        highlights.push('tags');
-      }
-
-      if (totalRelevance > 0) {
-        results.push({
-          id: organization.id,
-          type: 'organization',
-          title: organization.name,
-          description: organization.description.substring(0, 200) + '...',
-          relevance: totalRelevance,
-          tags: organization.tags,
-          significance: organization.significance,
-          url: `/organizations#${organization.id}`,
-          highlight: highlights.join(', ')
-        });
-      }
-    });
-
-    // Apply filters
+    // Apply additional filters if needed
     let filteredResults = results;
 
     if (filters.types.length > 0) {
-      filteredResults = filteredResults.filter(result => 
-        filters.types.includes(result.type)
-      );
+      filteredResults = filteredResults.filter(result => filters.types.includes(result.type));
     }
 
     if (filters.significance.length > 0) {
-      filteredResults = filteredResults.filter(result => 
-        result.significance && filters.significance.includes(result.significance)
-      );
+      filteredResults = filteredResults.filter(result => result.significance && filters.significance.includes(result.significance));
     }
 
     if (filters.tags.length > 0) {
       filteredResults = filteredResults.filter(result =>
-        filters.tags.some(tag => result.tags.includes(tag))
+        result.tags.some(tag => filters.tags.includes(tag))
       );
     }
 
-    // Sort by relevance
-    filteredResults.sort((a, b) => b.relevance - a.relevance);
-
     setTimeout(() => setIsSearching(false), 300);
     return filteredResults.slice(0, 50); // Limit to top 50 results
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery, filters]);
+  }, [searchQuery, filters, fuseSearch]);
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -405,59 +295,6 @@ const GlobalSearch = () => {
     return suggestions.slice(0, 8);
   }, [searchQuery]);
 
-  // Enhanced search with Boolean operators
-  const enhancedSearch = (query: string, text: string): { match: boolean; relevance: number } => {
-    const caseSensitiveText = filters.operators.caseSensitive ? text : text.toLowerCase();
-    const searchTerm = filters.operators.caseSensitive ? query : query.toLowerCase();
-    
-    if (filters.operators.exact) {
-      return {
-        match: caseSensitiveText.includes(`"${searchTerm}"`),
-        relevance: caseSensitiveText === searchTerm ? 100 : 80
-      };
-    }
-    
-    // Boolean operators
-    if (query.includes(' AND ') || query.includes(' OR ') || query.includes(' NOT ')) {
-      const terms = query.split(/\s+(AND|OR|NOT)\s+/i);
-      let match = false;
-      let relevance = 0;
-      
-      for (let i = 0; i < terms.length; i += 2) {
-        const term = terms[i].trim();
-        const operator = terms[i - 1];
-        const termMatch = caseSensitiveText.includes(term);
-        
-        if (i === 0) {
-          match = termMatch;
-          relevance = termMatch ? 50 : 0;
-        } else {
-          switch (operator?.toUpperCase()) {
-            case 'AND':
-              match = match && termMatch;
-              relevance = match ? relevance + 30 : 0;
-              break;
-            case 'OR':
-              match = match || termMatch;
-              relevance = termMatch ? Math.max(relevance, 50) : relevance;
-              break;
-            case 'NOT':
-              match = match && !termMatch;
-              relevance = match ? relevance : 0;
-              break;
-          }
-        }
-      }
-      
-      return { match, relevance };
-    }
-    
-    // Simple search
-    const match = caseSensitiveText.includes(searchTerm);
-    const relevance = match ? (caseSensitiveText.indexOf(searchTerm) === 0 ? 100 : 70) : 0;
-    
-    return { match, relevance };
-  };
 
   // Save search function
   const saveSearch = (name: string) => {
@@ -477,13 +314,20 @@ const GlobalSearch = () => {
   };
 
   // Add to search history
-  const addToHistory = (query: string) => {
+  const addToHistory = useCallback((query: string) => {
     if (!query.trim()) return;
-    
+
     const updated = [query, ...recentSearches.filter(q => q !== query)].slice(0, 10);
     setRecentSearches(updated);
     localStorage.setItem('recentSearches', JSON.stringify(updated));
-  };
+  }, [recentSearches]);
+
+  // Add to search history when query changes
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      addToHistory(searchQuery);
+    }
+  }, [searchQuery, addToHistory]);
 
   return (
     <div className="w-full max-w-4xl mx-auto">

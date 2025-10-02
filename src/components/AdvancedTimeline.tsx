@@ -115,12 +115,15 @@ export default function AdvancedTimeline({
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [currentDecade, setCurrentDecade] = useState(2000);
+  const [isExporting, setIsExporting] = useState(false);
+  const [showExportOptions, setShowExportOptions] = useState(false);
   
   // Multimedia states
   const [selectedMediaItem, setSelectedMediaItem] = useState<MultimediaAttachment | null>(null);
   const [showMediaViewer, setShowMediaViewer] = useState(false);
   const [showDocumentPanel, setShowDocumentPanel] = useState(false);
   const [showGeographicInfo, setShowGeographicInfo] = useState(false);
+  const [multimediaMode, setMultimediaMode] = useState(false);
 
   const [internalViewMode, setInternalViewMode] = useState<TimelineViewMode>({
     mode: 'chronological',
@@ -504,17 +507,54 @@ export default function AdvancedTimeline({
     URL.revokeObjectURL(url);
   };
 
-  // Zoom functions
+  // Enhanced Zoom functions
   const zoomIn = () => {
-    setZoomLevel(prev => Math.min(prev + 0.1, 2.0));
+    setZoomLevel(prev => Math.min(prev + 0.25, 4.0));
   };
 
   const zoomOut = () => {
-    setZoomLevel(prev => Math.max(prev - 0.1, 0.5));
+    setZoomLevel(prev => Math.max(prev - 0.25, 0.25));
   };
 
   const resetZoom = () => {
     setZoomLevel(1);
+  };
+
+  // Export functions
+  const handleExport = async (format: 'png' | 'svg' | 'pdf' | 'json') => {
+    setIsExporting(true);
+
+    try {
+      if (format === 'json') {
+        // Export filtered timeline data as JSON
+        const exportData = {
+          timeline: filteredEvents,
+          filters: externalFilters,
+          viewMode,
+          exportDate: new Date().toISOString(),
+          totalEvents: filteredEvents.length
+        };
+
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `epstein-timeline-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } else {
+        // For image/PDF exports, we'd need to implement canvas or PDF generation
+        // For now, show a placeholder message
+        alert(`Export as ${format.toUpperCase()} functionality will be implemented in the next phase.`);
+      }
+    } catch {
+      alert('Export failed. Please try again.');
+    } finally {
+      setIsExporting(false);
+      setShowExportOptions(false);
+    }
   };
 
   // Navigation function (already exists - remove duplicate)
@@ -590,13 +630,24 @@ export default function AdvancedTimeline({
               >
                 <MapPin className="w-4 h-4" />
               </button>
-              <button
-                onClick={() => setViewMode(prev => ({...prev, mode: 'multimedia'}))}
-                className={`p-2 ${viewMode.mode === 'multimedia' ? 'bg-primary-100 dark:bg-primary-900' : ''} hover:bg-gray-100 dark:hover:bg-dark-700 border-x border-gray-300 dark:border-dark-600`}
-                title="Multimedia View"
-              >
-                <ImageIcon className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setViewMode(prev => ({...prev, mode: 'multimedia'}))}
+                  className={`p-2 ${viewMode.mode === 'multimedia' ? 'bg-purple-100 dark:bg-purple-900' : ''} hover:bg-gray-100 dark:hover:bg-dark-700 border-l border-gray-300 dark:border-dark-600`}
+                  title="Multimedia View"
+                >
+                  <ImageIcon className="w-4 h-4" />
+                </button>
+                {viewMode.mode === 'multimedia' && (
+                  <button
+                    onClick={() => setMultimediaMode(!multimediaMode)}
+                    className={`p-2 ${multimediaMode ? 'bg-orange-100 dark:bg-orange-900' : ''} hover:bg-gray-100 dark:hover:bg-dark-700 border-r border-gray-300 dark:border-dark-600`}
+                    title={multimediaMode ? 'Show all events' : 'Focus on multimedia events'}
+                  >
+                    <Video className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
               <button
                 onClick={() => setViewMode(prev => ({...prev, mode: 'statistical'}))}
                 className={`p-2 ${viewMode.mode === 'statistical' ? 'bg-primary-100 dark:bg-primary-900' : ''} hover:bg-gray-100 dark:hover:bg-dark-700 rounded-r-lg`}
@@ -618,27 +669,85 @@ export default function AdvancedTimeline({
               <option value="significance">Group by Significance</option>
             </select>
 
-            {/* Zoom Controls */}
-            <div className="flex items-center gap-1 border border-gray-300 dark:border-dark-600 rounded-lg">
-              <button
-                onClick={zoomOut}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-l-lg"
-                title="Zoom Out"
-                disabled={zoomLevel <= 0.5}
-              >
-                <ZoomOut className="w-4 h-4" />
-              </button>
-              <span className="px-2 text-sm text-gray-600 dark:text-gray-400 border-x border-gray-300 dark:border-dark-600">
-                {Math.round(zoomLevel * 100)}%
-              </span>
-              <button
-                onClick={zoomIn}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-r-lg"
-                title="Zoom In"
-                disabled={zoomLevel >= 2.0}
-              >
-                <ZoomIn className="w-4 h-4" />
-              </button>
+            {/* Enhanced Zoom Controls */}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 border border-gray-300 dark:border-dark-600 rounded-lg">
+                <button
+                  onClick={zoomOut}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-l-lg transition-colors"
+                  title="Zoom Out"
+                  disabled={zoomLevel <= 0.25}
+                >
+                  <ZoomOut className="w-4 h-4" />
+                </button>
+                <span className="px-2 text-sm text-gray-600 dark:text-gray-400 border-x border-gray-300 dark:border-dark-600 min-w-[50px] text-center">
+                  {Math.round(zoomLevel * 100)}%
+                </span>
+                <button
+                  onClick={zoomIn}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-r-lg transition-colors"
+                  title="Zoom In"
+                  disabled={zoomLevel >= 4.0}
+                >
+                  <ZoomIn className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Export Controls */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowExportOptions(!showExportOptions)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                    showExportOptions
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 dark:bg-dark-700 hover:bg-gray-200 dark:hover:bg-dark-600'
+                  }`}
+                  title="Export Timeline"
+                  disabled={isExporting}
+                >
+                  {isExporting ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Download className="w-4 h-4" />
+                  )}
+                  <span className="text-sm">Export</span>
+                </button>
+
+                {showExportOptions && (
+                  <div className="absolute top-full mt-2 right-0 bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-600 rounded-lg shadow-lg z-50 min-w-[200px]">
+                    <div className="p-2">
+                      <button
+                        onClick={() => handleExport('png')}
+                        className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded text-sm"
+                        disabled={isExporting}
+                      >
+                        Export as PNG Image
+                      </button>
+                      <button
+                        onClick={() => handleExport('svg')}
+                        className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded text-sm"
+                        disabled={isExporting}
+                      >
+                        Export as SVG Vector
+                      </button>
+                      <button
+                        onClick={() => handleExport('pdf')}
+                        className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded text-sm"
+                        disabled={isExporting}
+                      >
+                        Export as PDF Document
+                      </button>
+                      <button
+                        onClick={() => handleExport('json')}
+                        className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded text-sm"
+                        disabled={isExporting}
+                      >
+                        Export as JSON Data
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Reset Zoom */}

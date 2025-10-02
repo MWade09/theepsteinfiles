@@ -33,6 +33,7 @@ export const financialTransactions: FinancialTransaction[] = [
     ],
     verificationStatus: 'verified',
     confidenceLevel: 'high',
+    significance: 'critical',
     sources: [
       {
         id: 'src_wexner_transfers_001',
@@ -90,6 +91,7 @@ export const financialTransactions: FinancialTransaction[] = [
     ],
     verificationStatus: 'verified',
     confidenceLevel: 'high',
+    significance: 'critical',
     sources: [
       {
         id: 'src_manhattan_mansion_001',
@@ -147,6 +149,7 @@ export const financialTransactions: FinancialTransaction[] = [
     ],
     verificationStatus: 'verified',
     confidenceLevel: 'high',
+    significance: 'critical',
     sources: [
       {
         id: 'src_lsj_purchase_001',
@@ -201,6 +204,7 @@ export const financialTransactions: FinancialTransaction[] = [
     ],
     verificationStatus: 'verified',
     confidenceLevel: 'medium',
+    significance: 'high',
     sources: [
       {
         id: 'src_cash_withdrawals_001',
@@ -249,6 +253,7 @@ export const financialTransactions: FinancialTransaction[] = [
     ],
     verificationStatus: 'verified',
     confidenceLevel: 'high',
+    significance: 'critical',
     sources: [
       {
         id: 'src_legal_payments_001',
@@ -305,6 +310,7 @@ export const financialTransactions: FinancialTransaction[] = [
     ],
     verificationStatus: 'verified',
     confidenceLevel: 'high',
+    significance: 'critical',
     sources: [
       {
         id: 'src_offshore_transfers_001',
@@ -352,6 +358,7 @@ export const financialTransactions: FinancialTransaction[] = [
     ],
     verificationStatus: 'verified',
     confidenceLevel: 'high',
+    significance: 'critical',
     sources: [
       {
         id: 'src_settlements_001',
@@ -399,6 +406,7 @@ export const financialTransactions: FinancialTransaction[] = [
     ],
     verificationStatus: 'verified',
     confidenceLevel: 'high',
+    significance: 'critical',
     sources: [
       {
         id: 'src_art_purchases_001',
@@ -448,6 +456,7 @@ export const financialTransactions: FinancialTransaction[] = [
     ],
     verificationStatus: 'verified',
     confidenceLevel: 'high',
+    significance: 'critical',
     sources: [
       {
         id: 'src_mansion_transfer_deed',
@@ -491,6 +500,7 @@ export const financialTransactions: FinancialTransaction[] = [
     ],
     verificationStatus: 'pending',
     confidenceLevel: 'medium',
+    significance: 'high',
     sources: [
       {
         id: 'src_modeling_payments',
@@ -534,6 +544,7 @@ export const financialTransactions: FinancialTransaction[] = [
     ],
     verificationStatus: 'verified',
     confidenceLevel: 'high',
+    significance: 'critical',
     sources: [
       {
         id: 'src_harvard_donation',
@@ -577,6 +588,7 @@ export const financialTransactions: FinancialTransaction[] = [
     ],
     verificationStatus: 'verified',
     confidenceLevel: 'high',
+    significance: 'critical',
     sources: [
       {
         id: 'src_mit_donation_scandal',
@@ -621,6 +633,7 @@ export const financialTransactions: FinancialTransaction[] = [
     ],
     verificationStatus: 'pending',
     confidenceLevel: 'medium',
+    significance: 'high',
     sources: [
       {
         id: 'src_zorro_construction',
@@ -664,6 +677,7 @@ export const financialTransactions: FinancialTransaction[] = [
     ],
     verificationStatus: 'verified',
     confidenceLevel: 'high',
+    significance: 'critical',
     sources: [
       {
         id: 'src_legal_defense_payments',
@@ -707,6 +721,7 @@ export const financialTransactions: FinancialTransaction[] = [
     ],
     verificationStatus: 'verified',
     confidenceLevel: 'high',
+    significance: 'critical',
     sources: [
       {
         id: 'src_victim_settlements',
