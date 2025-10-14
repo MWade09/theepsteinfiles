@@ -31,6 +31,7 @@ import { corePeople } from '@/data/core/people';
 import { coreOrganizations } from '@/data/core/organizations';
 import { comprehensiveTimeline } from '@/data/core/timeline';
 import { coreRelationships } from '@/data/core/relationships';
+import SankeyFlowDiagram from './SankeyFlowDiagram';
 
 interface FinancialFlowProps {
   className?: string;
@@ -55,7 +56,7 @@ interface FlowFilters {
 }
 
 export default function FinancialFlowAnalysis({ className = '', externalSearch, externalQuickFilter, onAppliedQuickFilter }: FinancialFlowProps) {
-  const [viewMode, setViewMode] = useState<'network' | 'flow' | 'timeline' | 'analytics'>('flow');
+  const [viewMode, setViewMode] = useState<'network' | 'flow' | 'sankey' | 'timeline' | 'analytics'>('flow');
   const [selectedTransaction, setSelectedTransaction] = useState<string | null>(null);
   const [selectedEntity, setSelectedEntity] = useState<string | null>(null);
   const [showSuspiciousOnly, setShowSuspiciousOnly] = useState(false);
@@ -1005,6 +1006,16 @@ export default function FinancialFlowAnalysis({ className = '', externalSearch, 
             Flow
           </button>
           <button
+            onClick={() => setViewMode('sankey')}
+            className={`px-4 py-2 text-sm font-medium transition-colors border-x border-gray-300 dark:border-dark-600 ${
+              viewMode === 'sankey'
+                ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+                : 'text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100'
+            }`}
+          >
+            Sankey
+          </button>
+          <button
             onClick={() => setViewMode('network')}
             className={`px-4 py-2 text-sm font-medium transition-colors border-x border-gray-300 dark:border-dark-600 ${
               viewMode === 'network'
@@ -1016,7 +1027,7 @@ export default function FinancialFlowAnalysis({ className = '', externalSearch, 
           </button>
           <button
             onClick={() => setViewMode('timeline')}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${
+            className={`px-4 py-2 text-sm font-medium transition-colors border-x border-gray-300 dark:border-dark-600 ${
               viewMode === 'timeline'
                 ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
                 : 'text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100'
@@ -1356,6 +1367,25 @@ export default function FinancialFlowAnalysis({ className = '', externalSearch, 
 
       {/* Main Content */}
       {viewMode === 'flow' && renderFlowView()}
+      {viewMode === 'sankey' && (
+        <div className="bg-white dark:bg-dark-800 rounded-lg p-6 border border-gray-200 dark:border-dark-700">
+          <div className="mb-6">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+              Financial Flow Sankey Diagram
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400">
+              Visualize money flows between entities with interactive Sankey diagram. 
+              Thicker flows represent larger transaction volumes.
+            </p>
+          </div>
+          <SankeyFlowDiagram
+            transactions={filteredTransactions}
+            width={1200}
+            height={700}
+            onNodeClick={(nodeId) => setSelectedEntity(nodeId)}
+          />
+        </div>
+      )}
       {viewMode === 'network' && renderNetworkView()}
       {viewMode === 'timeline' && renderTimelineView()}
       {viewMode === 'analytics' && renderAnalyticsView()}

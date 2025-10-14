@@ -14,9 +14,11 @@
   },
   "dependencies": {
     "@types/d3": "^7.4.3",
+    "@types/d3-sankey": "^0.12.4",
     "@types/fuse": "^2.5.2",
     "autoprefixer": "^10.4.16",
     "d3": "^7.9.0",
+    "d3-sankey": "^0.12.3",
     "date-fns": "^2.30.0",
     "framer-motion": "^10.16.16",
     "fuse.js": "^7.1.0",
