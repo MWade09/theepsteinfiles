@@ -99,11 +99,11 @@ export default function GeographicMappingPage() {
 
   // Statistics for the mapping system
   const geographicStats = {
-    propertiesTracked: 25,
-    flightLogsAnalyzed: 156,
-    travelPatternsIdentified: 47,
-    countriesInvolved: 12,
-    financialConnectionsMapped: 89,
+    propertiesTracked: 12,
+    flightLogsAnalyzed: 6,
+    travelPatternsIdentified: 3,
+    countriesInvolved: 8,
+    financialConnectionsMapped: 12,
     lastUpdated: new Date().toLocaleDateString()
   };
 
@@ -114,7 +114,7 @@ export default function GeographicMappingPage() {
       icon: <Plane className="w-4 h-4" />,
       description: 'Documented flight routes and travel logs',
       color: 'text-blue-400',
-      count: 156
+      count: 6
     },
     {
       key: 'travelPatterns',
@@ -122,7 +122,7 @@ export default function GeographicMappingPage() {
       description: 'Recurring movement patterns and frequencies',
       icon: <Activity className="w-4 h-4" />,
       color: 'text-purple-400',
-      count: 47
+      count: 3
     },
     {
       key: 'financialConnections',
@@ -130,7 +130,7 @@ export default function GeographicMappingPage() {
       description: 'Property ownership and financial relationships',
       icon: <Target className="w-4 h-4" />,
       color: 'text-orange-400',
-      count: 89
+      count: 12
     },
     {
       key: 'propertyConnections',
@@ -138,7 +138,7 @@ export default function GeographicMappingPage() {
       description: 'Ownership timelines and property relationships',
       icon: <Building className="w-4 h-4" />,
       color: 'text-green-400',
-      count: 25
+      count: 12
     }
   ];
 

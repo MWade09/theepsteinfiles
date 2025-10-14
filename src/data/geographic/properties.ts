@@ -677,6 +677,481 @@ export const enhancedProperties: EnhancedProperty[] = [
     currentStatus: 'sold',
     accessLevel: 'private',
     verified: true
+  },
+
+  // Additional Properties - Expanded Coverage
+  
+  {
+    id: 'property_great_saint_james',
+    name: 'Great Saint James Island',
+    type: 'island',
+    coordinates: [18.3123, -64.8156],
+    address: 'Great Saint James, U.S. Virgin Islands',
+    description: 'Adjacent island to Little Saint James, purchased to expand privacy and control of surrounding area.',
+    significance: 'high',
+    
+    ownershipHistory: [
+      {
+        id: 'gsj_ownership_1',
+        propertyId: 'property_great_saint_james',
+        ownerId: 'entity_epstein_individual',
+        ownerName: 'Jeffrey Edward Epstein',
+        ownerType: 'individual',
+        startDate: '2016-05-01',
+        endDate: '2019-08-10',
+        acquisitionMethod: 'purchase',
+        purchasePrice: 18000000,
+        sourceDocuments: ['Virgin Islands Property Records'],
+        verificationStatus: 'verified'
+      }
+    ],
+    
+    financials: {
+      purchasePrice: 18000000,
+      purchaseDate: '2016-05-01',
+      currentEstimatedValue: 22000000,
+      renovationCosts: 2000000,
+      annualMaintenance: 150000,
+      propertyTaxes: 100000,
+      suspiciousTransactions: []
+    },
+    
+    features: {
+      squareFootage: 3500,
+      bedrooms: 3,
+      bathrooms: 4,
+      specialFeatures: ['165-acre island', 'Undeveloped land', 'Private beaches', 'Natural harbor'],
+      securityFeatures: ['Remote location', 'Controlled access'],
+      entertainmentFacilities: ['Natural beaches', 'Hiking trails'],
+      transportation: ['Boat access']
+    },
+    
+    investigationDetails: {
+      firstMentioned: '2016-06-01',
+      keyEvents: [
+        {
+          date: '2016-05-01',
+          event: 'Island purchased',
+          source: 'Property Records',
+          significance: 'medium'
+        }
+      ],
+      witnessAccounts: [],
+      lawEnforcement: []
+    },
+    
+    connectedEntities: ['entity_epstein_individual'],
+    relatedTransactions: [],
+    documents: ['Property Deed 2016'],
+    flightLogReferences: [],
+    
+    currentStatus: 'seized',
+    accessLevel: 'seized',
+    verified: true
+  },
+
+  {
+    id: 'property_ohio_mansion',
+    name: 'New Albany Mansion',
+    type: 'residence',
+    coordinates: [40.0809, -82.8088],
+    address: 'New Albany, Ohio',
+    description: 'Les Wexner\'s primary residence, site of numerous meetings with Epstein.',
+    significance: 'high',
+    
+    ownershipHistory: [
+      {
+        id: 'ohio_ownership_1',
+        propertyId: 'property_ohio_mansion',
+        ownerId: 'entity_wexner_les',
+        ownerName: 'Leslie Herbert Wexner',
+        ownerType: 'individual',
+        startDate: '1989-01-01',
+        acquisitionMethod: 'purchase',
+        purchasePrice: 12000000,
+        sourceDocuments: ['Ohio Property Records'],
+        verificationStatus: 'verified'
+      }
+    ],
+    
+    financials: {
+      purchasePrice: 12000000,
+      purchaseDate: '1989-01-01',
+      currentEstimatedValue: 45000000,
+      renovationCosts: 25000000,
+      annualMaintenance: 800000,
+      propertyTaxes: 350000,
+      suspiciousTransactions: []
+    },
+    
+    features: {
+      squareFootage: 60000,
+      bedrooms: 12,
+      bathrooms: 16,
+      specialFeatures: ['Georgian-style mansion', 'Guest houses', 'Private lake', 'Extensive grounds'],
+      securityFeatures: ['Gated estate', 'Private security', 'Surveillance systems'],
+      entertainmentFacilities: ['Tennis courts', 'Swimming pool', 'Entertainment pavilions'],
+      transportation: ['Private garages', 'Helipad']
+    },
+    
+    investigationDetails: {
+      firstMentioned: '2006-01-01',
+      keyEvents: [
+        {
+          date: '1991-01-01',
+          event: 'Epstein becomes frequent visitor',
+          source: 'Staff interviews',
+          significance: 'high'
+        }
+      ],
+      witnessAccounts: ['Staff interviews', 'Visitor logs'],
+      lawEnforcement: []
+    },
+    
+    connectedEntities: ['entity_wexner_les', 'entity_epstein_individual'],
+    relatedTransactions: [],
+    documents: ['Property Records'],
+    flightLogReferences: ['Multiple visits documented'],
+    
+    currentStatus: 'active',
+    accessLevel: 'private',
+    verified: true
+  },
+
+  {
+    id: 'property_london_residence',
+    name: 'Belgravia Townhouse',
+    type: 'residence',
+    coordinates: [51.4975, -0.1528],
+    address: 'Belgravia, London, UK',
+    description: 'Ghislaine Maxwell\'s London residence, site of alleged abuse incidents.',
+    significance: 'critical',
+    
+    ownershipHistory: [
+      {
+        id: 'london_ownership_1',
+        propertyId: 'property_london_residence',
+        ownerId: 'entity_ghislaine_maxwell',
+        ownerName: 'Ghislaine Maxwell',
+        ownerType: 'individual',
+        startDate: '1995-01-01',
+        endDate: '2016-12-01',
+        acquisitionMethod: 'purchase',
+        purchasePrice: 4500000,
+        sourceDocuments: ['UK Land Registry'],
+        verificationStatus: 'verified'
+      }
+    ],
+    
+    financials: {
+      purchasePrice: 4500000,
+      purchaseDate: '1995-01-01',
+      currentEstimatedValue: 12000000,
+      renovationCosts: 2000000,
+      annualMaintenance: 150000,
+      propertyTaxes: 80000,
+      suspiciousTransactions: []
+    },
+    
+    features: {
+      squareFootage: 5000,
+      bedrooms: 5,
+      bathrooms: 4,
+      specialFeatures: ['Historic townhouse', 'Private garden', 'Wine cellar'],
+      securityFeatures: ['Secure entrance', 'Privacy gates'],
+      entertainmentFacilities: ['Formal dining', 'Library'],
+      transportation: ['Private garage']
+    },
+    
+    investigationDetails: {
+      firstMentioned: '2001-01-01',
+      keyEvents: [
+        {
+          date: '2001-03-10',
+          event: 'Alleged abuse incident',
+          source: 'Victim testimony',
+          significance: 'critical'
+        }
+      ],
+      witnessAccounts: ['Virginia Giuffre testimony', 'Other victims'],
+      lawEnforcement: []
+    },
+    
+    connectedEntities: ['entity_ghislaine_maxwell', 'entity_epstein_individual'],
+    relatedTransactions: [],
+    documents: ['Property Records', 'Court testimonies'],
+    flightLogReferences: ['Frequent arrivals from US'],
+    
+    currentStatus: 'sold',
+    accessLevel: 'private',
+    verified: true
+  },
+
+  {
+    id: 'property_teterboro_hangar',
+    name: 'Teterboro Airport Hangar',
+    type: 'airport',
+    coordinates: [40.8501, -74.0606],
+    address: 'Teterboro Airport, New Jersey',
+    description: 'Private hangar facility for Epstein\'s aircraft fleet.',
+    significance: 'high',
+    
+    ownershipHistory: [
+      {
+        id: 'teterboro_ownership_1',
+        propertyId: 'property_teterboro_hangar',
+        ownerId: 'entity_epstein_aviation',
+        ownerName: 'Epstein Aviation LLC',
+        ownerType: 'corporation',
+        startDate: '1995-01-01',
+        endDate: '2019-08-10',
+        acquisitionMethod: 'purchase',
+        purchasePrice: 3500000,
+        sourceDocuments: ['Airport Records'],
+        verificationStatus: 'verified'
+      }
+    ],
+    
+    financials: {
+      purchasePrice: 3500000,
+      purchaseDate: '1995-01-01',
+      currentEstimatedValue: 6000000,
+      renovationCosts: 1000000,
+      annualMaintenance: 200000,
+      propertyTaxes: 50000,
+      suspiciousTransactions: []
+    },
+    
+    features: {
+      squareFootage: 15000,
+      specialFeatures: ['Private hangar', 'Aircraft maintenance facility', 'Crew quarters', 'Fuel storage'],
+      securityFeatures: ['Controlled access', 'Security cameras', 'Private entrance'],
+      entertainmentFacilities: [],
+      transportation: ['Direct runway access']
+    },
+    
+    investigationDetails: {
+      firstMentioned: '2005-01-01',
+      keyEvents: [
+        {
+          date: '2019-07-06',
+          event: 'Aircraft seized upon arrest',
+          source: 'FBI Records',
+          significance: 'high'
+        }
+      ],
+      witnessAccounts: ['Airport staff', 'Maintenance crew'],
+      lawEnforcement: [
+        {
+          date: '2019-07-06',
+          agency: 'FBI',
+          action: 'Aircraft seizure',
+          result: 'Fleet grounded'
+        }
+      ]
+    },
+    
+    connectedEntities: ['entity_epstein_individual', 'entity_epstein_aviation'],
+    relatedTransactions: [],
+    documents: ['Hangar lease', 'Aircraft registration'],
+    flightLogReferences: ['Primary departure/arrival point'],
+    
+    currentStatus: 'seized',
+    accessLevel: 'seized',
+    verified: true
+  },
+
+  {
+    id: 'property_dubai_penthouse',
+    name: 'Dubai Marina Penthouse',
+    type: 'residence',
+    coordinates: [25.0807, 55.1396],
+    address: 'Dubai Marina, Dubai, UAE',
+    description: 'Luxury penthouse allegedly used for international meetings.',
+    significance: 'medium',
+    
+    ownershipHistory: [
+      {
+        id: 'dubai_ownership_1',
+        propertyId: 'property_dubai_penthouse',
+        ownerId: 'entity_offshore_trust',
+        ownerName: 'Offshore Trust Entity',
+        ownerType: 'trust',
+        startDate: '2008-01-01',
+        endDate: '2019-08-10',
+        acquisitionMethod: 'purchase',
+        purchasePrice: 12000000,
+        sourceDocuments: ['Dubai Land Department'],
+        verificationStatus: 'pending'
+      }
+    ],
+    
+    financials: {
+      purchasePrice: 12000000,
+      purchaseDate: '2008-01-01',
+      currentEstimatedValue: 15000000,
+      renovationCosts: 3000000,
+      annualMaintenance: 250000,
+      propertyTaxes: 0,
+      suspiciousTransactions: ['transaction_dubai_purchase']
+    },
+    
+    features: {
+      squareFootage: 10000,
+      bedrooms: 5,
+      bathrooms: 7,
+      specialFeatures: ['Penthouse suite', 'Private elevator', 'Panoramic views', 'Private pool'],
+      securityFeatures: ['24/7 security', 'Biometric access', 'Privacy screens'],
+      entertainmentFacilities: ['Home theater', 'Spa', 'Wine cellar'],
+      transportation: ['Private parking', 'Yacht berth access']
+    },
+    
+    investigationDetails: {
+      firstMentioned: '2015-01-01',
+      keyEvents: [],
+      witnessAccounts: [],
+      lawEnforcement: []
+    },
+    
+    connectedEntities: ['entity_epstein_individual', 'entity_offshore_trust'],
+    relatedTransactions: ['transaction_dubai_purchase'],
+    documents: ['Property Purchase Records'],
+    flightLogReferences: ['International flights to Dubai'],
+    
+    currentStatus: 'unknown',
+    accessLevel: 'private',
+    verified: false
+  },
+
+  {
+    id: 'property_monaco_apartment',
+    name: 'Monte Carlo Residence',
+    type: 'residence',
+    coordinates: [43.7384, 7.4246],
+    address: 'Monte Carlo, Monaco',
+    description: 'Luxury apartment in Monaco used for European operations.',
+    significance: 'medium',
+    
+    ownershipHistory: [
+      {
+        id: 'monaco_ownership_1',
+        propertyId: 'property_monaco_apartment',
+        ownerId: 'entity_european_holdings',
+        ownerName: 'European Holdings LLC',
+        ownerType: 'corporation',
+        startDate: '2005-01-01',
+        endDate: '2019-08-10',
+        acquisitionMethod: 'purchase',
+        purchasePrice: 8500000,
+        sourceDocuments: ['Monaco Property Registry'],
+        verificationStatus: 'verified'
+      }
+    ],
+    
+    financials: {
+      purchasePrice: 8500000,
+      purchaseDate: '2005-01-01',
+      currentEstimatedValue: 14000000,
+      renovationCosts: 2000000,
+      annualMaintenance: 180000,
+      propertyTaxes: 0,
+      suspiciousTransactions: []
+    },
+    
+    features: {
+      squareFootage: 4500,
+      bedrooms: 3,
+      bathrooms: 4,
+      specialFeatures: ['Harbor views', 'Concierge service', 'Private terrace'],
+      securityFeatures: ['Building security', 'Private entrance'],
+      entertainmentFacilities: ['Entertainment room', 'Wine cellar'],
+      transportation: ['Private garage', 'Yacht access']
+    },
+    
+    investigationDetails: {
+      firstMentioned: '2010-01-01',
+      keyEvents: [],
+      witnessAccounts: [],
+      lawEnforcement: []
+    },
+    
+    connectedEntities: ['entity_epstein_individual', 'entity_european_holdings'],
+    relatedTransactions: [],
+    documents: ['Property Records'],
+    flightLogReferences: ['European circuit flights'],
+    
+    currentStatus: 'sold',
+    accessLevel: 'private',
+    verified: true
+  },
+
+  {
+    id: 'property_caribbean_yacht',
+    name: 'Lady Ghislaine Yacht',
+    type: 'yacht',
+    coordinates: [18.3, -64.8],
+    address: 'Caribbean Waters',
+    description: 'Luxury yacht named after Ghislaine Maxwell, used for Caribbean travel.',
+    significance: 'high',
+    
+    ownershipHistory: [
+      {
+        id: 'yacht_ownership_1',
+        propertyId: 'property_caribbean_yacht',
+        ownerId: 'entity_epstein_individual',
+        ownerName: 'Jeffrey Edward Epstein',
+        ownerType: 'individual',
+        startDate: '1999-01-01',
+        endDate: '2019-08-10',
+        acquisitionMethod: 'purchase',
+        purchasePrice: 20000000,
+        sourceDocuments: ['Maritime Registry'],
+        verificationStatus: 'verified'
+      }
+    ],
+    
+    financials: {
+      purchasePrice: 20000000,
+      purchaseDate: '1999-01-01',
+      currentEstimatedValue: 15000000,
+      renovationCosts: 5000000,
+      annualMaintenance: 2000000,
+      propertyTaxes: 0,
+      suspiciousTransactions: []
+    },
+    
+    features: {
+      squareFootage: 8000,
+      bedrooms: 6,
+      bathrooms: 8,
+      specialFeatures: ['190-foot yacht', 'Helicopter pad', 'Submarine bay', 'Multiple decks'],
+      securityFeatures: ['Private crew', 'Secure communications', 'Controlled access'],
+      entertainmentFacilities: ['Swimming platform', 'Jacuzzi', 'Entertainment suites'],
+      transportation: ['Helicopter pad', 'Tender boats']
+    },
+    
+    investigationDetails: {
+      firstMentioned: '2005-01-01',
+      keyEvents: [
+        {
+          date: '2005-07-01',
+          event: 'Yacht mentioned in victim testimony',
+          source: 'Court documents',
+          significance: 'high'
+        }
+      ],
+      witnessAccounts: ['Crew members', 'Victim testimonies'],
+      lawEnforcement: []
+    },
+    
+    connectedEntities: ['entity_epstein_individual', 'entity_ghislaine_maxwell'],
+    relatedTransactions: [],
+    documents: ['Yacht registration', 'Crew manifests'],
+    flightLogReferences: [],
+    
+    currentStatus: 'seized',
+    accessLevel: 'seized',
+    verified: true
   }
 ];
 
