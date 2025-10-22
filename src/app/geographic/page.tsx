@@ -100,8 +100,8 @@ export default function GeographicMappingPage() {
   // Statistics for the mapping system
   const geographicStats = {
     propertiesTracked: 12,
-    flightLogsAnalyzed: 6,
-    travelPatternsIdentified: 3,
+    flightLogsAnalyzed: 14,
+    travelPatternsIdentified: 5,
     countriesInvolved: 8,
     financialConnectionsMapped: 12,
     lastUpdated: new Date().toLocaleDateString()
@@ -114,7 +114,7 @@ export default function GeographicMappingPage() {
       icon: <Plane className="w-4 h-4" />,
       description: 'Documented flight routes and travel logs',
       color: 'text-blue-400',
-      count: 6
+      count: 14
     },
     {
       key: 'travelPatterns',
@@ -122,7 +122,7 @@ export default function GeographicMappingPage() {
       description: 'Recurring movement patterns and frequencies',
       icon: <Activity className="w-4 h-4" />,
       color: 'text-purple-400',
-      count: 3
+      count: 5
     },
     {
       key: 'financialConnections',

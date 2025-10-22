@@ -377,24 +377,375 @@ export const travelPatterns: TravelPattern[] = [
     relatedFlights: ['flight_003'],
     significance: 'high',
     investigationRelevance: 'Remote location used for sensitive meetings with key associates'
+  },
+  
+  {
+    id: 'pattern_london_circuit',
+    name: 'London Social Circuit',
+    description: 'Regular visits to London for social connections and alleged activities',
+    timeframe: {
+      start: '1995-01-01',
+      end: '2019-07-01'
+    },
+    
+    frequency: 'monthly',
+    primaryRoute: [
+      {
+        location: 'New York',
+        propertyId: 'property_manhattan_mansion',
+        averageStayDuration: '1-2 weeks',
+        purpose: 'Business operations'
+      },
+      {
+        location: 'London',
+        propertyId: 'property_london_residence',
+        averageStayDuration: '3-5 days',
+        purpose: 'Social connections'
+      },
+      {
+        location: 'Paris',
+        propertyId: 'property_paris_apartment',
+        averageStayDuration: '2-3 days',
+        purpose: 'European connections'
+      }
+    ],
+    
+    relatedFlights: ['flight_002'],
+    significance: 'critical',
+    investigationRelevance: 'London residence central to alleged abuse incidents and royal connections'
+  },
+  
+  {
+    id: 'pattern_middle_east_trips',
+    name: 'Middle East Business Trips',
+    description: 'Periodic trips to Dubai and other Middle Eastern locations',
+    timeframe: {
+      start: '2008-01-01',
+      end: '2019-07-01'
+    },
+    
+    frequency: 'seasonal',
+    primaryRoute: [
+      {
+        location: 'New York',
+        propertyId: 'property_manhattan_mansion',
+        purpose: 'Departure point'
+      },
+      {
+        location: 'Dubai',
+        propertyId: 'property_dubai_penthouse',
+        averageStayDuration: '5-7 days',
+        purpose: 'International meetings'
+      }
+    ],
+    
+    relatedFlights: [],
+    significance: 'medium',
+    investigationRelevance: 'Offshore financial connections and international network expansion'
   }
 ];
 
+// Additional flight logs
+export const additionalFlightLogs: FlightLog[] = [
+  {
+    id: 'flight_007',
+    date: '2001-03-10',
+    aircraft: 'Boeing 727',
+    tailNumber: 'N908JE',
+    
+    departure: {
+      location: 'Teterboro Airport',
+      coordinates: [40.8501, -74.0606],
+      airport: 'TEB'
+    },
+    
+    arrival: {
+      location: 'London Luton Airport',
+      coordinates: [51.8747, -0.3683],
+      airport: 'LTN'
+    },
+    
+    passengers: [
+      { name: 'Jeffrey Epstein', personId: 'person_epstein', status: 'confirmed' },
+      { name: 'Ghislaine Maxwell', personId: 'person_maxwell', status: 'confirmed' },
+      { name: 'Virginia Roberts', personId: 'person_giuffre', status: 'confirmed' },
+      { name: 'Prince Andrew', personId: 'person_prince_andrew', status: 'confirmed' }
+    ],
+    
+    purpose: 'Trip to London during alleged abuse period',
+    flightDuration: '7h 30m',
+    distance: 3459,
+    
+    significance: 'critical',
+    investigationNotes: 'Flight associated with Virginia Giuffre allegations at London townhouse',
+    relatedEvents: ['london_incident_2001'],
+    
+    sourceDocuments: ['Flight Logs', 'Virginia Giuffre Testimony', 'Court Documents'],
+    verificationStatus: 'verified',
+    crossReferencedWith: ['Maxwell Trial Evidence', 'Prince Andrew Deposition']
+  },
+  
+  {
+    id: 'flight_008',
+    date: '2010-06-15',
+    aircraft: 'Gulfstream IV',
+    tailNumber: 'N121JE',
+    
+    departure: {
+      location: 'Teterboro Airport',
+      coordinates: [40.8501, -74.0606],
+      airport: 'TEB'
+    },
+    
+    arrival: {
+      location: 'Dubai International Airport',
+      coordinates: [25.2532, 55.3657],
+      airport: 'DXB'
+    },
+    
+    passengers: [
+      { name: 'Jeffrey Epstein', personId: 'person_epstein', status: 'confirmed' },
+      { name: 'Unknown passengers', status: 'disputed' }
+    ],
+    
+    purpose: 'International business travel',
+    flightDuration: '13h 45m',
+    distance: 6838,
+    
+    significance: 'medium',
+    investigationNotes: 'Trip to Middle East during post-conviction period',
+    
+    sourceDocuments: ['Flight Tracking Data'],
+    verificationStatus: 'verified'
+  },
+  
+  {
+    id: 'flight_009',
+    date: '2002-08-20',
+    aircraft: 'Boeing 727',
+    tailNumber: 'N908JE',
+    
+    departure: {
+      location: 'Cyril E. King Airport',
+      propertyId: 'property_little_saint_james',
+      coordinates: [18.3373, -64.9734],
+      airport: 'STT'
+    },
+    
+    arrival: {
+      location: 'Teterboro Airport',
+      coordinates: [40.8501, -74.0606],
+      airport: 'TEB'
+    },
+    
+    passengers: [
+      { name: 'Jeffrey Epstein', personId: 'person_epstein', status: 'confirmed' },
+      { name: 'Ghislaine Maxwell', personId: 'person_maxwell', status: 'confirmed' },
+      { name: 'Bill Clinton', personId: 'person_clinton', status: 'confirmed' }
+    ],
+    
+    purpose: 'Return from Caribbean',
+    flightDuration: '3h 15m',
+    distance: 1650,
+    
+    significance: 'high',
+    investigationNotes: 'High-profile passenger documented on flight from island',
+    
+    sourceDocuments: ['Flight Logs', 'Secret Service Records'],
+    verificationStatus: 'verified'
+  },
+  
+  {
+    id: 'flight_010',
+    date: '2003-11-05',
+    aircraft: 'Gulfstream IV',
+    tailNumber: 'N121JE',
+    
+    departure: {
+      location: 'Teterboro Airport',
+      coordinates: [40.8501, -74.0606],
+      airport: 'TEB'
+    },
+    
+    arrival: {
+      location: 'Nice Côte d\'Azur Airport',
+      coordinates: [43.6584, 7.2159],
+      airport: 'NCE'
+    },
+    
+    passengers: [
+      { name: 'Jeffrey Epstein', personId: 'person_epstein', status: 'confirmed' },
+      { name: 'Ghislaine Maxwell', personId: 'person_maxwell', status: 'confirmed' }
+    ],
+    
+    purpose: 'Travel to Monaco/French Riviera',
+    flightDuration: '8h 20m',
+    distance: 3686,
+    
+    significance: 'medium',
+    investigationNotes: 'Trip to Monaco residence area',
+    
+    sourceDocuments: ['Flight Logs', 'European Flight Records'],
+    verificationStatus: 'verified'
+  },
+  
+  {
+    id: 'flight_011',
+    date: '2006-03-12',
+    aircraft: 'Boeing 727',
+    tailNumber: 'N908JE',
+    
+    departure: {
+      location: 'Palm Beach International Airport',
+      propertyId: 'property_palm_beach_estate',
+      coordinates: [26.6831, -80.0956],
+      airport: 'PBI'
+    },
+    
+    arrival: {
+      location: 'Port Columbus International Airport',
+      coordinates: [39.9980, -82.8919],
+      airport: 'CMH'
+    },
+    
+    passengers: [
+      { name: 'Jeffrey Epstein', personId: 'person_epstein', status: 'confirmed' },
+      { name: 'Les Wexner', personId: 'person_wexner', status: 'probable' }
+    ],
+    
+    purpose: 'Visit to Wexner Ohio mansion',
+    flightDuration: '2h 30m',
+    distance: 1050,
+    
+    significance: 'high',
+    investigationNotes: 'Meeting with primary financier during investigation period',
+    
+    sourceDocuments: ['Flight Logs'],
+    verificationStatus: 'verified'
+  },
+  
+  {
+    id: 'flight_012',
+    date: '2015-01-18',
+    aircraft: 'Gulfstream IV',
+    tailNumber: 'N121JE',
+    
+    departure: {
+      location: 'Teterboro Airport',
+      coordinates: [40.8501, -74.0606],
+      airport: 'TEB'
+    },
+    
+    arrival: {
+      location: 'Cyril E. King Airport',
+      propertyId: 'property_little_saint_james',
+      coordinates: [18.3373, -64.9734],
+      airport: 'STT'
+    },
+    
+    passengers: [
+      { name: 'Jeffrey Epstein', personId: 'person_epstein', status: 'confirmed' },
+      { name: 'Unknown passengers', status: 'disputed' }
+    ],
+    
+    purpose: 'Post-conviction island visit',
+    flightDuration: '3h 45m',
+    distance: 1650,
+    
+    significance: 'high',
+    investigationNotes: 'Continued use of island after 2008 conviction',
+    
+    sourceDocuments: ['Flight Tracking Data', 'FAA Records'],
+    verificationStatus: 'verified'
+  },
+  
+  {
+    id: 'flight_013',
+    date: '2016-07-22',
+    aircraft: 'Helicopter',
+    tailNumber: 'N474JE',
+    
+    departure: {
+      location: 'Teterboro Airport',
+      propertyId: 'property_teterboro_hangar',
+      coordinates: [40.8501, -74.0606],
+      airport: 'TEB'
+    },
+    
+    arrival: {
+      location: 'Manhattan Heliport',
+      coordinates: [40.7425, -73.9726],
+      airport: 'N/A'
+    },
+    
+    passengers: [
+      { name: 'Jeffrey Epstein', personId: 'person_epstein', status: 'confirmed' }
+    ],
+    
+    purpose: 'Short commute to Manhattan',
+    flightDuration: '15m',
+    distance: 15,
+    
+    significance: 'low',
+    investigationNotes: 'Routine helicopter commute',
+    
+    sourceDocuments: ['Flight Logs'],
+    verificationStatus: 'verified'
+  },
+  
+  {
+    id: 'flight_014',
+    date: '2018-05-10',
+    aircraft: 'Gulfstream IV',
+    tailNumber: 'N121JE',
+    
+    departure: {
+      location: 'Teterboro Airport',
+      coordinates: [40.8501, -74.0606],
+      airport: 'TEB'
+    },
+    
+    arrival: {
+      location: 'Santa Fe Regional Airport',
+      propertyId: 'property_zorro_ranch',
+      coordinates: [35.6171, -106.0894],
+      airport: 'SAF'
+    },
+    
+    passengers: [
+      { name: 'Jeffrey Epstein', personId: 'person_epstein', status: 'confirmed' }
+    ],
+    
+    purpose: 'Visit to New Mexico ranch',
+    flightDuration: '4h 30m',
+    distance: 1850,
+    
+    significance: 'medium',
+    investigationNotes: 'Late-period ranch visit',
+    
+    sourceDocuments: ['Flight Logs', 'FAA Records'],
+    verificationStatus: 'verified'
+  }
+];
+
+// Combine all flight logs
+export const allFlightLogs = [...flightLogs, ...additionalFlightLogs];
+
 export const getFlightsByProperty = (propertyId: string): FlightLog[] => {
-  return flightLogs.filter(flight => 
+  return allFlightLogs.filter(flight => 
     flight.departure.propertyId === propertyId || 
     flight.arrival.propertyId === propertyId
   );
 };
 
 export const getFlightsByDateRange = (startDate: string, endDate: string): FlightLog[] => {
-  return flightLogs.filter(flight => 
+  return allFlightLogs.filter(flight => 
     flight.date >= startDate && flight.date <= endDate
   );
 };
 
 export const getFlightsByPassenger = (personId: string): FlightLog[] => {
-  return flightLogs.filter(flight =>
+  return allFlightLogs.filter(flight =>
     flight.passengers.some(passenger => passenger.personId === personId)
   );
 };

@@ -14,7 +14,7 @@ import {
   Eye
 } from 'lucide-react';
 import { enhancedProperties as properties } from '@/data/geographic/properties';
-import { flightLogs as flights, travelPatterns } from '@/data/geographic/travelPatterns';
+import { allFlightLogs as flights, travelPatterns } from '@/data/geographic/travelPatterns';
 
 // Fix for default markers in react-leaflet (safer approach)
 const initializeLeafletIcons = () => {
