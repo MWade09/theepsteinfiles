@@ -307,6 +307,7 @@ export const comprehensiveTimeline: TimelineEvent[] = [
     description: 'Leslie Wexner transfers his $20 million Manhattan mansion at 9 East 71st Street to Jeffrey Epstein for $0 - effectively a gift.',
     date: '1996-07-01',
     type: 'business',
+    coordinates: [40.7736, -73.9566],
     category: 'financial',
     significance: 'critical',
     entities: [
@@ -416,6 +417,7 @@ export const comprehensiveTimeline: TimelineEvent[] = [
     description: 'Jeffrey Epstein purchases Little Saint James Island in the U.S. Virgin Islands for $7.95 million.',
     date: '1998-07-01',
     type: 'business',
+    coordinates: [18.3009, -64.8257],
     category: 'financial',
     significance: 'critical',
     entities: [
@@ -481,6 +483,7 @@ export const comprehensiveTimeline: TimelineEvent[] = [
     description: 'Jeffrey Epstein purchases Great Saint James Island (165 acres) adjacent to Little Saint James for $18 million, expanding his Virgin Islands territory.',
     date: '2016-05-01',
     type: 'business',
+    coordinates: [18.3123, -64.8156],
     category: 'financial',
     significance: 'high',
     entities: [
@@ -932,6 +935,7 @@ export const comprehensiveTimeline: TimelineEvent[] = [
     description: 'Palm Beach Police Department begins investigating Jeffrey Epstein following a complaint from a 14-year-old girl\'s stepmother.',
     date: '2005-03-01',
     type: 'investigation',
+    coordinates: [26.6612, -80.0350],
     category: 'criminal',
     significance: 'critical',
     entities: [
@@ -964,6 +968,7 @@ export const comprehensiveTimeline: TimelineEvent[] = [
     description: 'Palm Beach Police execute search warrant at Epstein\'s Palm Beach mansion, discovering evidence of sexual activity with minors.',
     date: '2005-07-01',
     type: 'investigation',
+    coordinates: [26.6612, -80.0350],
     category: 'criminal',
     significance: 'critical',
     entities: [
@@ -1029,6 +1034,7 @@ export const comprehensiveTimeline: TimelineEvent[] = [
     description: 'Jeffrey Epstein is arrested in Palm Beach on charges of unlawful sexual activity with a minor.',
     date: '2006-07-27',
     type: 'arrest',
+    coordinates: [26.6612, -80.0350],
     category: 'criminal',
     significance: 'critical',
     entities: [
@@ -2171,6 +2177,7 @@ export const comprehensiveTimeline: TimelineEvent[] = [
     title: 'Purchase of Zorro Ranch in New Mexico',
     description: 'Epstein acquires the 7,500-acre Zorro Ranch near Stanley, New Mexico, for $2.5 million. The ranch features a 26,700-square-foot mansion and becomes another key location in his network of properties, allegedly used for similar activities as his other residences.',
     type: 'business' as const,
+    coordinates: [35.8411, -105.4758],
     category: 'financial' as const,
     significance: 'high' as const,
     entities: [
@@ -2222,6 +2229,7 @@ export const comprehensiveTimeline: TimelineEvent[] = [
     title: 'Acquisition of Palm Beach Mansion',
     description: 'Epstein purchases a waterfront mansion at 358 El Brillo Way in Palm Beach, Florida, for $2.5 million. The property undergoes extensive renovations and becomes the site where many of the alleged crimes detailed in victim testimonies took place.',
     type: 'business' as const,
+    coordinates: [26.6612, -80.0350],
     category: 'financial' as const,
     significance: 'critical' as const,
     entities: [
@@ -2410,6 +2418,7 @@ export const comprehensiveTimeline: TimelineEvent[] = [
     title: 'Purchase of Luxury Paris Apartment',
     description: 'Epstein acquires a luxury apartment on Avenue Foch in Paris\'s 16th arrondissement, one of the most exclusive addresses in the city. The property serves as his European base of operations and facilitates his international network activities.',
     type: 'business' as const,
+    coordinates: [48.8632, 2.3126],
     category: 'financial' as const,
     significance: 'medium' as const,
     entities: [

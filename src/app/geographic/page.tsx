@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { 
-  Map, 
+import {
+  Map,
   ArrowLeft,
   Layers,
   Target,
@@ -18,6 +18,8 @@ import {
   Search,
   Info
 } from 'lucide-react';
+import PropertyDetailPanel from '@/components/PropertyDetailPanel';
+import { enhancedProperties } from '@/data/geographic/properties';
 
 interface LayerState {
   flightPaths: boolean;
@@ -63,6 +65,7 @@ const MapErrorFallback = ({ error, resetError }: { error: Error; resetError: () 
 
 export default function GeographicMappingPage() {
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
+  const [showDetailPanel, setShowDetailPanel] = useState(false);
   const [activeLayers, setActiveLayers] = useState<LayerState>({
     flightPaths: true,
     travelPatterns: true,
@@ -79,6 +82,18 @@ export default function GeographicMappingPage() {
   const resetMap = () => {
     setMapError(null);
     setMapKey(prev => prev + 1);
+  };
+
+  // Handle property selection
+  const handlePropertySelect = (propertyId: string) => {
+    setSelectedProperty(propertyId);
+    setShowDetailPanel(true);
+  };
+
+  // Handle detail panel close
+  const handleDetailPanelClose = () => {
+    setShowDetailPanel(false);
+    setSelectedProperty(null);
   };
 
   // Handle window errors from map initialization
@@ -357,7 +372,7 @@ export default function GeographicMappingPage() {
             <InteractiveMap
               key={`map-${mapKey}`}
               selectedProperty={selectedProperty}
-              onPropertySelect={setSelectedProperty}
+              onPropertySelect={handlePropertySelect}
               activeLayers={activeLayers}
               className="w-full h-full"
             />
@@ -384,6 +399,17 @@ export default function GeographicMappingPage() {
           </div>
         </div>
       </div>
+
+      {/* Property Detail Panel */}
+      <PropertyDetailPanel
+        property={selectedProperty ? enhancedProperties.find(p => p.id === selectedProperty) || null : null}
+        isOpen={showDetailPanel}
+        onClose={handleDetailPanelClose}
+        onTimelineEventClick={(_eventId) => {
+          // TODO: Navigate to timeline page with specific event
+          // Navigate to timeline event: _eventId
+        }}
+      />
     </div>
   );
 } 

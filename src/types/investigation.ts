@@ -349,6 +349,7 @@ export interface TimelineEvent {
   type: 'arrest' | 'legal' | 'investigation' | 'media' | 'business' | 'travel' | 'meeting' | 'other';
   category: 'criminal' | 'civil' | 'financial' | 'political' | 'social' | 'other';
   significance: 'critical' | 'high' | 'medium' | 'low';
+  coordinates?: [number, number]; // Geographic location of event [latitude, longitude]
   entities: EventEntity[]; // People, organizations, locations involved
   relatedEvents: string[]; // IDs of related events
   consequences: string[];

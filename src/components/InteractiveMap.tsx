@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { enhancedProperties as properties } from '@/data/geographic/properties';
 import { allFlightLogs as flights, travelPatterns } from '@/data/geographic/travelPatterns';
+import { comprehensiveTimeline } from '@/data/core/timeline';
 
 // Fix for default markers in react-leaflet (safer approach)
 const initializeLeafletIcons = () => {
@@ -419,14 +420,14 @@ export default function InteractiveMap({
         {properties && properties.map((property) => {
           const discovery = discoveryPoints.find(d => d.id === property.id);
           const isSelected = selectedProperty === property.id;
-          
+
           return (
             <Marker
               key={property.id}
               position={property.coordinates}
               icon={createCustomIcon(
-                property.type, 
-                property.significance, 
+                property.type,
+                property.significance,
                 isSelected,
                 discovery?.discovered || false
               )}
@@ -444,10 +445,10 @@ export default function InteractiveMap({
                       </span>
                     )}
                   </div>
-                  
+
                   <div className="space-y-2 text-sm">
                     <p className="text-gray-300">{property.description}</p>
-                    
+
                     <div className="flex items-center gap-4">
                       <span className={`px-2 py-1 rounded text-xs font-bold ${
                         property.significance === 'critical' ? 'bg-red-900/50 text-red-400' :
@@ -456,16 +457,16 @@ export default function InteractiveMap({
                       }`}>
                         {property.significance.toUpperCase()}
                       </span>
-                      
+
                       <span className="text-green-400 font-bold">
                         ${property.financials.purchasePrice.toLocaleString()}
                       </span>
                     </div>
-                    
+
                     <div className="text-cyan-400">
                       Owner: {property.ownershipHistory[0]?.ownerName}
                     </div>
-                    
+
                     {property.flightLogReferences && property.flightLogReferences.length > 0 && (
                       <div className="text-purple-400">
                         {property.flightLogReferences.length} documented flights
@@ -477,6 +478,89 @@ export default function InteractiveMap({
             </Marker>
           );
         })}
+
+        {/* Timeline Event Markers */}
+        {activeLayers.flightPaths && comprehensiveTimeline
+          .filter(event => event.coordinates)
+          .map((event) => {
+            if (!event.coordinates) return null;
+
+
+            return (
+              <Marker
+                key={`timeline-${event.id}`}
+                position={event.coordinates}
+                icon={L.divIcon({
+                  html: `
+                    <div style="
+                      width: 24px;
+                      height: 24px;
+                      background: radial-gradient(circle, #8b5cf6 0%, #7c3aed 70%);
+                      border: 2px solid #a855f7;
+                      border-radius: 50%;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 10px;
+                      cursor: pointer;
+                      box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+                    ">
+                      📅
+                    </div>
+                  `,
+                  className: 'timeline-event-marker',
+                  iconSize: [24, 24],
+                  iconAnchor: [12, 12],
+                  popupAnchor: [0, -12]
+                })}
+                eventHandlers={{
+                  click: () => {
+                    // TODO: Handle timeline event click
+                    // Timeline event clicked: event.id
+                  },
+                }}
+              >
+                <Popup>
+                  <div className="bg-gray-900 text-white p-4 rounded-lg min-w-[250px]">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="font-bold text-lg">{event.title}</h3>
+                      <span className="bg-purple-500 text-white px-2 py-1 rounded text-xs font-bold">
+                        Timeline Event
+                      </span>
+                    </div>
+
+                    <div className="space-y-2 text-sm">
+                      <p className="text-gray-300">{event.description}</p>
+
+                      <div className="flex items-center gap-4">
+                        <span className={`px-2 py-1 rounded text-xs font-bold ${
+                          event.significance === 'critical' ? 'bg-red-900/50 text-red-400' :
+                          event.significance === 'high' ? 'bg-orange-900/50 text-orange-400' :
+                          'bg-blue-900/50 text-blue-400'
+                        }`}>
+                          {event.significance?.toUpperCase()}
+                        </span>
+
+                        <span className="text-cyan-400">
+                          {new Date(event.date).toLocaleDateString()}
+                        </span>
+                      </div>
+
+                      {event.tags && event.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {event.tags.map((tag, index) => (
+                            <span key={index} className="px-2 py-1 text-xs bg-purple-900/50 text-purple-400 rounded">
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </Popup>
+              </Marker>
+            );
+          })}
 
         {/* Flight Paths */}
         {activeLayers.flightPaths && flightPaths.map((path) => {
