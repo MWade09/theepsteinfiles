@@ -144,8 +144,6 @@ export default function GeographicClustering({
 
   const getTimelineEventIcon = (event: any, isSelected: boolean) => {
     const size = isSelected ? 32 : 24;
-    const color = event.significance === 'critical' ? '#ef4444' :
-                  event.significance === 'high' ? '#f59e0b' : '#3b82f6';
 
     return L.divIcon({
       html: `
@@ -197,7 +195,6 @@ export default function GeographicClustering({
           maxClusterRadius={50}
         >
           {cluster.properties.map((property) => {
-            const discovery = { id: property.id, name: property.name, category: 'property' as const, points: 100, discovered: true };
             const isSelected = selectedProperty === property.id;
 
             const relatedToTimelineEvent = selectedTimelineEvent &&
