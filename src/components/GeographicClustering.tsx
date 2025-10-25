@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import L from 'leaflet';
 import { Marker, Popup } from 'react-leaflet';
-import MarkerClusterGroup from 'react-leaflet-markercluster';
 import { EnhancedProperty } from '@/data/geographic/properties';
 import { comprehensiveTimeline } from '@/data/core/timeline';
 
@@ -110,38 +109,6 @@ export default function GeographicClustering({
     return R * c;
   };
 
-  const getClusterIcon = (cluster: ClusterData) => {
-    const size = Math.max(40, Math.min(80, 30 + cluster.properties.length * 5));
-    const significance = cluster.significance;
-    const color = significance === 'critical' ? '#ef4444' :
-                  significance === 'high' ? '#f59e0b' : '#3b82f6';
-
-    return L.divIcon({
-      html: `
-        <div style="
-          width: ${size}px;
-          height: ${size}px;
-          background: radial-gradient(circle, ${color}22 0%, ${color}11 70%);
-          border: 3px solid ${color};
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: ${size * 0.25}px;
-          font-weight: bold;
-          color: white;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          box-shadow: 0 4px 15px rgba(${significance === 'critical' ? '239, 68, 68' : significance === 'high' ? '245, 158, 11' : '59, 130, 246'}, 0.4);
-        ">
-          ${cluster.properties.length}
-        </div>
-      `,
-      className: 'cluster-marker',
-      iconSize: [size, size],
-      iconAnchor: [size / 2, size / 2]
-    });
-  };
 
   const getTimelineEventIcon = (event: any, isSelected: boolean) => {
     const size = isSelected ? 32 : 24;
@@ -187,26 +154,20 @@ export default function GeographicClustering({
 
   return (
     <>
-      {/* Property Clusters */}
-      {clusters.map((cluster) => (
-        <MarkerClusterGroup
-          key={`cluster-${cluster.properties.map(p => p.id).join('-')}`}
-          iconCreateFunction={() => getClusterIcon(cluster)}
-          chunkedLoading
-          maxClusterRadius={50}
-        >
-          {cluster.properties.map((property) => {
-            const isSelected = selectedProperty === property.id;
+      {/* Property Markers */}
+      {clusters.flatMap((cluster) =>
+        cluster.properties.map((property) => {
+          const isSelected = selectedProperty === property.id;
 
-            const relatedToTimelineEvent = selectedTimelineEvent &&
-              comprehensiveTimeline.find(event => event.id === selectedTimelineEvent)
-                ?.entities.some(entity => entity.entityId === property.id);
+          const relatedToTimelineEvent = selectedTimelineEvent &&
+            comprehensiveTimeline.find(event => event.id === selectedTimelineEvent)
+              ?.entities.some(entity => entity.entityId === property.id);
 
-            return (
-              <Marker
-                key={property.id}
-                position={property.coordinates}
-                icon={L.divIcon({
+          return (
+            <Marker
+              key={property.id}
+              position={property.coordinates}
+              icon={L.divIcon({
                   html: `
                     <div style="
                       position: relative;
@@ -320,9 +281,8 @@ export default function GeographicClustering({
                 </Popup>
               </Marker>
             );
-          })}
-        </MarkerClusterGroup>
-      ))}
+          })
+        )}
 
       {/* Individual Timeline Event Markers (for events not in clusters) */}
       {activeLayers.flightPaths && comprehensiveTimeline
