@@ -116,6 +116,7 @@ interface UserProgress {
 export default function EnhancedGeographicMapping() {
   const [viewMode, setViewMode] = useState<'overview' | 'timeline' | 'patterns' | 'financial' | '3d' | 'satellite'>('overview');
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
+  const [selectedTimelineEvent, setSelectedTimelineEvent] = useState<string | null>(null);
   const [activeLayers, setActiveLayers] = useState<LayerState>({
     flightPaths: true,
     travelPatterns: true,
@@ -291,7 +292,9 @@ export default function EnhancedGeographicMapping() {
 
         <InteractiveMap
           selectedProperty={selectedProperty}
+          selectedTimelineEvent={selectedTimelineEvent}
           onPropertySelect={(propertyId) => setSelectedProperty(propertyId)}
+          onTimelineEventSelect={(eventId) => setSelectedTimelineEvent(eventId)}
           activeLayers={{
             flightPaths: activeLayers.flightPaths,
             travelPatterns: activeLayers.travelPatterns,
