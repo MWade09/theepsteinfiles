@@ -18,7 +18,8 @@ import {
   ExternalLink,
   Download,
   Share2,
-  Info
+  Info,
+  BarChart3
 } from 'lucide-react';
 import { EnhancedProperty } from '@/data/geographic/properties';
 import { getFlightsByProperty } from '@/data/geographic/travelPatterns';
@@ -28,13 +29,21 @@ interface PropertyDetailPanelProps {
   isOpen: boolean;
   onClose: () => void;
   onTimelineEventClick?: (eventId: string) => void;
+  onCompare?: (propertyId: string) => void;
+  isInComparison?: boolean;
+  relatedTimelineEvents?: string[];
+  onClearSync?: () => void;
 }
 
 export default function PropertyDetailPanel({
   property,
   isOpen,
   onClose,
-  onTimelineEventClick
+  onTimelineEventClick,
+  onCompare,
+  isInComparison = false,
+  relatedTimelineEvents = [],
+  onClearSync
 }: PropertyDetailPanelProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'ownership' | 'financial' | 'investigation' | 'connections'>('overview');
 
@@ -105,6 +114,12 @@ export default function PropertyDetailPanel({
             <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">
               <Eye className="w-3 h-3 inline mr-1" />
               VERIFIED
+            </span>
+          )}
+          {relatedTimelineEvents.length > 0 && (
+            <span className="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400">
+              <Clock className="w-3 h-3 inline mr-1" />
+              TIMELINE SYNC ({relatedTimelineEvents.length})
             </span>
           )}
         </div>
@@ -384,18 +399,70 @@ export default function PropertyDetailPanel({
                     Key Events
                   </h4>
                   <div className="space-y-3">
-                    {property.investigationDetails.keyEvents.map((event) => (
-                      <div
-                        key={event.date}
-                        className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                          event.significance === 'critical'
-                            ? 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/10'
-                            : event.significance === 'high'
-                            ? 'border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-900/10'
-                            : 'border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800'
-                        }`}
-                        onClick={() => onTimelineEventClick?.(event.date)}
-                      >
+                    {/* Related Timeline Events */}
+          {relatedTimelineEvents.length > 0 && (
+            <div className="mb-6">
+              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                <Clock className="w-4 h-4 text-purple-500" />
+                Timeline Synchronization ({relatedTimelineEvents.length} events)
+              </h4>
+              <div className="space-y-2">
+                {relatedTimelineEvents.map((eventId) => {
+                  // Find the timeline event by ID
+                  const timelineEvent = comprehensiveTimeline.find(event => event.id === eventId);
+                  if (!timelineEvent) return null;
+
+                  return (
+                    <div
+                      key={eventId}
+                      className="p-3 border border-purple-200 bg-purple-50 dark:border-purple-800 dark:bg-purple-900/10 rounded-lg cursor-pointer hover:border-purple-300 dark:hover:border-purple-700 transition-colors"
+                      onClick={() => onTimelineEventClick?.(eventId)}
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-purple-800 dark:text-purple-400">
+                            {timelineEvent.title}
+                          </p>
+                          <p className="text-xs text-purple-600 dark:text-purple-300">
+                            {timelineEvent.description.substring(0, 100)}...
+                          </p>
+                        </div>
+                        <span className={`px-2 py-1 text-xs rounded-full ${
+                          timelineEvent.significance === 'critical' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' :
+                          timelineEvent.significance === 'high' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400' :
+                          'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+                        }`}>
+                          {timelineEvent.significance}
+                        </span>
+                      </div>
+                      <p className="text-xs text-purple-500">
+                        {new Date(timelineEvent.date).toLocaleDateString()}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+                    {/* Property Key Events */}
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                        Key Events
+                      </h4>
+                      <div className="space-y-3">
+                        {property.investigationDetails.keyEvents.map((event) => (
+                          <div
+                            key={event.date}
+                            className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                              event.significance === 'critical'
+                                ? 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/10'
+                                : event.significance === 'high'
+                                ? 'border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-900/10'
+                                : 'border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800'
+                            }`}
+                            onClick={() => onTimelineEventClick?.(event.date)}
+                          >
                         <div className="flex items-start justify-between mb-2">
                           <div className="flex-1">
                             <p className="text-sm font-medium text-gray-900 dark:text-white">
@@ -409,11 +476,15 @@ export default function PropertyDetailPanel({
                             {event.significance}
                           </span>
                         </div>
-                        <p className="text-xs text-gray-500">
-                          {new Date(event.date).toLocaleDateString()}
-                        </p>
+                            <p className="text-xs text-gray-500">
+                              {new Date(event.date).toLocaleDateString()}
+                            </p>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    </div>
+                  </div>
+
                   </div>
                 </div>
 
@@ -582,6 +653,26 @@ export default function PropertyDetailPanel({
             <Download className="w-4 h-4" />
             Export Data
           </button>
+          <button
+            onClick={() => onCompare?.(property.id)}
+            className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+              isInComparison
+                ? 'bg-red-600 text-white hover:bg-red-700'
+                : 'bg-purple-600 text-white hover:bg-purple-700'
+            }`}
+          >
+            <BarChart3 className="w-4 h-4" />
+            {isInComparison ? 'Remove Compare' : 'Compare'}
+          </button>
+          {relatedTimelineEvents.length > 0 && (
+            <button
+              onClick={onClearSync}
+              className="flex items-center justify-center gap-2 px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              <Clock className="w-4 h-4" />
+              Clear Sync
+            </button>
+          )}
           <button className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors">
             <Share2 className="w-4 h-4" />
             Share

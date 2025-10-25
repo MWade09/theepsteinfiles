@@ -16,10 +16,16 @@ import {
   Maximize,
   Minimize,
   Search,
-  Info
+  Info,
+  BarChart3,
+  TrendingUp
 } from 'lucide-react';
 import PropertyDetailPanel from '@/components/PropertyDetailPanel';
+import GeographicAnalytics from '@/components/GeographicAnalytics';
+import PropertyComparison from '@/components/PropertyComparison';
+import GeographicHeatMap from '@/components/GeographicHeatMap';
 import { enhancedProperties } from '@/data/geographic/properties';
+import { comprehensiveTimeline } from '@/data/core/timeline';
 
 interface LayerState {
   flightPaths: boolean;
@@ -65,6 +71,7 @@ const MapErrorFallback = ({ error, resetError }: { error: Error; resetError: () 
 
 export default function GeographicMappingPage() {
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
+  const [selectedTimelineEvent, setSelectedTimelineEvent] = useState<string | null>(null);
   const [showDetailPanel, setShowDetailPanel] = useState(false);
   const [activeLayers, setActiveLayers] = useState<LayerState>({
     flightPaths: true,
@@ -75,8 +82,11 @@ export default function GeographicMappingPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControlPanel, setShowControlPanel] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<'overview' | 'analytics' | 'search' | 'visualization'>('overview');
   const [mapError, setMapError] = useState<Error | null>(null);
   const [mapKey, setMapKey] = useState(0);
+  const [comparisonMode, setComparisonMode] = useState(false);
+  const [comparisonProperties, setComparisonProperties] = useState<string[]>([]);
 
   // Function to reset map on error
   const resetMap = () => {
@@ -95,6 +105,21 @@ export default function GeographicMappingPage() {
     setShowDetailPanel(false);
     setSelectedProperty(null);
   };
+
+  // Handle property comparison
+  const handlePropertyCompare = (propertyId: string) => {
+    if (comparisonProperties.includes(propertyId)) {
+      setComparisonProperties(prev => prev.filter(id => id !== propertyId));
+    } else if (comparisonProperties.length < 4) {
+      setComparisonProperties(prev => [...prev, propertyId]);
+    }
+  };
+
+  const handleComparisonClose = () => {
+    setComparisonMode(false);
+    setComparisonProperties([]);
+  };
+
 
   // Handle window errors from map initialization
   useEffect(() => {
@@ -252,8 +277,36 @@ export default function GeographicMappingPage() {
         {/* Control Panel Sidebar - Mobile Responsive */}
         {showControlPanel && (
           <div className="w-full lg:w-80 bg-gray-900/95 border-b lg:border-r lg:border-b-0 border-gray-700/50 backdrop-blur-sm relative z-40 flex flex-col max-h-screen lg:h-auto overflow-y-auto">
-            {/* Statistics - Mobile Layout */}
-            <div className="p-4 lg:p-6 border-b border-gray-700/50">
+            {/* Tab Navigation */}
+            <div className="border-b border-gray-700/50">
+              <nav className="flex px-4">
+                {[
+                  { id: 'overview', label: 'Overview', icon: Activity },
+                  { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+                  { id: 'search', label: 'Search', icon: Search },
+                  { id: 'visualization', label: 'Heat Maps', icon: TrendingUp }
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id as any)}
+                    className={`flex items-center gap-2 px-3 py-3 text-sm font-medium border-b-2 transition-colors ${
+                      activeTab === tab.id
+                        ? 'border-cyan-500 text-cyan-400'
+                        : 'border-transparent text-gray-400 hover:text-gray-300'
+                    }`}
+                  >
+                    <tab.icon className="w-4 h-4" />
+                    {tab.label}
+                  </button>
+                ))}
+              </nav>
+            </div>
+
+            {/* Tab Content */}
+            {activeTab === 'overview' && (
+              <>
+                {/* Statistics - Mobile Layout */}
+                <div className="p-4 lg:p-6 border-b border-gray-700/50">
               <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                 <Activity className="w-5 h-5 text-cyan-400" />
                 System Overview
@@ -349,6 +402,151 @@ export default function GeographicMappingPage() {
               )}
             </div>
 
+              </>
+            )}
+
+            {/* Analytics Tab */}
+            {activeTab === 'analytics' && (
+              <div className="flex-1 p-6">
+                <GeographicAnalytics />
+              </div>
+            )}
+
+            {/* Visualization Tab */}
+            {activeTab === 'visualization' && (
+              <div className="flex-1 p-6">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-cyan-400" />
+                    Geographic Visualizations
+                  </h3>
+
+                  {/* Heat Map Component */}
+                  <GeographicHeatMap className="mb-6" />
+
+                  {/* Quick Actions */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => setComparisonMode(true)}
+                      className="flex items-center gap-2 px-3 py-3 bg-purple-600/20 border border-purple-500/30 rounded-lg hover:bg-purple-600/30 transition-colors"
+                    >
+                      <BarChart3 className="w-4 h-4 text-purple-400" />
+                      <div className="text-left">
+                        <p className="text-sm font-medium text-white">Property Comparison</p>
+                        <p className="text-xs text-purple-300">Compare up to 4 properties</p>
+                      </div>
+                    </button>
+
+                    <button
+                      className="flex items-center gap-2 px-3 py-3 bg-blue-600/20 border border-blue-500/30 rounded-lg hover:bg-blue-600/30 transition-colors"
+                    >
+                      <Activity className="w-4 h-4 text-blue-400" />
+                      <div className="text-left">
+                        <p className="text-sm font-medium text-white">Timeline Sync</p>
+                        <p className="text-xs text-blue-300">Sync with timeline events</p>
+                      </div>
+                    </button>
+                  </div>
+
+                  {/* Active Comparison Indicator */}
+                  {comparisonProperties.length > 0 && (
+                    <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-medium text-white">Active Comparison</h4>
+                        <span className="text-sm text-purple-300">
+                          {comparisonProperties.length}/4 properties
+                        </span>
+                      </div>
+                      <div className="flex gap-2">
+                        {comparisonProperties.map((id) => {
+                          const property = enhancedProperties.find(p => p.id === id);
+                          return property ? (
+                            <div key={id} className="flex items-center gap-1 px-2 py-1 bg-purple-600/30 rounded text-xs">
+                              <div className={`w-2 h-2 rounded-full ${
+                                property.significance === 'critical' ? 'bg-red-400' :
+                                property.significance === 'high' ? 'bg-orange-400' : 'bg-blue-400'
+                              }`} />
+                              <span className="text-purple-200 truncate max-w-16">
+                                {property.name}
+                              </span>
+                              <button
+                                onClick={() => handlePropertyCompare(id)}
+                                className="ml-1 hover:bg-purple-500/50 rounded"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Search Tab */}
+            {activeTab === 'search' && (
+              <div className="flex-1 p-6">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <Search className="w-5 h-5 text-cyan-400" />
+                    Advanced Search & Filters
+                  </h3>
+
+                  {/* Search Input */}
+                  <div className="relative">
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search properties, locations, entities..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full bg-gray-800/50 border border-gray-600 rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+
+                  {/* Quick Filters */}
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-medium text-gray-300">Quick Filters</h4>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { label: 'Critical Only', value: 'critical', color: 'red' },
+                        { label: 'Seized Properties', value: 'seized', color: 'orange' },
+                        { label: 'Verified Data', value: 'verified', color: 'green' },
+                        { label: 'US Properties', value: 'us', color: 'blue' }
+                      ].map((filter) => (
+                        <button
+                          key={filter.value}
+                          className="px-3 py-2 text-sm bg-gray-800/50 border border-gray-700 rounded-lg hover:border-gray-600 text-gray-300 hover:text-white transition-colors"
+                        >
+                          {filter.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Search Results */}
+                  {searchQuery && (
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-medium text-gray-300">Search Results</h4>
+                      <div className="bg-gray-800/30 border border-gray-700 rounded-lg p-4">
+                        <p className="text-sm text-gray-400">
+                          Searching for &quot;{searchQuery}&quot;...
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {enhancedProperties.filter(p =>
+                            p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            p.description.toLowerCase().includes(searchQuery.toLowerCase())
+                          ).length} properties found
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Status */}
             <div className="p-6 border-t border-gray-700/50">
               <div className="flex items-center justify-between">
@@ -372,7 +570,9 @@ export default function GeographicMappingPage() {
             <InteractiveMap
               key={`map-${mapKey}`}
               selectedProperty={selectedProperty}
+              selectedTimelineEvent={selectedTimelineEvent}
               onPropertySelect={handlePropertySelect}
+              onTimelineEventSelect={setSelectedTimelineEvent}
               activeLayers={activeLayers}
               className="w-full h-full"
             />
@@ -405,9 +605,31 @@ export default function GeographicMappingPage() {
         property={selectedProperty ? enhancedProperties.find(p => p.id === selectedProperty) || null : null}
         isOpen={showDetailPanel}
         onClose={handleDetailPanelClose}
-        onTimelineEventClick={(_eventId) => {
+        onTimelineEventClick={(eventId: string) => {
           // TODO: Navigate to timeline page with specific event
-          // Navigate to timeline event: _eventId
+          // Navigate to timeline event: eventId
+        }}
+        onCompare={handlePropertyCompare}
+        isInComparison={selectedProperty ? comparisonProperties.includes(selectedProperty) : false}
+        relatedTimelineEvents={selectedProperty ?
+          comprehensiveTimeline
+            .filter(event => event.entities.some(entity => entity.entityId === selectedProperty))
+            .map(event => event.id)
+          : []
+        }
+        onClearSync={() => setSelectedTimelineEvent(null)}
+      />
+
+      {/* Property Comparison */}
+      <PropertyComparison
+        properties={comparisonProperties.map(id =>
+          enhancedProperties.find(p => p.id === id)!
+        ).filter(Boolean)}
+        isOpen={comparisonMode}
+        onClose={handleComparisonClose}
+        onPropertyRemove={handlePropertyCompare}
+        onAddProperty={() => {
+          // TODO: Open property selector
         }}
       />
     </div>

@@ -39,7 +39,9 @@ const initializeLeafletIcons = () => {
 
 interface InteractiveMapProps {
   selectedProperty: string | null;
+  selectedTimelineEvent: string | null;
   onPropertySelect: (propertyId: string) => void;
+  onTimelineEventSelect: (eventId: string) => void;
   activeLayers: {
     flightPaths: boolean;
     travelPatterns: boolean;
@@ -90,10 +92,11 @@ const getActivityIcon = (activity: string) => {
 
 // Custom marker icons based on property significance and type
 const createCustomIcon = (
-  type: string, 
-  significance: string, 
+  type: string,
+  significance: string,
   isSelected: boolean,
-  hasDiscovery: boolean
+  hasDiscovery: boolean,
+  syncState?: string
 ) => {
   const getColor = () => {
     switch (significance) {
@@ -115,8 +118,28 @@ const createCustomIcon = (
 
   const color = getColor();
   const symbol = getTypeSymbol();
-  const size = isSelected ? 40 : 32;
-  
+  const size = isSelected ? 42 : 32;
+
+  // Timeline sync indicator
+  const syncIndicator = syncState === 'timeline-sync' ? `
+    <div style="
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 18px;
+      height: 18px;
+      background: linear-gradient(45deg, #8b5cf6, #7c3aed);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 6px rgba(139, 92, 246, 0.4);
+      animation: sync-pulse 1.5s infinite;
+    ">🔗</div>
+  ` : '';
+
   return L.divIcon({
     html: `
       <div style="
@@ -135,7 +158,8 @@ const createCustomIcon = (
         box-shadow: 0 4px 15px rgba(${significance === 'critical' ? '239, 68, 68' : significance === 'high' ? '245, 158, 11' : '59, 130, 246'}, 0.4);
         ${isSelected ? `
           animation: pulse 2s infinite;
-          transform: scale(1.1);
+          transform: scale(1.15);
+          box-shadow: 0 6px 20px rgba(${significance === 'critical' ? '239, 68, 68' : significance === 'high' ? '245, 158, 11' : '59, 130, 246'}, 0.6);
         ` : ''}
       ">
         ${symbol}
@@ -155,11 +179,22 @@ const createCustomIcon = (
             border: 2px solid #000;
           ">⭐</div>
         ` : ''}
+        ${syncIndicator}
       </div>
       <style>
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.7; }
+        }
+        @keyframes sync-pulse {
+          0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.6;
+            transform: scale(1.1);
+          }
         }
       </style>
     `,
@@ -421,6 +456,11 @@ export default function InteractiveMap({
           const discovery = discoveryPoints.find(d => d.id === property.id);
           const isSelected = selectedProperty === property.id;
 
+          // Check if property is related to selected timeline event
+          const relatedToTimelineEvent = selectedTimelineEvent &&
+            comprehensiveTimeline.find(event => event.id === selectedTimelineEvent)
+              ?.entities.some(entity => entity.entityId === property.id);
+
           return (
             <Marker
               key={property.id}
@@ -428,8 +468,9 @@ export default function InteractiveMap({
               icon={createCustomIcon(
                 property.type,
                 property.significance,
-                isSelected,
-                discovery?.discovered || false
+                isSelected || relatedToTimelineEvent,
+                discovery?.discovered || false,
+                relatedToTimelineEvent ? 'timeline-sync' : undefined
               )}
               eventHandlers={{
                 click: () => onPropertySelect(property.id),
@@ -485,6 +526,7 @@ export default function InteractiveMap({
           .map((event) => {
             if (!event.coordinates) return null;
 
+            const isSelected = selectedTimelineEvent === event.id;
 
             return (
               <Marker
@@ -493,58 +535,108 @@ export default function InteractiveMap({
                 icon={L.divIcon({
                   html: `
                     <div style="
-                      width: 24px;
-                      height: 24px;
+                      width: ${isSelected ? '32px' : '24px'};
+                      height: ${isSelected ? '32px' : '24px'};
                       background: radial-gradient(circle, #8b5cf6 0%, #7c3aed 70%);
-                      border: 2px solid #a855f7;
+                      border: ${isSelected ? '3px' : '2px'} solid #a855f7;
                       border-radius: 50%;
                       display: flex;
                       align-items: center;
                       justify-content: center;
-                      font-size: 10px;
+                      font-size: ${isSelected ? '12px' : '10px'};
                       cursor: pointer;
-                      box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+                      box-shadow: 0 ${isSelected ? '4px' : '2px'} 8px rgba(139, 92, 246, 0.4);
+                      transition: all 0.3s ease;
+                      ${isSelected ? 'animation: timeline-pulse 1.5s infinite;' : ''}
                     ">
                       📅
                     </div>
+                    <style>
+                      @keyframes timeline-pulse {
+                        0%, 100% {
+                          opacity: 1;
+                          transform: scale(1);
+                        }
+                        50% {
+                          opacity: 0.7;
+                          transform: scale(1.1);
+                        }
+                      }
+                    </style>
                   `,
                   className: 'timeline-event-marker',
-                  iconSize: [24, 24],
-                  iconAnchor: [12, 12],
-                  popupAnchor: [0, -12]
+                  iconSize: [isSelected ? 32 : 24, isSelected ? 32 : 24],
+                  iconAnchor: [isSelected ? 16 : 12, isSelected ? 16 : 12],
+                  popupAnchor: [0, isSelected ? -16 : -12]
                 })}
                 eventHandlers={{
-                  click: () => {
-                    // TODO: Handle timeline event click
-                    // Timeline event clicked: event.id
-                  },
+                  click: () => onTimelineEventSelect(event.id),
                 }}
               >
                 <Popup>
-                  <div className="bg-gray-900 text-white p-4 rounded-lg min-w-[250px]">
-                    <div className="flex items-center gap-2 mb-2">
+                  <div className="bg-gray-900 text-white p-4 rounded-lg min-w-[300px]">
+                    <div className="flex items-center gap-2 mb-3">
                       <h3 className="font-bold text-lg">{event.title}</h3>
-                      <span className="bg-purple-500 text-white px-2 py-1 rounded text-xs font-bold">
-                        Timeline Event
+                      <span className={`px-2 py-1 rounded text-xs font-bold ${
+                        event.significance === 'critical' ? 'bg-red-900/50 text-red-400' :
+                        event.significance === 'high' ? 'bg-orange-900/50 text-orange-400' :
+                        'bg-blue-900/50 text-blue-400'
+                      }`}>
+                        {event.significance?.toUpperCase()}
                       </span>
                     </div>
 
-                    <div className="space-y-2 text-sm">
+                    <div className="space-y-3 text-sm">
                       <p className="text-gray-300">{event.description}</p>
 
                       <div className="flex items-center gap-4">
-                        <span className={`px-2 py-1 rounded text-xs font-bold ${
-                          event.significance === 'critical' ? 'bg-red-900/50 text-red-400' :
-                          event.significance === 'high' ? 'bg-orange-900/50 text-orange-400' :
-                          'bg-blue-900/50 text-blue-400'
-                        }`}>
-                          {event.significance?.toUpperCase()}
-                        </span>
-
                         <span className="text-cyan-400">
                           {new Date(event.date).toLocaleDateString()}
                         </span>
+                        <span className="text-purple-400">
+                          {event.type.charAt(0).toUpperCase() + event.type.slice(1)}
+                        </span>
                       </div>
+
+                      {/* Related Properties */}
+                      {event.entities.some(entity => entity.entityType === 'location') && (
+                        <div>
+                          <h4 className="text-xs font-medium text-gray-400 mb-2">Related Properties:</h4>
+                          <div className="flex flex-wrap gap-1">
+                            {event.entities
+                              .filter(entity => entity.entityType === 'location')
+                              .map((entity, index) => {
+                                const property = properties.find(p => p.id === entity.entityId);
+                                return property ? (
+                                  <button
+                                    key={index}
+                                    onClick={() => onPropertySelect(property.id)}
+                                    className="px-2 py-1 text-xs bg-cyan-900/50 text-cyan-400 rounded hover:bg-cyan-800/50 transition-colors"
+                                  >
+                                    {property.name}
+                                  </button>
+                                ) : null;
+                              })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Related People */}
+                      {event.entities.some(entity => entity.entityType === 'person') && (
+                        <div>
+                          <h4 className="text-xs font-medium text-gray-400 mb-2">Involved:</h4>
+                          <div className="flex flex-wrap gap-1">
+                            {event.entities
+                              .filter(entity => entity.entityType === 'person')
+                              .slice(0, 3)
+                              .map((entity, index) => (
+                                <span key={index} className="px-2 py-1 text-xs bg-green-900/50 text-green-400 rounded">
+                                  {entity.role}: {entity.description}
+                                </span>
+                              ))}
+                          </div>
+                        </div>
+                      )}
 
                       {event.tags && event.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1">

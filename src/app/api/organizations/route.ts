@@ -1,58 +1,86 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { coreOrganizations } from '@/data/core/organizations';
+import { createRouteHandlerClient } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
 // GET /api/organizations - Get all organizations or search by query
 export async function GET(request: NextRequest) {
   try {
+    const supabase = createRouteHandlerClient();
     const searchParams = request.nextUrl.searchParams;
     const query = searchParams.get('query');
     const type = searchParams.get('type');
     const limit = parseInt(searchParams.get('limit') || '100');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    let filteredOrganizations = [...coreOrganizations];
+    // Build query
+    let supabaseQuery = supabase
+      .from('organizations')
+      .select('*')
+      .order('name')
+      .range(offset, offset + limit - 1);
 
-    // Filter by search query
+    // Filter by type
+    if (type) {
+      supabaseQuery = supabaseQuery.eq('type', type);
+    }
+
+    // Execute query
+    const { data: organizations, error: queryError } = await supabaseQuery;
+
+    if (queryError) {
+      throw new Error(`Database query failed: ${queryError.message}`);
+    }
+
+    // If there's a search query, filter results on the server side
+    let filteredOrganizations = organizations || [];
     if (query) {
       const lowerQuery = query.toLowerCase();
       filteredOrganizations = filteredOrganizations.filter(org =>
         org.name.toLowerCase().includes(lowerQuery) ||
-        org.description.toLowerCase().includes(lowerQuery) ||
-        org.tags.some(tag => tag.toLowerCase().includes(lowerQuery))
+        (org.description && org.description.toLowerCase().includes(lowerQuery)) ||
+        (org.headquarters && org.headquarters.toLowerCase().includes(lowerQuery))
       );
     }
 
-    // Filter by type
+    // Get total count (for pagination info)
+    let totalQuery = supabase.from('organizations').select('*', { count: 'exact', head: true });
+
     if (type) {
-      filteredOrganizations = filteredOrganizations.filter(org => org.type === type);
+      totalQuery = totalQuery.eq('type', type);
     }
 
-    // Pagination
-    const total = filteredOrganizations.length;
-    const paginatedOrganizations = filteredOrganizations.slice(offset, offset + limit);
+    const { count: total, error: countError } = await totalQuery;
+
+    if (countError) {
+      console.warn('Failed to get total count:', countError.message)
+    }
+
+    const totalCount = total || filteredOrganizations.length;
 
     return NextResponse.json({
       success: true,
-      data: paginatedOrganizations,
+      data: filteredOrganizations,
       pagination: {
-        total,
+        total: totalCount,
         limit,
         offset,
-        hasMore: offset + limit < total
+        hasMore: offset + limit < totalCount
       },
       timestamp: new Date().toISOString(),
-      version: '1.0.0'
+      version: '2.0.0',
+      source: 'supabase'
     });
   } catch (error) {
+    console.error('Organizations API error:', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to fetch organizations',
         message: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString(),
-        version: '1.0.0'
+        version: '2.0.0',
+        source: 'supabase'
       },
       { status: 500 }
     );
