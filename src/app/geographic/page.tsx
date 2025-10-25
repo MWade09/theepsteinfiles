@@ -605,7 +605,7 @@ export default function GeographicMappingPage() {
         property={selectedProperty ? enhancedProperties.find(p => p.id === selectedProperty) || null : null}
         isOpen={showDetailPanel}
         onClose={handleDetailPanelClose}
-        onTimelineEventClick={(eventId: string) => {
+        onTimelineEventClick={(_eventId: string) => {
           // TODO: Navigate to timeline page with specific event
           // Navigate to timeline event: eventId
         }}

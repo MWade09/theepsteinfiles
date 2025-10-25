@@ -19,10 +19,12 @@ import {
   Download,
   Share2,
   Info,
-  BarChart3
+  BarChart3,
+  Clock
 } from 'lucide-react';
 import { EnhancedProperty } from '@/data/geographic/properties';
 import { getFlightsByProperty } from '@/data/geographic/travelPatterns';
+import { comprehensiveTimeline } from '@/data/core/timeline';
 
 interface PropertyDetailPanelProps {
   property: EnhancedProperty | null;
@@ -483,8 +485,6 @@ export default function PropertyDetailPanel({
                         ))}
                       </div>
                     </div>
-                  </div>
-
                   </div>
                 </div>
 
