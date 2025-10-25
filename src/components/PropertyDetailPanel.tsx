@@ -400,50 +400,50 @@ export default function PropertyDetailPanel({
                   </h4>
                   <div className="space-y-3">
                     {/* Related Timeline Events */}
-          {relatedTimelineEvents.length > 0 && (
-            <div className="mb-6">
-              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-                <Clock className="w-4 h-4 text-purple-500" />
-                Timeline Synchronization ({relatedTimelineEvents.length} events)
-              </h4>
-              <div className="space-y-2">
-                {relatedTimelineEvents.map((eventId) => {
-                  // Find the timeline event by ID
-                  const timelineEvent = comprehensiveTimeline.find(event => event.id === eventId);
-                  if (!timelineEvent) return null;
+                    {relatedTimelineEvents.length > 0 && (
+                      <div className="mb-6">
+                        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-purple-500" />
+                          Timeline Synchronization ({relatedTimelineEvents.length} events)
+                        </h4>
+                        <div className="space-y-2">
+                          {relatedTimelineEvents.map((eventId) => {
+                            // Find the timeline event by ID
+                            const timelineEvent = comprehensiveTimeline.find(event => event.id === eventId);
+                            if (!timelineEvent) return null;
 
-                  return (
-                    <div
-                      key={eventId}
-                      className="p-3 border border-purple-200 bg-purple-50 dark:border-purple-800 dark:bg-purple-900/10 rounded-lg cursor-pointer hover:border-purple-300 dark:hover:border-purple-700 transition-colors"
-                      onClick={() => onTimelineEventClick?.(eventId)}
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-purple-800 dark:text-purple-400">
-                            {timelineEvent.title}
-                          </p>
-                          <p className="text-xs text-purple-600 dark:text-purple-300">
-                            {timelineEvent.description.substring(0, 100)}...
-                          </p>
+                            return (
+                              <div
+                                key={eventId}
+                                className="p-3 border border-purple-200 bg-purple-50 dark:border-purple-800 dark:bg-purple-900/10 rounded-lg cursor-pointer hover:border-purple-300 dark:hover:border-purple-700 transition-colors"
+                                onClick={() => onTimelineEventClick?.(eventId)}
+                              >
+                                <div className="flex items-start justify-between mb-2">
+                                  <div className="flex-1">
+                                    <p className="text-sm font-medium text-purple-800 dark:text-purple-400">
+                                      {timelineEvent.title}
+                                    </p>
+                                    <p className="text-xs text-purple-600 dark:text-purple-300">
+                                      {timelineEvent.description.substring(0, 100)}...
+                                    </p>
+                                  </div>
+                                  <span className={`px-2 py-1 text-xs rounded-full ${
+                                    timelineEvent.significance === 'critical' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' :
+                                    timelineEvent.significance === 'high' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400' :
+                                    'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+                                  }`}>
+                                    {timelineEvent.significance}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-purple-500">
+                                  {new Date(timelineEvent.date).toLocaleDateString()}
+                                </p>
+                              </div>
+                            );
+                          })}
                         </div>
-                        <span className={`px-2 py-1 text-xs rounded-full ${
-                          timelineEvent.significance === 'critical' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' :
-                          timelineEvent.significance === 'high' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400' :
-                          'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
-                        }`}>
-                          {timelineEvent.significance}
-                        </span>
                       </div>
-                      <p className="text-xs text-purple-500">
-                        {new Date(timelineEvent.date).toLocaleDateString()}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+                    )}
 
                     {/* Property Key Events */}
                     <div>
