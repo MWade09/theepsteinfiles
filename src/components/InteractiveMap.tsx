@@ -337,11 +337,13 @@ const MapControls: React.FC<MapControlsProps> = ({
   return null; // This component doesn't render anything visible
 };
 
-export default function InteractiveMap({ 
-  selectedProperty, 
-  onPropertySelect, 
-  activeLayers, 
-  className = '' 
+export default function InteractiveMap({
+  selectedProperty,
+  selectedTimelineEvent,
+  onPropertySelect,
+  onTimelineEventSelect,
+  activeLayers,
+  className = ''
 }: InteractiveMapProps) {
   const [isClient, setIsClient] = useState(false);
   const [isMapReady, setIsMapReady] = useState(false);
@@ -468,7 +470,7 @@ export default function InteractiveMap({
               icon={createCustomIcon(
                 property.type,
                 property.significance,
-                isSelected || relatedToTimelineEvent,
+                isSelected || Boolean(relatedToTimelineEvent),
                 discovery?.discovered || false,
                 relatedToTimelineEvent ? 'timeline-sync' : undefined
               )}

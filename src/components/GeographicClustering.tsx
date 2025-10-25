@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import L from 'leaflet';
-import { MarkerClusterGroup } from 'react-leaflet-markercluster';
+import { Marker, Popup } from 'react-leaflet';
+import MarkerClusterGroup from 'react-leaflet-markercluster';
 import { EnhancedProperty } from '@/data/geographic/properties';
 import { comprehensiveTimeline } from '@/data/core/timeline';
 
@@ -202,7 +203,7 @@ export default function GeographicClustering({
                 ?.entities.some(entity => entity.entityId === property.id);
 
             return (
-              <L.Marker
+              <Marker
                 key={property.id}
                 position={property.coordinates}
                 icon={L.divIcon({
@@ -284,7 +285,7 @@ export default function GeographicClustering({
                   click: () => onPropertySelect(property.id),
                 }}
               >
-                <L.Popup>
+                <Popup>
                   <div className="bg-gray-900 text-white p-4 rounded-lg min-w-[250px]">
                     <div className="flex items-center gap-2 mb-2">
                       <h3 className="font-bold text-lg">{property.name}</h3>
@@ -316,8 +317,8 @@ export default function GeographicClustering({
                       )}
                     </div>
                   </div>
-                </L.Popup>
-              </L.Marker>
+                </Popup>
+              </Marker>
             );
           })}
         </MarkerClusterGroup>
@@ -333,7 +334,7 @@ export default function GeographicClustering({
           const isSelected = selectedTimelineEvent === event.id;
 
           return (
-            <L.Marker
+            <Marker
               key={`timeline-${event.id}`}
               position={event.coordinates}
               icon={getTimelineEventIcon(event, isSelected)}
@@ -341,7 +342,7 @@ export default function GeographicClustering({
                 click: () => onTimelineEventSelect(event.id),
               }}
             >
-              <L.Popup>
+              <Popup>
                 <div className="bg-gray-900 text-white p-4 rounded-lg min-w-[300px]">
                   <div className="flex items-center gap-2 mb-3">
                     <h3 className="font-bold text-lg">{event.title}</h3>
@@ -400,8 +401,8 @@ export default function GeographicClustering({
                     )}
                   </div>
                 </div>
-              </L.Popup>
-            </L.Marker>
+              </Popup>
+            </Marker>
           );
         })}
     </>

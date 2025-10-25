@@ -9,7 +9,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createRouteHandlerClient();
+    const supabase = await createRouteHandlerClient();
     const { id } = await params;
 
     // Get person data

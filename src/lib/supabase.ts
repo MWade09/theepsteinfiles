@@ -11,8 +11,8 @@ export function createClientComponentClient() {
 }
 
 // Server client for server-side operations
-export function createServerComponentClient() {
-  const cookieStore = cookies()
+export async function createServerComponentClient() {
+  const cookieStore = await cookies()
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       get(name: string) {
@@ -23,8 +23,8 @@ export function createServerComponentClient() {
 }
 
 // Route handler client for API routes
-export function createRouteHandlerClient() {
-  const cookieStore = cookies()
+export async function createRouteHandlerClient() {
+  const cookieStore = await cookies()
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       get(name: string) {
