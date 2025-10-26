@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { corePeople } from '@/data/core/people';
-import { comprehensiveTimeline } from '@/data/core/timeline';
-import { coreOrganizations } from '@/data/core/organizations';
-import { financialTransactions } from '@/data/financial/transactions';
-import { coreDocuments } from '@/data/core/documents';
+import { createRouteHandlerClient } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,12 +14,13 @@ interface SearchResult {
   url: string;
 }
 
-// GET /api/search - Universal search across all data types
+// GET /api/search - Universal search across all data types using full-text search
 export async function GET(request: NextRequest) {
   try {
+    const supabase = await createRouteHandlerClient();
     const searchParams = request.nextUrl.searchParams;
     const query = searchParams.get('query');
-    const types = searchParams.get('types')?.split(',') || ['person', 'event', 'organization', 'transaction', 'document'];
+    const types = searchParams.get('types')?.split(',') || ['person', 'event', 'organization', 'transaction', 'document', 'property', 'flight'];
     const limit = parseInt(searchParams.get('limit') || '50');
 
     if (!query) {
@@ -32,47 +29,60 @@ export async function GET(request: NextRequest) {
           success: false,
           error: 'Query parameter is required',
           timestamp: new Date().toISOString(),
-          version: '1.0.0'
+          version: '2.0.0',
+          source: 'supabase'
         },
         { status: 400 }
       );
     }
 
     const results: SearchResult[] = [];
-    const lowerQuery = query.toLowerCase();
 
-    // Search people
+    // Search people using full-text search
     if (types.includes('person')) {
-      corePeople.forEach(person => {
-        let relevance = 0;
-        if (person.name.toLowerCase().includes(lowerQuery)) relevance += 100;
-        if (person.aliases.some(alias => alias.toLowerCase().includes(lowerQuery))) relevance += 80;
-        if (person.biography.toLowerCase().includes(lowerQuery)) relevance += 30;
-        if (person.tags.some(tag => tag.toLowerCase().includes(lowerQuery))) relevance += 50;
+      const { data: people, error: peopleError } = await supabase
+        .from('people')
+        .select('*')
+        .or(`name.ilike.%${query}%,biography.ilike.%${query}%`)
+        .order('significance', { ascending: false })
+        .limit(Math.ceil(limit / types.length));
 
-        if (relevance > 0) {
+      if (!peopleError && people) {
+        people.forEach(person => {
+          let relevance = 0;
+          if (person.name.toLowerCase().includes(query.toLowerCase())) relevance += 100;
+          if (person.aliases?.some((alias: string) => alias.toLowerCase().includes(query.toLowerCase()))) relevance += 80;
+          if (person.biography?.toLowerCase().includes(query.toLowerCase())) relevance += 30;
+
           results.push({
             id: person.id,
             type: 'person',
             title: person.name,
-            description: person.biography.substring(0, 200) + '...',
+            description: person.biography?.substring(0, 200) + '...' || 'No description available',
             relevance,
             significance: person.significance,
-            url: `/timeline#${person.id}`
+            url: `/research?person=${person.id}`
           });
-        }
-      });
+        });
+      }
     }
 
-    // Search timeline events
+    // Search timeline events using full-text search
     if (types.includes('event')) {
-      comprehensiveTimeline.forEach(event => {
-        let relevance = 0;
-        if (event.title.toLowerCase().includes(lowerQuery)) relevance += 100;
-        if (event.description.toLowerCase().includes(lowerQuery)) relevance += 50;
-        if (event.tags?.some(tag => tag.toLowerCase().includes(lowerQuery))) relevance += 40;
+      const { data: events, error: eventsError } = await supabase
+        .from('timeline_events')
+        .select('*')
+        .or(`title.ilike.%${query}%,description.ilike.%${query}%`)
+        .order('significance', { ascending: false })
+        .order('date', { ascending: false })
+        .limit(Math.ceil(limit / types.length));
 
-        if (relevance > 0) {
+      if (!eventsError && events) {
+        events.forEach(event => {
+          let relevance = 0;
+          if (event.title.toLowerCase().includes(query.toLowerCase())) relevance += 100;
+          if (event.description.toLowerCase().includes(query.toLowerCase())) relevance += 50;
+
           results.push({
             id: event.id,
             type: 'event',
@@ -83,80 +93,167 @@ export async function GET(request: NextRequest) {
             date: event.date,
             url: `/timeline#${event.id}`
           });
-        }
-      });
+        });
+      }
     }
 
-    // Search organizations
+    // Search organizations using full-text search
     if (types.includes('organization')) {
-      coreOrganizations.forEach(org => {
-        let relevance = 0;
-        if (org.name.toLowerCase().includes(lowerQuery)) relevance += 100;
-        if (org.description.toLowerCase().includes(lowerQuery)) relevance += 50;
-        if (org.tags.some(tag => tag.toLowerCase().includes(lowerQuery))) relevance += 40;
+      const { data: organizations, error: orgsError } = await supabase
+        .from('organizations')
+        .select('*')
+        .or(`name.ilike.%${query}%,description.ilike.%${query}%`)
+        .order('significance', { ascending: false })
+        .limit(Math.ceil(limit / types.length));
 
-        if (relevance > 0) {
+      if (!orgsError && organizations) {
+        organizations.forEach(org => {
+          let relevance = 0;
+          if (org.name.toLowerCase().includes(query.toLowerCase())) relevance += 100;
+          if (org.description?.toLowerCase().includes(query.toLowerCase())) relevance += 50;
+
           results.push({
             id: org.id,
             type: 'organization',
             title: org.name,
-            description: org.description.substring(0, 200) + '...',
+            description: org.description?.substring(0, 200) + '...' || 'No description available',
             relevance,
             significance: org.significance,
             url: `/network#${org.id}`
           });
-        }
-      });
+        });
+      }
     }
 
-    // Search transactions
+    // Search financial transactions
     if (types.includes('transaction')) {
-      financialTransactions.forEach(transaction => {
-        let relevance = 0;
-        if (transaction.description.toLowerCase().includes(lowerQuery)) relevance += 50;
-        if (transaction.purpose?.toLowerCase().includes(lowerQuery)) relevance += 40;
-        if (transaction.tags.some(tag => tag.toLowerCase().includes(lowerQuery))) relevance += 30;
+      const { data: transactions, error: transError } = await supabase
+        .from('financial_transactions')
+        .select('*')
+        .or(`description.ilike.%${query}%,purpose.ilike.%${query}%`)
+        .order('significance', { ascending: false })
+        .order('transaction_date', { ascending: false })
+        .limit(Math.ceil(limit / types.length));
 
-        if (relevance > 0) {
+      if (!transError && transactions) {
+        transactions.forEach(transaction => {
+          let relevance = 0;
+          if (transaction.description.toLowerCase().includes(query.toLowerCase())) relevance += 50;
+          if (transaction.purpose?.toLowerCase().includes(query.toLowerCase())) relevance += 40;
+
           results.push({
             id: transaction.id,
             type: 'transaction',
-            title: `$${transaction.amountUSD.toLocaleString()} Transaction`,
+            title: `$${transaction.amount_usd?.toLocaleString() || '0'} Transaction`,
             description: transaction.description.substring(0, 200) + '...',
             relevance,
             significance: transaction.significance,
-            date: transaction.transactionDate,
+            date: transaction.transaction_date,
             url: `/financial#${transaction.id}`
           });
-        }
-      });
+        });
+      }
     }
 
-    // Search documents
+    // Search documents using full-text search
     if (types.includes('document')) {
-      coreDocuments.forEach(doc => {
-        let relevance = 0;
-        if (doc.title.toLowerCase().includes(lowerQuery)) relevance += 100;
-        if (doc.description.toLowerCase().includes(lowerQuery)) relevance += 50;
-        if (doc.tags.some(tag => tag.toLowerCase().includes(lowerQuery))) relevance += 40;
+      const { data: documents, error: docsError } = await supabase
+        .from('documents')
+        .select('*')
+        .or(`title.ilike.%${query}%,description.ilike.%${query}%`)
+        .order('reliability', { ascending: false })
+        .limit(Math.ceil(limit / types.length));
 
-        if (relevance > 0) {
+      if (!docsError && documents) {
+        documents.forEach(doc => {
+          let relevance = 0;
+          if (doc.title.toLowerCase().includes(query.toLowerCase())) relevance += 100;
+          if (doc.description?.toLowerCase().includes(query.toLowerCase())) relevance += 50;
+
           results.push({
             id: doc.id,
             type: 'document',
             title: doc.title,
-            description: doc.description.substring(0, 200) + '...',
+            description: doc.description?.substring(0, 200) + '...' || 'No description available',
             relevance,
-            significance: doc.significance,
-            date: doc.date,
+            significance: doc.reliability || 'medium',
+            date: doc.publication_date,
             url: `/documents#${doc.id}`
           });
-        }
-      });
+        });
+      }
     }
 
-    // Sort by relevance
-    results.sort((a, b) => b.relevance - a.relevance);
+    // Search properties
+    if (types.includes('property')) {
+      const { data: properties, error: propsError } = await supabase
+        .from('properties')
+        .select('*')
+        .or(`name.ilike.%${query}%,description.ilike.%${query}%,address.ilike.%${query}%`)
+        .order('significance', { ascending: false })
+        .limit(Math.ceil(limit / types.length));
+
+      if (!propsError && properties) {
+        properties.forEach(property => {
+          let relevance = 0;
+          if (property.name.toLowerCase().includes(query.toLowerCase())) relevance += 100;
+          if (property.description?.toLowerCase().includes(query.toLowerCase())) relevance += 50;
+          if (property.address?.toLowerCase().includes(query.toLowerCase())) relevance += 40;
+
+          results.push({
+            id: property.id,
+            type: 'property',
+            title: property.name,
+            description: `${property.type} - ${property.address}`,
+            relevance,
+            significance: property.significance,
+            url: `/geographic#${property.id}`
+          });
+        });
+      }
+    }
+
+    // Search flight logs
+    if (types.includes('flight')) {
+      const { data: flights, error: flightsError } = await supabase
+        .from('flight_logs')
+        .select('*')
+        .or(`aircraft.ilike.%${query}%,departure_location.ilike.%${query}%,arrival_location.ilike.%${query}%`)
+        .order('significance', { ascending: false })
+        .order('date', { ascending: false })
+        .limit(Math.ceil(limit / types.length));
+
+      if (!flightsError && flights) {
+        flights.forEach(flight => {
+          let relevance = 0;
+          if (flight.aircraft.toLowerCase().includes(query.toLowerCase())) relevance += 100;
+          if (flight.departure_location?.toLowerCase().includes(query.toLowerCase())) relevance += 50;
+          if (flight.arrival_location?.toLowerCase().includes(query.toLowerCase())) relevance += 50;
+
+          results.push({
+            id: flight.id,
+            type: 'flight',
+            title: `${flight.aircraft} - ${flight.departure_location} to ${flight.arrival_location}`,
+            description: flight.purpose || `Flight on ${flight.date}`,
+            relevance,
+            significance: flight.significance,
+            date: flight.date,
+            url: `/geographic#flight-${flight.id}`
+          });
+        });
+      }
+    }
+
+    // Sort by relevance and significance
+    results.sort((a, b) => {
+      if (a.relevance !== b.relevance) {
+        return b.relevance - a.relevance;
+      }
+      // If same relevance, sort by significance (critical > high > medium > low)
+      const significanceOrder = { 'critical': 4, 'high': 3, 'medium': 2, 'low': 1 };
+      return (significanceOrder[b.significance as keyof typeof significanceOrder] || 0) -
+             (significanceOrder[a.significance as keyof typeof significanceOrder] || 0);
+    });
 
     // Limit results
     const limitedResults = results.slice(0, limit);
@@ -168,16 +265,19 @@ export async function GET(request: NextRequest) {
       total: results.length,
       returned: limitedResults.length,
       timestamp: new Date().toISOString(),
-      version: '1.0.0'
+      version: '2.0.0',
+      source: 'supabase'
     });
   } catch (error) {
+    console.error('Search API error:', error);
     return NextResponse.json(
       {
         success: false,
         error: 'Search failed',
         message: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString(),
-        version: '1.0.0'
+        version: '2.0.0',
+        source: 'supabase'
       },
       { status: 500 }
     );

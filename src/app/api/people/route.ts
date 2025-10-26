@@ -32,16 +32,20 @@ export async function GET(request: NextRequest) {
       throw new Error(`Database query failed: ${queryError.message}`);
     }
 
-    // If there's a search query, filter results on the server side
+    // If there's a search query, use database full-text search
     let filteredPeople = people || [];
     if (query) {
-      const lowerQuery = query.toLowerCase();
-      filteredPeople = filteredPeople.filter(person =>
-        person.name.toLowerCase().includes(lowerQuery) ||
-        (person.aliases && person.aliases.some((alias: string) => alias.toLowerCase().includes(lowerQuery))) ||
-        (person.biography && person.biography.toLowerCase().includes(lowerQuery)) ||
-        (person.organizations && person.organizations.some((org: string) => org.toLowerCase().includes(lowerQuery)))
-      );
+      // Use Supabase's full-text search capabilities
+      const { data: searchResults, error: searchError } = await supabase
+        .from('people')
+        .select('*')
+        .or(`name.ilike.%${query}%,biography.ilike.%${query}%`)
+        .order('significance', { ascending: false })
+        .limit(limit);
+
+      if (!searchError && searchResults) {
+        filteredPeople = searchResults;
+      }
     }
 
     // Get total count (for pagination info)

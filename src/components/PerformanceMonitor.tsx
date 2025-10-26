@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useMobileOptimization } from '@/utils/performance';
+import { cache } from '@/utils/cache';
 
 interface PerformanceMonitorProps {
   children: React.ReactNode;
@@ -18,7 +19,9 @@ export default function PerformanceMonitor({
   const [performanceData, setPerformanceData] = useState({
     loadTime: 0,
     memoryUsage: 0,
-    renderTime: 0
+    renderTime: 0,
+    cacheSize: 0,
+    cacheKeys: 0
   });
   const [showMetrics, setShowMetrics] = useState(false);
 
@@ -42,10 +45,15 @@ export default function PerformanceMonitor({
         ? Math.round(performanceWithMemory.memory.usedJSHeapSize / 1024 / 1024) 
         : 0;
 
+      // Get cache statistics
+      const cacheStats = cache.stats();
+
       setPerformanceData({
         loadTime: Math.round(loadTime),
         memoryUsage,
-        renderTime: Math.round(performance.now() - startTime)
+        renderTime: Math.round(performance.now() - startTime),
+        cacheSize: cacheStats.size,
+        cacheKeys: cacheStats.keys.length
       });
 
       // Log performance in development
@@ -54,6 +62,8 @@ export default function PerformanceMonitor({
         console.log(`Performance [${pageName}]:`, {
           loadTime: `${Math.round(loadTime)}ms`,
           memoryUsage: `${memoryUsage}MB`,
+          cacheSize: cacheStats.size,
+          cacheKeys: cacheStats.keys.length,
           isMobile,
           userAgent: navigator.userAgent
         });
@@ -127,6 +137,16 @@ export default function PerformanceMonitor({
                 {performanceData.memoryUsage > 0 && (
                   <div>Memory: {performanceData.memoryUsage}MB</div>
                 )}
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  <div className="bg-green-100 dark:bg-green-900/20 p-2 rounded text-center">
+                    <div className="text-xs text-green-600 dark:text-green-400">Cache Size</div>
+                    <div className="font-mono text-sm">{performanceData.cacheSize}</div>
+                  </div>
+                  <div className="bg-blue-100 dark:bg-blue-900/20 p-2 rounded text-center">
+                    <div className="text-xs text-blue-600 dark:text-blue-400">Cache Keys</div>
+                    <div className="font-mono text-sm">{performanceData.cacheKeys}</div>
+                  </div>
+                </div>
                 <div>Device: {isMobile ? 'Mobile' : 'Desktop'}</div>
                 <div className="text-xs text-gray-400 mt-2">
                   Connection: {(navigator as Navigator & { connection?: { effectiveType: string } }).connection?.effectiveType || 'Unknown'}

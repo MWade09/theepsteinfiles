@@ -3,9 +3,6 @@
 import React, { useEffect, useMemo, useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import * as d3 from 'd3';
 import { TimelineEvent } from '@/types/investigation';
-import { corePeople } from '@/data/core/people';
-import { coreOrganizations } from '@/data/core/organizations';
-import { enhancedProperties } from '@/data/geographic/properties';
 import { ZoomIn, ZoomOut, RotateCcw, Filter } from 'lucide-react';
 
 export interface NetworkNode extends d3.SimulationNodeDatum {

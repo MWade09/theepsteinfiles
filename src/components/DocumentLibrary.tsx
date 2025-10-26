@@ -1,18 +1,19 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { 
-  Search, 
-  Filter, 
-  Grid, 
-  List, 
-  Download, 
-  Eye, 
-  Calendar, 
-  FileText, 
-  User, 
-  Tag, 
-  SortAsc, 
+import { useState, useMemo, useEffect } from 'react';
+import { cache, cacheKeys } from '@/utils/cache';
+import {
+  Search,
+  Filter,
+  Grid,
+  List,
+  Download,
+  Eye,
+  Calendar,
+  FileText,
+  User,
+  Tag,
+  SortAsc,
   SortDesc,
   Folder,
   Star,
@@ -26,7 +27,6 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { Evidence, DocumentCollection } from '@/types/investigation';
-import { coreDocuments, documentCollections, searchDocuments } from '@/data/core/documents';
 import DocumentViewer from './DocumentViewer';
 
 interface DocumentFilters {
@@ -50,7 +50,12 @@ export default function DocumentLibrary() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   const [expandedCollections, setExpandedCollections] = useState<Set<string>>(new Set());
-  
+
+  // API integration states
+  const [documents, setDocuments] = useState<Evidence[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [filters, setFilters] = useState<DocumentFilters>({
     type: [],
     significance: [],
@@ -60,21 +65,103 @@ export default function DocumentLibrary() {
     accessLevel: []
   });
 
+  // API fetch function with caching
+  const fetchDocuments = async (query?: string, filters?: DocumentFilters) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Generate cache key
+      const cacheKey = cacheKeys.documents(query, filters?.type?.[0] || '');
+
+      // Check cache first (cache documents for 15 minutes since they don't change often)
+      const cachedResult = cache.get<Evidence[]>(cacheKey);
+      if (cachedResult) {
+        console.log('🔄 Cache hit for documents');
+        setDocuments(cachedResult);
+        setLoading(false);
+        return;
+      }
+
+      const params = new URLSearchParams();
+      if (query) params.append('query', query);
+      if (filters?.type?.length > 0) params.append('type', filters.type.join(','));
+      if (filters?.significance?.length > 0) params.append('reliability', filters.significance.join(','));
+      params.append('limit', '200');
+
+      const response = await fetch(`/api/documents?${params.toString()}`);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch documents: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to fetch documents');
+      }
+
+      // Transform API response to Evidence format (simplified)
+      const transformedDocs: Evidence[] = (data.data || []).map((doc: any) => ({
+        id: doc.id,
+        title: doc.title,
+        description: doc.description || '',
+        type: doc.type,
+        date: doc.publication_date || doc.created_at,
+        author: doc.author,
+        source: doc.publication || 'Unknown',
+        url: doc.url || doc.file_url,
+        reliability: doc.reliability || 'medium',
+        tags: [], // API doesn't return tags yet
+        significance: doc.reliability || 'medium', // Map reliability to significance
+        verificationStatus: 'verified' as const,
+        accessLevel: 'public',
+        content: doc.content || '',
+        metadata: {
+          fileSize: null,
+          lastModified: doc.updated_at || doc.created_at,
+          format: doc.type
+        }
+      }));
+
+      // Cache the result for 15 minutes
+      cache.set(cacheKey, transformedDocs, 15 * 60 * 1000);
+      setDocuments(transformedDocs);
+    } catch (err) {
+      console.error('Documents API error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load documents');
+      setDocuments([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load documents on component mount
+  useEffect(() => {
+    fetchDocuments();
+  }, []);
+
+  // Debounced search effect
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      fetchDocuments(searchQuery, filters);
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery, filters]);
+
   // Filter and sort documents
   const filteredDocuments = useMemo((): Evidence[] => {
-    let docs: Evidence[] = searchQuery ? searchDocuments(searchQuery) : [...coreDocuments];
+    let docs: Evidence[] = [...documents];
 
-    // Apply collection filter
+    // Apply collection filter (simplified - using tags for now)
     if (selectedCollection) {
-      const collection: DocumentCollection | undefined = documentCollections.find(c => c.id === selectedCollection);
-      if (collection) {
-        docs = docs.filter(doc => collection.documents.includes(doc.id));
-      }
+      docs = docs.filter(doc => doc.tags.includes(selectedCollection));
     }
 
     // Apply filters
     if (filters.type.length > 0) {
-      docs = docs.filter(doc => filters.type.includes(doc.subtype || doc.type));
+      docs = docs.filter(doc => filters.type.includes(doc.type));
     }
 
     if (filters.significance.length > 0) {
@@ -140,17 +227,6 @@ export default function DocumentLibrary() {
     });
   };
 
-  const toggleCollection = (collectionId: string) => {
-    setExpandedCollections(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(collectionId)) {
-        newSet.delete(collectionId);
-      } else {
-        newSet.add(collectionId);
-      }
-      return newSet;
-    });
-  };
 
   const getDocumentIcon = (type: string, subtype?: string) => {
     if (subtype === 'court filing' || subtype === 'deposition') return '⚖️';
@@ -201,20 +277,60 @@ export default function DocumentLibrary() {
     );
   }
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading documents from database...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-900 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto px-4">
+          <div className="w-12 h-12 text-red-500 mx-auto mb-4">
+            <AlertTriangle className="w-full h-full" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+            Failed to Load Documents
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
+          <button
+            onClick={() => fetchDocuments()}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-900">
       <div className="flex h-screen">
         {/* Sidebar */}
         <div className="w-80 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-dark-700 flex flex-col">
           <div className="p-6 border-b border-gray-200 dark:border-dark-700">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Document Library</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              Document Library
+              <span className="text-sm font-normal text-blue-600 dark:text-blue-400 ml-2">
+                (Database-Powered)
+              </span>
+            </h2>
             
             {/* Search */}
             <div className="relative mb-4">
               <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search documents..."
+                placeholder="Search documents in database..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-dark-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-dark-700 dark:text-gray-100"
@@ -228,8 +344,8 @@ export default function DocumentLibrary() {
                 <div className="text-xs text-blue-800 dark:text-blue-400">Documents</div>
               </div>
               <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg text-center">
-                <div className="text-lg font-bold text-green-600">{documentCollections.length}</div>
-                <div className="text-xs text-green-800 dark:text-green-400">Collections</div>
+                <div className="text-lg font-bold text-green-600">{documents.length}</div>
+                <div className="text-xs text-green-800 dark:text-green-400">Documents</div>
               </div>
             </div>
           </div>
@@ -249,58 +365,29 @@ export default function DocumentLibrary() {
               >
                 <BookOpen className="w-4 h-4" />
                 <span className="text-sm font-medium">All Documents</span>
-                <span className="text-xs text-gray-500 ml-auto">{coreDocuments.length}</span>
+                <span className="text-xs text-gray-500 ml-auto">{documents.length}</span>
               </button>
 
               <div className="mt-2 space-y-1">
-                {documentCollections.map((collection) => {
-                  const isExpanded = expandedCollections.has(collection.id);
-                  const isSelected = selectedCollection === collection.id;
-                  
+                {/* Document types as collections */}
+                {Array.from(new Set(documents.map(doc => doc.type))).map((docType) => {
+                  const typeCount = documents.filter(doc => doc.type === docType).length;
+                  const isSelected = selectedCollection === docType;
+
                   return (
-                    <div key={collection.id}>
-                      <button
-                        onClick={() => {
-                          setSelectedCollection(collection.id);
-                          toggleCollection(collection.id);
-                        }}
-                        className={`w-full flex items-center space-x-2 p-2 rounded-lg text-left ${
-                          isSelected 
-                            ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400' 
-                            : 'hover:bg-gray-100 dark:hover:bg-dark-700'
-                        }`}
-                      >
-                        {isExpanded ? 
-                          <ChevronDown className="w-3 h-3" /> : 
-                          <ChevronRight className="w-3 h-3" />
-                        }
-                        <Folder className="w-4 h-4" />
-                        <span className="text-sm font-medium flex-1">{collection.name}</span>
-                        <span className="text-xs text-gray-500">{collection.documents.length}</span>
-                      </button>
-                      
-                      {isExpanded && (
-                        <div className="ml-6 mt-1 space-y-1">
-                          {collection.documents.map((docId) => {
-                            const doc = coreDocuments.find(d => d.id === docId);
-                            if (!doc) return null;
-                            
-                            return (
-                              <button
-                                key={docId}
-                                onClick={() => setSelectedDocument(docId)}
-                                className="w-full flex items-center space-x-2 p-2 rounded text-left hover:bg-gray-100 dark:hover:bg-dark-700"
-                              >
-                                <span className="text-sm">{getDocumentIcon(doc.type, doc.subtype)}</span>
-                                <span className="text-xs text-gray-700 dark:text-gray-300 truncate flex-1">
-                                  {doc.title}
-                                </span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
+                    <button
+                      key={docType}
+                      onClick={() => setSelectedCollection(isSelected ? null : docType)}
+                      className={`w-full flex items-center space-x-2 p-2 rounded-lg text-left ${
+                        isSelected
+                          ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400'
+                          : 'hover:bg-gray-100 dark:hover:bg-dark-700'
+                      }`}
+                    >
+                      <FileText className="w-4 h-4" />
+                      <span className="text-sm font-medium flex-1 capitalize">{docType}</span>
+                      <span className="text-xs text-gray-500">{typeCount}</span>
+                    </button>
                   );
                 })}
               </div>
@@ -418,14 +505,19 @@ export default function DocumentLibrary() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {selectedCollection 
-                    ? documentCollections.find(c => c.id === selectedCollection)?.name 
+                  {selectedCollection
+                    ? selectedCollection.charAt(0).toUpperCase() + selectedCollection.slice(1)
                     : 'All Documents'
                   }
                 </h1>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                   {filteredDocuments.length} document{filteredDocuments.length !== 1 ? 's' : ''} found
                 </p>
+                <div className="mt-2">
+                  <span className="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                    💾 Database-Powered
+                  </span>
+                </div>
               </div>
 
               <div className="flex items-center space-x-4">

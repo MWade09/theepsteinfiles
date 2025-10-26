@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { financialTransactions } from '@/data/financial/transactions';
+import { createRouteHandlerClient } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
-// GET /api/financial - Get financial transactions with filtering
+// GET /api/financial - Get financial transactions with filtering using Supabase
 export async function GET(request: NextRequest) {
   try {
+    const supabase = await createRouteHandlerClient();
     const searchParams = request.nextUrl.searchParams;
     const query = searchParams.get('query');
     const minAmount = parseFloat(searchParams.get('minAmount') || '0');
@@ -18,95 +19,87 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '100');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    let filteredTransactions = [...financialTransactions];
+    // Build the base query
+    let supabaseQuery = supabase
+      .from('financial_transactions')
+      .select('*', { count: 'exact' })
+      .order('transaction_date', { ascending: false })
+      .range(offset, offset + limit - 1);
 
-    // Filter by search query
+    // Filter by search query (using ILIKE for case-insensitive search)
     if (query) {
-      const lowerQuery = query.toLowerCase();
-      filteredTransactions = filteredTransactions.filter(transaction =>
-        transaction.description.toLowerCase().includes(lowerQuery) ||
-        transaction.purpose?.toLowerCase().includes(lowerQuery) ||
-        transaction.tags.some(tag => tag.toLowerCase().includes(lowerQuery))
-      );
+      supabaseQuery = supabaseQuery.or(`description.ilike.%${query}%,purpose.ilike.%${query}%`);
     }
 
     // Filter by amount range
-    filteredTransactions = filteredTransactions.filter(
-      transaction => transaction.amountUSD >= minAmount && transaction.amountUSD <= maxAmount
-    );
+    supabaseQuery = supabaseQuery.gte('amount_usd', minAmount).lte('amount_usd', maxAmount);
 
     // Filter by date range
     if (startDate) {
-      filteredTransactions = filteredTransactions.filter(
-        transaction => transaction.transactionDate >= startDate
-      );
+      supabaseQuery = supabaseQuery.gte('transaction_date', startDate);
     }
     if (endDate) {
-      filteredTransactions = filteredTransactions.filter(
-        transaction => transaction.transactionDate <= endDate
-      );
+      supabaseQuery = supabaseQuery.lte('transaction_date', endDate);
     }
 
     // Filter by suspicious activity
     if (suspiciousOnly) {
-      filteredTransactions = filteredTransactions.filter(
-        transaction => transaction.suspiciousActivity && transaction.suspiciousActivity.length > 0
-      );
+      supabaseQuery = supabaseQuery.not('suspicious_activity', 'is', null);
     }
 
-    // Filter by entities
+    // Filter by entities (from_entity and to_entity are stored as text in the database)
     if (fromEntity) {
-      filteredTransactions = filteredTransactions.filter(
-        transaction => transaction.fromEntity === fromEntity
-      );
+      supabaseQuery = supabaseQuery.ilike('from_entity', `%${fromEntity}%`);
     }
     if (toEntity) {
-      filteredTransactions = filteredTransactions.filter(
-        transaction => transaction.toEntity === toEntity
-      );
+      supabaseQuery = supabaseQuery.ilike('to_entity', `%${toEntity}%`);
     }
 
-    // Sort by date
-    filteredTransactions.sort((a, b) => 
-      new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime()
-    );
+    // Execute the query
+    const { data: transactions, error: queryError, count: total } = await supabaseQuery;
 
-    // Pagination
-    const total = filteredTransactions.length;
-    const paginatedTransactions = filteredTransactions.slice(offset, offset + limit);
+    if (queryError) {
+      throw new Error(`Database query failed: ${queryError.message}`);
+    }
+
+    const filteredTransactions = transactions || [];
+    const totalCount = total || 0;
 
     // Calculate statistics
-    const totalValue = filteredTransactions.reduce((sum, t) => sum + t.amountUSD, 0);
+    const totalValue = filteredTransactions.reduce((sum, t) => sum + (t.amount_usd || 0), 0);
     const suspiciousCount = filteredTransactions.filter(
-      t => t.suspiciousActivity && t.suspiciousActivity.length > 0
+      t => t.suspicious_activity && Object.keys(t.suspicious_activity).length > 0
     ).length;
 
     return NextResponse.json({
       success: true,
-      data: paginatedTransactions,
+      data: filteredTransactions,
       statistics: {
-        totalTransactions: total,
+        totalTransactions: totalCount,
         totalValue,
         suspiciousCount,
-        averageAmount: total > 0 ? totalValue / total : 0
+        averageAmount: totalCount > 0 ? totalValue / totalCount : 0
       },
       pagination: {
-        total,
+        total: totalCount,
         limit,
         offset,
-        hasMore: offset + limit < total
+        hasMore: offset + limit < totalCount
       },
       timestamp: new Date().toISOString(),
-      version: '1.0.0'
+      version: '2.0.0',
+      source: 'supabase'
     });
   } catch (error) {
+    console.error('Financial API error:', error);
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to fetch financial transactions',
         message: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString(),
-        version: '1.0.0'
+        version: '2.0.0',
+        source: 'supabase'
       },
       { status: 500 }
     );

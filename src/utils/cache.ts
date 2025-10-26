@@ -200,3 +200,28 @@ export class LocalStorageCache {
 
 export const localCache = new LocalStorageCache();
 
+// Cache key generators for common API calls
+export const cacheKeys = {
+  search: (query: string, types: string[] = []) => {
+    const sortedTypes = types.sort().join(',');
+    return `search:${query}:${sortedTypes}`;
+  },
+  timeline: (query?: string, filters?: any) => {
+    const filtersStr = filters ? JSON.stringify(filters) : '';
+    return `timeline:${query || ''}:${filtersStr}`;
+  },
+  people: (query?: string, significance?: string) => `people:${query || ''}:${significance || ''}`,
+  organizations: (query?: string, type?: string) => `organizations:${query || ''}:${type || ''}`,
+  documents: (query?: string, type?: string) => `documents:${query || ''}:${type || ''}`,
+  financial: (query?: string, filters?: any) => {
+    const filtersStr = filters ? JSON.stringify(filters) : '';
+    return `financial:${query || ''}:${filtersStr}`;
+  },
+  properties: (query?: string, type?: string) => `properties:${query || ''}:${type || ''}`,
+  flights: (query?: string, filters?: any) => {
+    const filtersStr = filters ? JSON.stringify(filters) : '';
+    return `flights:${query || ''}:${filtersStr}`;
+  },
+  relationships: (query?: string, type?: string) => `relationships:${query || ''}:${type || ''}`,
+};
+

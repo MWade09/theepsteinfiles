@@ -5,9 +5,9 @@ export const dynamic = 'force-dynamic';
 // GET /api - API documentation and available endpoints
 export async function GET() {
   const apiDocs = {
-    version: '1.0.0',
+    version: '2.0.0',
     title: 'Epstein Investigation Platform API',
-    description: 'RESTful API for accessing investigation data including people, timeline events, financial transactions, and more.',
+    description: 'RESTful API for accessing investigation data including people, timeline events, financial transactions, properties, flight logs, and more. Now powered by Supabase with full-text search capabilities.',
     baseUrl: '/api',
     endpoints: {
       people: {
@@ -71,13 +71,13 @@ export async function GET() {
         universal: {
           method: 'GET',
           path: '/api/search',
-          description: 'Universal search across all data types',
+          description: 'Universal full-text search across all data types using Supabase',
           parameters: {
             query: 'Search query (required)',
-            types: 'Comma-separated list of types to search (person,event,organization,transaction,document)',
+            types: 'Comma-separated list of types to search (person,event,organization,transaction,document,property,flight)',
             limit: 'Number of results to return (default: 50)'
           },
-          example: '/api/search?query=manhattan&types=person,event,transaction'
+          example: '/api/search?query=manhattan&types=person,event,transaction,property&limit=20'
         }
       },
       organizations: {
@@ -123,6 +123,39 @@ export async function GET() {
           },
           example: '/api/relationships?type=financial&limit=50'
         }
+      },
+      properties: {
+        list: {
+          method: 'GET',
+          path: '/api/properties',
+          description: 'Get all properties with optional filtering',
+          parameters: {
+            query: 'Search query (optional)',
+            type: 'Filter by property type (optional)',
+            significance: 'Filter by significance level (optional)',
+            limit: 'Number of results to return (default: 100)',
+            offset: 'Pagination offset (default: 0)'
+          },
+          example: '/api/properties?type=island&significance=critical'
+        }
+      },
+      flights: {
+        list: {
+          method: 'GET',
+          path: '/api/flights',
+          description: 'Get all flight logs with optional filtering',
+          parameters: {
+            query: 'Search query (optional)',
+            aircraft: 'Filter by aircraft type (optional)',
+            departure: 'Filter by departure location (optional)',
+            arrival: 'Filter by arrival location (optional)',
+            startDate: 'Filter by start date (YYYY-MM-DD, optional)',
+            endDate: 'Filter by end date (YYYY-MM-DD, optional)',
+            limit: 'Number of results to return (default: 100)',
+            offset: 'Pagination offset (default: 0)'
+          },
+          example: '/api/flights?aircraft=Boeing&departure=Palm%20Beach&limit=20'
+        }
       }
     },
     responseFormat: {
@@ -160,6 +193,16 @@ export async function GET() {
     authentication: {
       required: false,
       note: 'Public read-only access. Authentication may be required for future write operations.'
+    },
+    dataSource: {
+      type: 'Supabase PostgreSQL',
+      note: 'All API endpoints now query the database with full-text search capabilities. Previous local data imports have been migrated to the database.'
+    },
+    searchCapabilities: {
+      fullText: true,
+      caseInsensitive: true,
+      multipleTypes: true,
+      note: 'Enhanced search using PostgreSQL full-text search indexes for faster and more accurate results.'
     }
   };
 

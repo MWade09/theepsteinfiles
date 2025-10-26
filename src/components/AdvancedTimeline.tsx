@@ -1,12 +1,9 @@
 'use client';
 
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { TimelineEvent, Evidence } from '@/types/investigation';
-import { comprehensiveTimeline } from '@/data/core/timeline';
-import { corePeople } from '@/data/core/people';
-import { coreDocuments } from '@/data/core/documents';
-import { enhancedProperties } from '@/data/geographic/properties';
 import NetworkVisualization from './NetworkVisualization';
+import { cache, cacheKeys } from '@/utils/cache';
 
 // Use NetworkNode from NetworkVisualization component
 import type { NetworkNode } from './NetworkVisualization';
@@ -125,6 +122,11 @@ export default function AdvancedTimeline({
   const [showGeographicInfo, setShowGeographicInfo] = useState(false);
   const [multimediaMode, setMultimediaMode] = useState(false);
 
+  // API integration states
+  const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [internalViewMode, setInternalViewMode] = useState<TimelineViewMode>({
     mode: 'chronological',
     groupBy: 'year',
@@ -133,10 +135,79 @@ export default function AdvancedTimeline({
 
   // Use external view mode if provided, otherwise use internal state
   const viewMode = externalView ? {
-    mode: externalView.mode as TimelineViewMode['mode'], 
+    mode: externalView.mode as TimelineViewMode['mode'],
     groupBy: 'year' as const,
     layout: 'vertical' as const
   } : internalViewMode;
+
+  // API fetch function with caching
+  const fetchTimelineEvents = useCallback(async (query?: string, filters?: any) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Generate cache key
+      const cacheKey = cacheKeys.timeline(query, filters);
+
+      // Check cache first (cache timeline data for 10 minutes since it doesn't change often)
+      const cachedResult = cache.get<TimelineEvent[]>(cacheKey);
+      if (cachedResult) {
+        console.log('🔄 Cache hit for timeline');
+        setTimelineEvents(cachedResult);
+        setLoading(false);
+        return;
+      }
+
+      const params = new URLSearchParams();
+      if (query) params.append('query', query);
+      if (filters?.startDate) params.append('startDate', filters.startDate);
+      if (filters?.endDate) params.append('endDate', filters.endDate);
+      if (filters?.significance?.length > 0) params.append('significance', filters.significance.join(','));
+      if (filters?.type) params.append('type', filters.type);
+      params.append('limit', '500'); // Get more events for timeline
+
+      const response = await fetch(`/api/timeline?${params.toString()}`);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch timeline events: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to fetch timeline events');
+      }
+
+      // Cache the result for 10 minutes
+      cache.set(cacheKey, data.data || [], 10 * 60 * 1000);
+      setTimelineEvents(data.data || []);
+    } catch (err) {
+      console.error('Timeline API error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load timeline events');
+      // Fallback to empty array
+      setTimelineEvents([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Load timeline events on component mount
+  useEffect(() => {
+    fetchTimelineEvents();
+  }, [fetchTimelineEvents]);
+
+  // Debounced search effect
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      if (searchTerm.trim()) {
+        fetchTimelineEvents(searchTerm);
+      } else {
+        fetchTimelineEvents();
+      }
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(debounceTimer);
+  }, [searchTerm, fetchTimelineEvents]);
 
   // Create a combined setViewMode that works for both internal and external
   const setViewMode = (updater: (prev: TimelineViewMode) => TimelineViewMode) => {
@@ -283,29 +354,26 @@ export default function AdvancedTimeline({
 
   // Enhanced event processing with multimedia integration
   const enhancedEvents = useMemo(() => {
-    const enhanced = comprehensiveTimeline.map(event => {
+    const enhanced = timelineEvents.map(event => {
       const enhancedEvent: EnhancedTimelineEvent = {
         ...event,
         // Mock multimedia attachments based on event characteristics
         multimedia: generateMultimediaForEvent(event),
-        // Link to related documents
-        linkedDocuments: coreDocuments.filter(doc => 
-          doc.tags.some(tag => event.tags.includes(tag)) ||
-          event.evidence?.includes(doc.id)
-        ),
+        // Link to related documents - TODO: This could be enhanced with API calls
+        linkedDocuments: [], // Will be populated when documents API is integrated
         // Geographic correlation
         geographicData: getGeographicDataForEvent(event),
         // Enhanced source attribution
         sourceDetails: {
-          primarySource: event.sources?.[0]?.title || 'Multiple Sources',
-          reliability: event.sources?.[0]?.reliability as 'high' | 'medium' | 'low' || 'medium',
+          primarySource: 'Database Record', // TODO: Enhance with actual source data
+          reliability: 'medium',
           verificationLevel: event.verificationStatus as 'verified' | 'corroborated' | 'reported' | 'alleged'
         }
       };
       return enhancedEvent;
     });
     return enhanced;
-  }, []);
+  }, [timelineEvents]);
 
   // Filter and process events
   const filteredEvents = useMemo(() => {
@@ -450,12 +518,12 @@ export default function AdvancedTimeline({
   };
 
   const getRelatedEvents = (eventId: string): TimelineEvent[] => {
-    const event = comprehensiveTimeline.find(e => e.id === eventId);
+    const event = timelineEvents.find(e => e.id === eventId);
     if (!event) return [];
 
-    return comprehensiveTimeline.filter(e => 
-      event.relatedEvents.includes(e.id) || 
-      e.relatedEvents.includes(eventId)
+    return timelineEvents.filter(e =>
+      (event as any).relatedEvents?.includes(e.id) ||
+      (e as any).relatedEvents?.includes(eventId)
     );
   };
 
@@ -562,6 +630,45 @@ export default function AdvancedTimeline({
   //   setCurrentDecade(decade);
   // };
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="w-full bg-white dark:bg-dark-900 rounded-lg overflow-hidden">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-400">Loading timeline events from database...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="w-full bg-white dark:bg-dark-900 rounded-lg overflow-hidden">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="w-12 h-12 text-red-500 mx-auto mb-4">
+              <X className="w-full h-full" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+              Failed to Load Timeline
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
+            <button
+              onClick={() => fetchTimelineEvents()}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full bg-white dark:bg-dark-900 rounded-lg overflow-hidden">
       {/* Header Controls */}
@@ -572,17 +679,23 @@ export default function AdvancedTimeline({
             <div className="flex items-center gap-4 mb-2">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 Investigation Timeline
+                <span className="text-sm font-normal text-blue-600 dark:text-blue-400 ml-2">
+                  (Database-Powered)
+                </span>
               </h2>
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                {filteredEvents.length} events
+                {filteredEvents.length} events • {timelineEvents.length} total loaded
               </div>
             </div>
-            
+
             <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-              <span>Span: {filteredEvents.length > 0 ? 
-                `${formatDate(filteredEvents[0].date)} - ${formatDate(filteredEvents[filteredEvents.length - 1].date)}` : 
+              <span>Span: {filteredEvents.length > 0 ?
+                `${formatDate(filteredEvents[0].date)} - ${formatDate(filteredEvents[filteredEvents.length - 1].date)}` :
                 'No events'
               }</span>
+              <span className="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                💾 Database
+              </span>
             </div>
           </div>
 
@@ -593,7 +706,7 @@ export default function AdvancedTimeline({
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search events..."
+                placeholder="Search events in database..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 w-64 border border-gray-300 dark:border-dark-600 rounded-lg bg-white dark:bg-dark-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500"

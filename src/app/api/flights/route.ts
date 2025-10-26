@@ -3,29 +3,47 @@ import { createRouteHandlerClient } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
-// GET /api/timeline - Get timeline events with filtering using Supabase
+// GET /api/flights - Get all flight logs with filtering using Supabase
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createRouteHandlerClient();
     const searchParams = request.nextUrl.searchParams;
     const query = searchParams.get('query');
+    const aircraft = searchParams.get('aircraft');
+    const departure = searchParams.get('departure');
+    const arrival = searchParams.get('arrival');
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
     const significance = searchParams.get('significance');
-    const type = searchParams.get('type');
     const limit = parseInt(searchParams.get('limit') || '100');
     const offset = parseInt(searchParams.get('offset') || '0');
 
     // Build the base query
     let supabaseQuery = supabase
-      .from('timeline_events')
+      .from('flight_logs')
       .select('*', { count: 'exact' })
+      .order('significance', { ascending: false })
       .order('date', { ascending: false })
       .range(offset, offset + limit - 1);
 
     // Filter by search query (using ILIKE for case-insensitive search)
     if (query) {
-      supabaseQuery = supabaseQuery.or(`title.ilike.%${query}%,description.ilike.%${query}%`);
+      supabaseQuery = supabaseQuery.or(`aircraft.ilike.%${query}%,departure_location.ilike.%${query}%,arrival_location.ilike.%${query}%,purpose.ilike.%${query}%`);
+    }
+
+    // Filter by aircraft type
+    if (aircraft) {
+      supabaseQuery = supabaseQuery.ilike('aircraft', `%${aircraft}%`);
+    }
+
+    // Filter by departure location
+    if (departure) {
+      supabaseQuery = supabaseQuery.ilike('departure_location', `%${departure}%`);
+    }
+
+    // Filter by arrival location
+    if (arrival) {
+      supabaseQuery = supabaseQuery.ilike('arrival_location', `%${arrival}%`);
     }
 
     // Filter by date range
@@ -41,23 +59,19 @@ export async function GET(request: NextRequest) {
       supabaseQuery = supabaseQuery.eq('significance', significance);
     }
 
-    // Filter by type
-    if (type) {
-      supabaseQuery = supabaseQuery.eq('type', type);
-    }
-
     // Execute the query
-    const { data: events, error: queryError, count: total } = await supabaseQuery;
+    const { data: flights, error: queryError, count: total } = await supabaseQuery;
 
     if (queryError) {
       throw new Error(`Database query failed: ${queryError.message}`);
     }
 
+    const filteredFlights = flights || [];
     const totalCount = total || 0;
 
     return NextResponse.json({
       success: true,
-      data: events || [],
+      data: filteredFlights,
       pagination: {
         total: totalCount,
         limit,
@@ -69,11 +83,11 @@ export async function GET(request: NextRequest) {
       source: 'supabase'
     });
   } catch (error) {
-    console.error('Timeline API error:', error);
+    console.error('Flights API error:', error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to fetch timeline events',
+        error: 'Failed to fetch flight logs',
         message: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString(),
         version: '2.0.0',
@@ -83,4 +97,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

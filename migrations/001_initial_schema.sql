@@ -324,4 +324,4 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
-CREATE TRIGGER update_flight_paths BEFORE INSERT OR UPDATE ON flight_logs FOR EACH ROW EXECUTE FUNCTION update_flight_path();
+CREATE TRIGGER update_flight_paths AFTER INSERT OR UPDATE ON flight_logs FOR EACH ROW EXECUTE FUNCTION update_flight_path();

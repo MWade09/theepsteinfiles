@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import Fuse from 'fuse.js';
+import { cache, cacheKeys } from '@/utils/cache';
 import {
   Search,
   Filter,
@@ -16,16 +16,15 @@ import {
   Zap,
   Brain,
   History,
-  Tag
+  Tag,
+  Building,
+  Plane,
+  MapPin
 } from 'lucide-react';
-import { corePeople } from '@/data/core/people';
-import { comprehensiveTimeline } from '@/data/core/timeline';
-import { financialTransactions } from '@/data/financial/transactions';
-import { coreOrganizations } from '@/data/core/organizations';
 
 interface SearchResult {
   id: string;
-  type: 'person' | 'event' | 'relationship' | 'transaction' | 'document' | 'organization';
+  type: 'person' | 'event' | 'relationship' | 'transaction' | 'document' | 'organization' | 'property' | 'flight';
   title: string;
   description: string;
   relevance: number;
@@ -47,6 +46,29 @@ interface SearchFilters {
     exact: boolean;
     caseSensitive: boolean;
   };
+}
+
+// API Response types
+interface ApiSearchResult {
+  id: string;
+  type: string;
+  title: string;
+  description: string;
+  relevance: number;
+  significance?: string;
+  date?: string;
+  url: string;
+}
+
+interface ApiSearchResponse {
+  success: boolean;
+  data: ApiSearchResult[];
+  query: string;
+  total: number;
+  returned: number;
+  timestamp: string;
+  version: string;
+  source: string;
 }
 
 interface SavedSearch {
@@ -71,11 +93,13 @@ const GlobalSearch = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<ApiSearchResult[]>([]);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [showSavedSearches, setShowSavedSearches] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  
+
   const [filters, setFilters] = useState<SearchFilters>({
     types: [],
     dateRange: { start: '1970-01-01', end: '2024-12-31' },
@@ -95,122 +119,105 @@ const GlobalSearch = () => {
     if (saved) {
       setSavedSearches(JSON.parse(saved));
     }
-    
+
     const recent = localStorage.getItem('recentSearches');
     if (recent) {
       setRecentSearches(JSON.parse(recent));
     }
   }, []);
 
-  // Enhanced comprehensive search across all data types
-  // Enhanced Fuse.js search configuration
-  const fuseSearch = useMemo(() => {
-    const searchData = [
-      ...corePeople.map(person => ({
-        id: person.id,
-        type: 'person',
-        title: person.name,
-        content: `${person.name} ${person.aliases.join(' ')} ${person.biography} ${person.tags.join(' ')} ${person.occupations.join(' ')}`,
-        significance: person.significance,
-        tags: person.tags,
-        url: `/timeline#${person.id}`,
-        metadata: { entityType: 'person', ...person }
-      })),
-      ...comprehensiveTimeline.map(event => ({
-        id: event.id,
-        type: 'event',
-        title: event.title,
-        content: `${event.title} ${event.description} ${event.tags?.join(' ') || ''}`,
-        significance: event.significance,
-        tags: event.tags || [],
-        date: event.date,
-        url: `/timeline#${event.id}`,
-        metadata: { entityType: 'event', ...event }
-      })),
-      ...coreOrganizations.map(org => ({
-        id: org.id,
-        type: 'organization',
-        title: org.name,
-        content: `${org.name} ${org.description} ${org.tags.join(' ')} ${org.type}`,
-        significance: org.significance,
-        tags: org.tags,
-        url: `/network#${org.id}`,
-        metadata: { entityType: 'organization', ...org }
-      })),
-      ...financialTransactions.map(transaction => ({
-        id: transaction.id,
-        type: 'transaction',
-        title: `$${transaction.amountUSD.toLocaleString()} Transaction`,
-        content: `${transaction.description} ${transaction.purpose || ''} ${transaction.tags.join(' ')}`,
-        significance: transaction.significance,
-        tags: transaction.tags,
-        date: transaction.transactionDate,
-        url: `/financial#${transaction.id}`,
-        metadata: { entityType: 'transaction', ...transaction }
-      }))
-    ];
+  // API search function with caching
+  const searchWithAPI = useCallback(async (query: string, types: string[] = []): Promise<ApiSearchResult[]> => {
+    if (!query.trim()) return [];
 
-    return new Fuse(searchData, {
-      keys: [
-        { name: 'title', weight: 0.4 },
-        { name: 'content', weight: 0.3 },
-        { name: 'tags', weight: 0.3 }
-      ],
-      includeScore: true,
-      includeMatches: true,
-      threshold: 0.3,
-      minMatchCharLength: 2,
-      shouldSort: true
-    });
+    // Generate cache key
+    const cacheKey = cacheKeys.search(query, types.sort());
+
+    // Check cache first
+    const cachedResult = cache.get<ApiSearchResult[]>(cacheKey);
+    if (cachedResult) {
+      console.log('🔄 Cache hit for search:', query);
+      return cachedResult;
+    }
+
+    try {
+      const typesParam = types.length > 0 ? types.join(',') : 'person,event,organization,transaction,document,property,flight';
+      const response = await fetch(`/api/search?query=${encodeURIComponent(query)}&types=${typesParam}&limit=50`);
+
+      if (!response.ok) {
+        throw new Error(`Search failed: ${response.statusText}`);
+      }
+
+      const data: ApiSearchResponse = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Search failed');
+      }
+
+      // Cache the result for 2 minutes (search results change frequently but caching helps with repeated queries)
+      cache.set(cacheKey, data.data, 2 * 60 * 1000);
+
+      return data.data;
+    } catch (error) {
+      console.error('API search error:', error);
+      setSearchError(error instanceof Error ? error.message : 'Search failed');
+      return [];
+    }
   }, []);
 
-  const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return [];
+  // Enhanced search with API integration
+  useEffect(() => {
+    const performSearch = async () => {
+      if (!searchQuery.trim()) {
+        setSearchResults([]);
+        setSearchError(null);
+        return;
+      }
 
-    setIsSearching(true);
+      setIsSearching(true);
+      setSearchError(null);
 
-    // Use Fuse.js for advanced search
-    const fuseResults = fuseSearch.search(searchQuery);
+      try {
+        // Determine search types based on filters
+        let searchTypes: string[] = [];
+        if (filters.types.length > 0) {
+          searchTypes = filters.types;
+        } else {
+          // Default to all types if no filter
+          searchTypes = ['person', 'event', 'organization', 'transaction', 'document', 'property', 'flight'];
+        }
 
-    const results: SearchResult[] = fuseResults.map(result => {
-      const item = result.item;
-      const score = result.score || 1;
-      const relevance = Math.max(0, 100 - (score * 100));
+        const results = await searchWithAPI(searchQuery, searchTypes);
+        setSearchResults(results);
+      } catch (error) {
+        console.error('Search error:', error);
+        setSearchError(error instanceof Error ? error.message : 'Search failed');
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    };
 
-      return {
-        id: item.id,
-        type: item.type as SearchResult['type'],
-        title: item.title,
-        description: item.content.substring(0, 200) + (item.content.length > 200 ? '...' : ''),
-        relevance,
-        tags: item.tags,
-        date: (item as any).date || (item as any).transactionDate,
-        significance: item.significance,
-        url: item.url,
-        highlight: result.matches?.map(match => match.key).join(', ') || ''
-      };
-    });
+    // Debounce search to avoid too many API calls
+    const debounceTimer = setTimeout(performSearch, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery, filters.types, searchWithAPI]);
 
-    // Apply additional filters if needed
-    let filteredResults = results;
-
-    if (filters.types.length > 0) {
-      filteredResults = filteredResults.filter(result => filters.types.includes(result.type));
-    }
-
-    if (filters.significance.length > 0) {
-      filteredResults = filteredResults.filter(result => result.significance && filters.significance.includes(result.significance));
-    }
-
-    if (filters.tags.length > 0) {
-      filteredResults = filteredResults.filter(result =>
-        result.tags.some(tag => filters.tags.includes(tag))
-      );
-    }
-
-    setTimeout(() => setIsSearching(false), 300);
-    return filteredResults.slice(0, 50); // Limit to top 50 results
-  }, [searchQuery, filters, fuseSearch]);
+  // Transform API results to component format
+  const transformApiResults = (apiResults: ApiSearchResult[]): SearchResult[] => {
+    return apiResults.map(result => ({
+      id: result.id,
+      type: result.type as SearchResult['type'],
+      title: result.title,
+      description: result.description,
+      relevance: result.relevance,
+      tags: [], // API doesn't return tags, could be enhanced later
+      date: result.date,
+      significance: result.significance,
+      url: result.url,
+      highlight: '' // API doesn't return highlights, could be enhanced later
+    }));
+  };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -219,7 +226,9 @@ const GlobalSearch = () => {
       case 'relationship': return <User className="w-4 h-4" />;
       case 'transaction': return <DollarSign className="w-4 h-4" />;
       case 'document': return <FileText className="w-4 h-4" />;
-      case 'organization': return <Filter className="w-4 h-4" />;
+      case 'organization': return <Building className="w-4 h-4" />;
+      case 'property': return <MapPin className="w-4 h-4" />;
+      case 'flight': return <Plane className="w-4 h-4" />;
       default: return <Search className="w-4 h-4" />;
     }
   };
@@ -232,6 +241,8 @@ const GlobalSearch = () => {
       case 'transaction': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
       case 'document': return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
       case 'organization': return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
+      case 'property': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      case 'flight': return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200';
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
     }
   };
@@ -251,49 +262,43 @@ const GlobalSearch = () => {
     });
   };
 
-  // Smart search suggestions based on query
+  // Smart search suggestions based on common terms and recent searches
   const getSearchSuggestions = useMemo((): SearchSuggestion[] => {
     if (!searchQuery.trim() || searchQuery.length < 2) return [];
-    
+
     const suggestions: SearchSuggestion[] = [];
     const query = searchQuery.toLowerCase();
-    
-    // Smart term suggestions
-    const commonTerms = ['financial', 'property', 'relationship', 'testimony', 'investigation'];
+
+    // Smart term suggestions for investigation topics
+    const commonTerms = [
+      'financial', 'property', 'relationship', 'testimony', 'investigation',
+      'epstein', 'maxwell', 'clinton', 'andrew', 'flight', 'island',
+      'manhattan', 'palm beach', 'new mexico', 'virgin islands'
+    ];
+
     commonTerms.forEach(term => {
-      if (term.includes(query) && term !== query) {
+      if (term.toLowerCase().includes(query) && term !== query) {
         suggestions.push({
           text: term,
           type: 'smart',
-          category: 'Common Terms'
+          category: 'Investigation Terms'
         });
       }
     });
-    
-    // People name suggestions
-    corePeople.forEach(person => {
-      if (person.name.toLowerCase().includes(query)) {
+
+    // Recent searches suggestions
+    recentSearches.forEach(recentSearch => {
+      if (recentSearch.toLowerCase().includes(query) && recentSearch !== searchQuery) {
         suggestions.push({
-          text: person.name,
-          type: 'term',
-          category: 'People'
+          text: recentSearch,
+          type: 'recent',
+          category: 'Recent Searches'
         });
       }
     });
-    
-    // Organization suggestions
-    coreOrganizations.forEach(org => {
-      if (org.name.toLowerCase().includes(query)) {
-        suggestions.push({
-          text: org.name,
-          type: 'term',
-          category: 'Organizations'
-        });
-      }
-    });
-    
+
     return suggestions.slice(0, 8);
-  }, [searchQuery]);
+  }, [searchQuery, recentSearches]);
 
 
   // Save search function
@@ -341,7 +346,7 @@ const GlobalSearch = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setShowSuggestions(true)}
-            placeholder="Search with Boolean operators (AND, OR, NOT) or exact phrases..."
+            placeholder="Search across people, events, organizations, financial records, properties, and flight logs..."
             className="w-full pl-10 pr-32 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
                      bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
                      focus:ring-2 focus:ring-blue-500 focus:border-transparent
@@ -413,16 +418,20 @@ const GlobalSearch = () => {
               {isSearching ? (
                 <span className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                  Searching...
+                  Searching database...
+                </span>
+              ) : searchError ? (
+                <span className="text-red-600 dark:text-red-400">
+                  Error: {searchError}
                 </span>
               ) : (
-                `${searchResults.length} results found${searchResults.length > 0 ? ` (avg relevance: ${Math.round(searchResults.reduce((sum, r) => sum + r.relevance, 0) / searchResults.length)})` : ''}`
+                `${searchResults.length} results found${searchResults.length > 0 ? ` (powered by Supabase full-text search)` : ''}`
               )}
             </div>
-            
-            {/* Boolean Operator Hints */}
+
+            {/* Enhanced Tips */}
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              Tips: Use &quot;AND&quot;, &quot;OR&quot;, &quot;NOT&quot; • Use quotes for exact phrases
+              💾 Database-powered • ⚡ Full-text search • 🎯 Smart relevance ranking
             </div>
           </div>
         )}
@@ -466,7 +475,10 @@ const GlobalSearch = () => {
                   { type: 'event', label: 'Timeline Events', icon: Calendar, color: 'green' },
                   { type: 'relationship', label: 'Relationships', icon: User, color: 'purple' },
                   { type: 'transaction', label: 'Financial', icon: DollarSign, color: 'yellow' },
-                  { type: 'organization', label: 'Organizations', icon: Filter, color: 'orange' }
+                  { type: 'organization', label: 'Organizations', icon: Building, color: 'orange' },
+                  { type: 'document', label: 'Documents', icon: FileText, color: 'gray' },
+                  { type: 'property', label: 'Properties', icon: MapPin, color: 'red' },
+                  { type: 'flight', label: 'Flight Logs', icon: Plane, color: 'indigo' }
                 ].map(({ type, label, icon: Icon, color }) => (
                   <label key={type} className="flex items-center space-x-3 cursor-pointer group">
                     <input
@@ -681,7 +693,7 @@ const GlobalSearch = () => {
       {/* Search Results */}
       {searchQuery && searchResults.length > 0 && (
         <div className="mt-6 space-y-3">
-          {searchResults.map((result) => (
+          {transformApiResults(searchResults).map((result) => (
             <div
               key={`${result.type}-${result.id}`}
               className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg 
@@ -749,15 +761,43 @@ const GlobalSearch = () => {
       )}
 
       {/* No Results */}
-      {searchQuery && searchResults.length === 0 && !isSearching && (
+      {searchQuery && searchResults.length === 0 && !isSearching && !searchError && (
         <div className="mt-6 text-center py-8">
           <Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
             No results found
           </h3>
-          <p className="text-gray-600 dark:text-gray-400">
-            Try adjusting your search terms or filters
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            Try adjusting your search terms or filters. The search is powered by our database and supports full-text search across all content types.
           </p>
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            💡 Tips: Use broader terms, check spelling, or try different content types in the filters
+          </div>
+        </div>
+      )}
+
+      {/* Error State */}
+      {searchError && (
+        <div className="mt-6 text-center py-8">
+          <X className="w-12 h-12 text-red-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+            Search Error
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            {searchError}
+          </p>
+          <button
+            onClick={() => {
+              setSearchError(null);
+              // Trigger search again
+              if (searchQuery.trim()) {
+                // This will trigger the useEffect to search again
+              }
+            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          >
+            Try Again
+          </button>
         </div>
       )}
     </div>

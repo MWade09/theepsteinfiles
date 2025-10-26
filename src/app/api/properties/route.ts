@@ -3,58 +3,53 @@ import { createRouteHandlerClient } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
-// GET /api/relationships - Get all relationships or search by query using Supabase
+// GET /api/properties - Get all properties with filtering using Supabase
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createRouteHandlerClient();
     const searchParams = request.nextUrl.searchParams;
     const query = searchParams.get('query');
     const type = searchParams.get('type');
-    const entity = searchParams.get('entity');
+    const significance = searchParams.get('significance');
     const limit = parseInt(searchParams.get('limit') || '100');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    // Build the base query with joins to get entity names
+    // Build the base query
     let supabaseQuery = supabase
-      .from('entity_relationships')
-      .select(`
-        *,
-        entity1:people!entity_relationships_entity1_id_fkey(id, name, significance),
-        entity2:people!entity_relationships_entity2_id_fkey(id, name, significance),
-        org1:organizations!entity_relationships_entity1_id_fkey(id, name, type, significance),
-        org2:organizations!entity_relationships_entity2_id_fkey(id, name, type, significance)
-      `, { count: 'exact' })
-      .order('created_at', { ascending: false })
+      .from('properties')
+      .select('*', { count: 'exact' })
+      .order('significance', { ascending: false })
+      .order('name')
       .range(offset, offset + limit - 1);
 
     // Filter by search query (using ILIKE for case-insensitive search)
     if (query) {
-      supabaseQuery = supabaseQuery.ilike('description', `%${query}%`);
+      supabaseQuery = supabaseQuery.or(`name.ilike.%${query}%,description.ilike.%${query}%,address.ilike.%${query}%`);
     }
 
-    // Filter by relationship type
+    // Filter by property type
     if (type) {
-      supabaseQuery = supabaseQuery.eq('relationship_type', type);
+      supabaseQuery = supabaseQuery.eq('type', type);
     }
 
-    // Filter by entity (either entity1 or entity2)
-    if (entity) {
-      supabaseQuery = supabaseQuery.or(`entity1_id.eq.${entity},entity2_id.eq.${entity}`);
+    // Filter by significance
+    if (significance) {
+      supabaseQuery = supabaseQuery.eq('significance', significance);
     }
 
     // Execute the query
-    const { data: relationships, error: queryError, count: total } = await supabaseQuery;
+    const { data: properties, error: queryError, count: total } = await supabaseQuery;
 
     if (queryError) {
       throw new Error(`Database query failed: ${queryError.message}`);
     }
 
-    const filteredRelationships = relationships || [];
+    const filteredProperties = properties || [];
     const totalCount = total || 0;
 
     return NextResponse.json({
       success: true,
-      data: filteredRelationships,
+      data: filteredProperties,
       pagination: {
         total: totalCount,
         limit,
@@ -66,11 +61,11 @@ export async function GET(request: NextRequest) {
       source: 'supabase'
     });
   } catch (error) {
-    console.error('Relationships API error:', error);
+    console.error('Properties API error:', error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to fetch relationships',
+        error: 'Failed to fetch properties',
         message: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString(),
         version: '2.0.0',
@@ -80,4 +75,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

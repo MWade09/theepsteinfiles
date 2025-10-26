@@ -1,64 +1,74 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { coreDocuments } from '@/data/core/documents';
+import { createRouteHandlerClient } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
-// GET /api/documents - Get all documents or search by query
+// GET /api/documents - Get all documents or search by query using Supabase
 export async function GET(request: NextRequest) {
   try {
+    const supabase = await createRouteHandlerClient();
     const searchParams = request.nextUrl.searchParams;
     const query = searchParams.get('query');
     const type = searchParams.get('type');
-    const significance = searchParams.get('significance');
+    const reliability = searchParams.get('reliability');
     const limit = parseInt(searchParams.get('limit') || '100');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    let filteredDocuments = [...coreDocuments];
+    // Build the base query
+    let supabaseQuery = supabase
+      .from('documents')
+      .select('*', { count: 'exact' })
+      .order('publication_date', { ascending: false })
+      .range(offset, offset + limit - 1);
 
-    // Filter by search query
+    // Filter by search query (using ILIKE for case-insensitive search)
     if (query) {
-      const lowerQuery = query.toLowerCase();
-      filteredDocuments = filteredDocuments.filter(doc =>
-        doc.title.toLowerCase().includes(lowerQuery) ||
-        doc.description.toLowerCase().includes(lowerQuery) ||
-        doc.tags.some(tag => tag.toLowerCase().includes(lowerQuery))
-      );
+      supabaseQuery = supabaseQuery.or(`title.ilike.%${query}%,description.ilike.%${query}%,content.ilike.%${query}%`);
     }
 
     // Filter by type
     if (type) {
-      filteredDocuments = filteredDocuments.filter(doc => doc.type === type);
+      supabaseQuery = supabaseQuery.eq('type', type);
     }
 
-    // Filter by significance
-    if (significance) {
-      filteredDocuments = filteredDocuments.filter(doc => doc.significance === significance);
+    // Filter by reliability
+    if (reliability) {
+      supabaseQuery = supabaseQuery.eq('reliability', reliability);
     }
 
-    // Pagination
-    const total = filteredDocuments.length;
-    const paginatedDocuments = filteredDocuments.slice(offset, offset + limit);
+    // Execute the query
+    const { data: documents, error: queryError, count: total } = await supabaseQuery;
+
+    if (queryError) {
+      throw new Error(`Database query failed: ${queryError.message}`);
+    }
+
+    const filteredDocuments = documents || [];
+    const totalCount = total || 0;
 
     return NextResponse.json({
       success: true,
-      data: paginatedDocuments,
+      data: filteredDocuments,
       pagination: {
-        total,
+        total: totalCount,
         limit,
         offset,
-        hasMore: offset + limit < total
+        hasMore: offset + limit < totalCount
       },
       timestamp: new Date().toISOString(),
-      version: '1.0.0'
+      version: '2.0.0',
+      source: 'supabase'
     });
   } catch (error) {
+    console.error('Documents API error:', error);
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to fetch documents',
         message: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString(),
-        version: '1.0.0'
+        version: '2.0.0',
+        source: 'supabase'
       },
       { status: 500 }
     );
