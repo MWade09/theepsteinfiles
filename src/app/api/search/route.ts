@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 interface SearchResult {
   id: string;
-  type: 'person' | 'event' | 'organization' | 'transaction' | 'document';
+  type: 'person' | 'event' | 'organization' | 'transaction' | 'document' | 'property' | 'flight';
   title: string;
   description: string;
   relevance: number;
@@ -250,7 +250,7 @@ export async function GET(request: NextRequest) {
         return b.relevance - a.relevance;
       }
       // If same relevance, sort by significance (critical > high > medium > low)
-      const significanceOrder = { 'critical': 4, 'high': 3, 'medium': 2, 'low': 1 };
+      const significanceOrder = { critical: 4, high: 3, medium: 2, low: 1 };
       return (significanceOrder[b.significance as keyof typeof significanceOrder] || 0) -
              (significanceOrder[a.significance as keyof typeof significanceOrder] || 0);
     });
@@ -269,7 +269,6 @@ export async function GET(request: NextRequest) {
       source: 'supabase'
     });
   } catch (error) {
-    console.error('Search API error:', error);
     return NextResponse.json(
       {
         success: false,

@@ -82,7 +82,7 @@ export default function GeographicMappingPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControlPanel, setShowControlPanel] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'overview' | 'analytics' | 'search' | 'visualization'>('overview');
+  const [activeTab, setActiveTab] = useState<string>('overview');
   const [mapError, setMapError] = useState<Error | null>(null);
   const [mapKey, setMapKey] = useState(0);
   const [comparisonMode, setComparisonMode] = useState(false);
@@ -288,7 +288,7 @@ export default function GeographicMappingPage() {
                 ].map((tab) => (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id as any)}
+                    onClick={() => setActiveTab(tab.id)}
                     className={`flex items-center gap-2 px-3 py-3 text-sm font-medium border-b-2 transition-colors ${
                       activeTab === tab.id
                         ? 'border-cyan-500 text-cyan-400'

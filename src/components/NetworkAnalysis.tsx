@@ -2,6 +2,11 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { NetworkNode, NetworkEdge, Person, Relationship } from '@/types/investigation';
+import { coreRelationships } from '@/data/core/relationships';
+import { corePeople } from '@/data/core/people';
+import { coreOrganizations } from '@/data/core/organizations';
+import { comprehensiveTimeline } from '@/data/core/timeline';
+import { financialTransactions } from '@/data/financial/transactions';
 import { 
   Filter, 
   ZoomIn, 

@@ -67,6 +67,13 @@ class Cache {
     return this.cache.size;
   }
 
+  stats() {
+    return {
+      size: this.cache.size,
+      keys: Array.from(this.cache.keys())
+    };
+  }
+
   // Clean up expired entries
   cleanup(): void {
     const now = Date.now();

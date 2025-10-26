@@ -15,7 +15,6 @@ import {
   Tag,
   SortAsc,
   SortDesc,
-  Folder,
   Star,
   BookOpen,
   Verified,
@@ -26,7 +25,7 @@ import {
   ChevronDown,
   ChevronRight
 } from 'lucide-react';
-import { Evidence, DocumentCollection } from '@/types/investigation';
+import { Evidence } from '@/types/investigation';
 import DocumentViewer from './DocumentViewer';
 
 interface DocumentFilters {
@@ -41,6 +40,22 @@ interface DocumentFilters {
   accessLevel: string[];
 }
 
+interface ApiDocument {
+  id: string;
+  title: string;
+  description: string;
+  type: string;
+  publication_date?: string;
+  created_at: string;
+  author?: string;
+  publication?: string;
+  url?: string;
+  file_url?: string;
+  reliability?: string;
+  content?: string;
+  updated_at?: string;
+}
+
 export default function DocumentLibrary() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
@@ -49,7 +64,6 @@ export default function DocumentLibrary() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
-  const [expandedCollections, setExpandedCollections] = useState<Set<string>>(new Set());
 
   // API integration states
   const [documents, setDocuments] = useState<Evidence[]>([]);
@@ -77,7 +91,6 @@ export default function DocumentLibrary() {
       // Check cache first (cache documents for 15 minutes since they don't change often)
       const cachedResult = cache.get<Evidence[]>(cacheKey);
       if (cachedResult) {
-        console.log('🔄 Cache hit for documents');
         setDocuments(cachedResult);
         setLoading(false);
         return;
@@ -85,8 +98,8 @@ export default function DocumentLibrary() {
 
       const params = new URLSearchParams();
       if (query) params.append('query', query);
-      if (filters?.type?.length > 0) params.append('type', filters.type.join(','));
-      if (filters?.significance?.length > 0) params.append('reliability', filters.significance.join(','));
+      if (filters?.type && filters.type.length > 0) params.append('type', filters.type.join(','));
+      if (filters?.significance && filters.significance.length > 0) params.append('reliability', filters.significance.join(','));
       params.append('limit', '200');
 
       const response = await fetch(`/api/documents?${params.toString()}`);
@@ -102,33 +115,45 @@ export default function DocumentLibrary() {
       }
 
       // Transform API response to Evidence format (simplified)
-      const transformedDocs: Evidence[] = (data.data || []).map((doc: any) => ({
+      const transformedDocs: Evidence[] = (data.data as ApiDocument[]).map((doc: ApiDocument) => ({
         id: doc.id,
         title: doc.title,
         description: doc.description || '',
-        type: doc.type,
+        type: doc.type as 'document' | 'testimony' | 'photo' | 'video' | 'audio' | 'financial' | 'communication' | 'other',
         date: doc.publication_date || doc.created_at,
         author: doc.author,
         source: doc.publication || 'Unknown',
         url: doc.url || doc.file_url,
         reliability: doc.reliability || 'medium',
         tags: [], // API doesn't return tags yet
-        significance: doc.reliability || 'medium', // Map reliability to significance
+        significance: (doc.reliability || 'medium') as 'low' | 'medium' | 'high' | 'critical', // Map reliability to significance
         verificationStatus: 'verified' as const,
-        accessLevel: 'public',
-        content: doc.content || '',
-        metadata: {
-          fileSize: null,
-          lastModified: doc.updated_at || doc.created_at,
-          format: doc.type
-        }
+        confidenceLevel: 'medium' as const,
+        sources: doc.publication ? [{
+          id: `source-${doc.id}`,
+          title: doc.publication,
+          type: 'news_article' as const,
+          author: doc.author,
+          publication: doc.publication,
+          publicationDate: doc.publication_date,
+          reliability: 'medium' as const,
+          description: `Source for ${doc.title}`,
+          tags: []
+        }] : [],
+        relatedEntities: [],
+        relatedEvents: [],
+        annotations: [],
+        accessLevel: 'public' as const,
+        content: doc.content ? { text: doc.content } : undefined,
+        preferredUrl: doc.url || doc.file_url,
+        defaultDisplayMode: doc.url ? 'preview' : 'text',
+        lastUpdated: doc.updated_at || doc.created_at
       }));
 
       // Cache the result for 15 minutes
       cache.set(cacheKey, transformedDocs, 15 * 60 * 1000);
       setDocuments(transformedDocs);
     } catch (err) {
-      console.error('Documents API error:', err);
       setError(err instanceof Error ? err.message : 'Failed to load documents');
       setDocuments([]);
     } finally {
@@ -214,7 +239,7 @@ export default function DocumentLibrary() {
     });
 
     return docs;
-  }, [searchQuery, filters, sortBy, sortOrder, selectedCollection]);
+  }, [documents, searchQuery, filters, sortBy, sortOrder, selectedCollection]);
 
   const toggleFilter = (category: keyof DocumentFilters, value: string) => {
     setFilters(prev => {

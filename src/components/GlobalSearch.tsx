@@ -24,7 +24,7 @@ import {
 
 interface SearchResult {
   id: string;
-  type: 'person' | 'event' | 'relationship' | 'transaction' | 'document' | 'organization' | 'property' | 'flight';
+  type: 'person' | 'event' | 'organization' | 'transaction' | 'document' | 'property' | 'flight';
   title: string;
   description: string;
   relevance: number;
@@ -69,6 +69,7 @@ interface ApiSearchResponse {
   timestamp: string;
   version: string;
   source: string;
+  error?: string;
 }
 
 interface SavedSearch {
@@ -136,7 +137,6 @@ const GlobalSearch = () => {
     // Check cache first
     const cachedResult = cache.get<ApiSearchResult[]>(cacheKey);
     if (cachedResult) {
-      console.log('🔄 Cache hit for search:', query);
       return cachedResult;
     }
 
@@ -159,7 +159,6 @@ const GlobalSearch = () => {
 
       return data.data;
     } catch (error) {
-      console.error('API search error:', error);
       setSearchError(error instanceof Error ? error.message : 'Search failed');
       return [];
     }
@@ -190,7 +189,6 @@ const GlobalSearch = () => {
         const results = await searchWithAPI(searchQuery, searchTypes);
         setSearchResults(results);
       } catch (error) {
-        console.error('Search error:', error);
         setSearchError(error instanceof Error ? error.message : 'Search failed');
         setSearchResults([]);
       } finally {

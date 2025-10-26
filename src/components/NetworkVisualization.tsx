@@ -4,6 +4,9 @@ import React, { useEffect, useMemo, useRef, useState, forwardRef, useImperativeH
 import * as d3 from 'd3';
 import { TimelineEvent } from '@/types/investigation';
 import { ZoomIn, ZoomOut, RotateCcw, Filter } from 'lucide-react';
+import { corePeople } from '@/data/core/people';
+import { coreOrganizations } from '@/data/core/organizations';
+import { enhancedProperties } from '@/data/geographic/properties';
 
 export interface NetworkNode extends d3.SimulationNodeDatum {
   id: string;

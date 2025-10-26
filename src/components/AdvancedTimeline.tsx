@@ -4,6 +4,7 @@ import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { TimelineEvent, Evidence } from '@/types/investigation';
 import NetworkVisualization from './NetworkVisualization';
 import { cache, cacheKeys } from '@/utils/cache';
+import { corePeople } from '@/data/core/people';
 
 // Use NetworkNode from NetworkVisualization component
 import type { NetworkNode } from './NetworkVisualization';
@@ -141,7 +142,12 @@ export default function AdvancedTimeline({
   } : internalViewMode;
 
   // API fetch function with caching
-  const fetchTimelineEvents = useCallback(async (query?: string, filters?: any) => {
+  const fetchTimelineEvents = useCallback(async (query?: string, filters?: {
+    startDate?: string;
+    endDate?: string;
+    significance?: string[];
+    type?: string;
+  }) => {
     try {
       setLoading(true);
       setError(null);
@@ -152,7 +158,6 @@ export default function AdvancedTimeline({
       // Check cache first (cache timeline data for 10 minutes since it doesn't change often)
       const cachedResult = cache.get<TimelineEvent[]>(cacheKey);
       if (cachedResult) {
-        console.log('🔄 Cache hit for timeline');
         setTimelineEvents(cachedResult);
         setLoading(false);
         return;
@@ -162,7 +167,7 @@ export default function AdvancedTimeline({
       if (query) params.append('query', query);
       if (filters?.startDate) params.append('startDate', filters.startDate);
       if (filters?.endDate) params.append('endDate', filters.endDate);
-      if (filters?.significance?.length > 0) params.append('significance', filters.significance.join(','));
+      if (filters?.significance && filters.significance.length > 0) params.append('significance', filters.significance.join(','));
       if (filters?.type) params.append('type', filters.type);
       params.append('limit', '500'); // Get more events for timeline
 
@@ -182,7 +187,6 @@ export default function AdvancedTimeline({
       cache.set(cacheKey, data.data || [], 10 * 60 * 1000);
       setTimelineEvents(data.data || []);
     } catch (err) {
-      console.error('Timeline API error:', err);
       setError(err instanceof Error ? err.message : 'Failed to load timeline events');
       // Fallback to empty array
       setTimelineEvents([]);
@@ -247,23 +251,8 @@ export default function AdvancedTimeline({
   const generateMultimediaForEvent = (event: TimelineEvent): MultimediaAttachment[] => {
     const attachments: MultimediaAttachment[] = [];
     
-    // Add document attachments based on evidence
-    if (event.evidence && event.evidence.length > 0) {
-      event.evidence.forEach((evidenceId, index) => {
-        const doc = coreDocuments.find(d => d.id === evidenceId);
-        if (doc) {
-          attachments.push({
-            id: `${event.id}-doc-${index}`,
-            type: 'document',
-            url: doc.content?.fileName || '#',
-            title: doc.title,
-            description: doc.description,
-            source: doc.sources?.[0]?.title || 'Unknown source',
-            verified: doc.verificationStatus === 'verified'
-          });
-        }
-      });
-    }
+    // TODO: Add document attachments based on evidence when documents API is integrated
+    // For now, skip document attachments as they require additional API integration
 
     // Add mock media for high-significance events
     if (event.significance === 'critical' || event.significance === 'high') {
@@ -315,17 +304,9 @@ export default function AdvancedTimeline({
     // Look for location references in event entities
     const locationEntity = event.entities?.find(e => e.entityType === 'location');
     if (locationEntity) {
-      const property = enhancedProperties.find(p => 
-        p.name.toLowerCase().includes(locationEntity.entityId.toLowerCase()) ||
-        locationEntity.entityId.includes(p.id)
-      );
-      if (property) {
-        return {
-          propertyId: property.id,
-          coordinates: property.coordinates,
-          address: property.address
-        };
-      }
+      // TODO: Fetch property from API when needed
+      // For now, return null as property integration requires additional API calls
+      return undefined;
     }
 
     // Default coordinates for key locations mentioned in events
@@ -522,8 +503,8 @@ export default function AdvancedTimeline({
     if (!event) return [];
 
     return timelineEvents.filter(e =>
-      (event as any).relatedEvents?.includes(e.id) ||
-      (e as any).relatedEvents?.includes(eventId)
+      (event as TimelineEvent).relatedEvents?.includes(e.id) ||
+      (e as TimelineEvent).relatedEvents?.includes(eventId)
     );
   };
 
@@ -1350,16 +1331,16 @@ export default function AdvancedTimeline({
                                 </div>
                                 <div className="flex flex-wrap gap-2">
                                   {event.entities.slice(0, 3).map(entity => {
-                                    const person = corePeople.find(p => p.id === entity.entityId);
-                                    return person ? (
+                                    // TODO: Fetch person from API when needed
+                                    return (
                                       <span
                                         key={entity.entityId}
-                                        className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm"
+                                        className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full text-sm"
                                         title={entity.role}
                                       >
-                                        {person.name}
+                                        {entity.entityId} ({entity.role})
                                       </span>
-                                    ) : null;
+                                    );
                                   })}
                                   {event.entities.length > 3 && (
                                     <span className="px-3 py-1 bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 rounded-full text-sm">
@@ -1942,29 +1923,19 @@ export default function AdvancedTimeline({
                       .sort(([,a], [,b]) => b - a)
                       .slice(0, 6)
                       .map(([entityId, count]) => {
-                        const person = corePeople.find(p => p.id === entityId);
-                        return person ? (
+                        // TODO: Fetch person from API when needed
+                        return (
                           <div key={entityId} className="evidence-card p-4">
                             <div className="flex items-center justify-between mb-2">
                               <h5 className="font-medium text-gray-900 dark:text-gray-100">
-                                {person.name}
+                                {entityId}
                               </h5>
-                              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 text-xs rounded-full font-medium">
+                              <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full font-medium">
                                 {count} events
                               </span>
                             </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                              {person.biography}
-                            </p>
-                            <div className="flex flex-wrap gap-1">
-                              {person.aliases.map(alias => (
-                                <span key={alias} className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded">
-                                  {alias}
-                                </span>
-                              ))}
-                            </div>
                           </div>
-                        ) : null;
+                        );
                       });
                   })()}
                 </div>
@@ -2409,11 +2380,11 @@ export default function AdvancedTimeline({
                   <h5 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">People Involved</h5>
                   <div className="space-y-2">
                     {selectedEvent.entities.map(entity => {
-                      const person = corePeople.find(p => p.id === entity.entityId);
+                      const person = null; // TODO: Fetch person from API when needed
                       return person ? (
                         <div key={entity.entityId} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-dark-700 rounded">
                           <div>
-                            <div className="font-medium text-sm">{person.name}</div>
+                            <div className="font-medium text-sm">{entity.entityId}</div>
                             <div className="text-xs text-gray-600 dark:text-gray-400">{entity.role}</div>
                           </div>
                         </div>
@@ -2557,7 +2528,7 @@ export default function AdvancedTimeline({
                       <h5 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">Personal Information</h5>
                       <div className="space-y-2 text-sm">
                         <div><strong>Name:</strong> {person.name}</div>
-                        <div><strong>Significance:</strong> {person.significance}</div>
+                        <div><strong>Significance:</strong> {person.significance || 'Unknown'}</div>
                         <div><strong>Connected Events:</strong> {connectedEvents.length}</div>
                         <div><strong>Network Influence:</strong> {selectedNetworkNode.size}px</div>
                       </div>
@@ -2662,11 +2633,11 @@ export default function AdvancedTimeline({
                         <h5 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">People Involved</h5>
                         <div className="space-y-2">
                           {event.entities.map(entity => {
-                            const person = corePeople.find(p => p.id === entity.entityId);
+                            const person = null; // TODO: Fetch person from API when needed
                             return person ? (
                               <div key={entity.entityId} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-dark-700 rounded">
                                 <div>
-                                  <div className="font-medium text-sm">{person.name}</div>
+                                  <div className="font-medium text-sm">{entity.entityId}</div>
                                   <div className="text-xs text-gray-600 dark:text-gray-400">{entity.role}</div>
                                 </div>
                               </div>

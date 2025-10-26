@@ -69,7 +69,6 @@ export async function GET(request: NextRequest) {
       source: 'supabase'
     });
   } catch (error) {
-    console.error('Timeline API error:', error);
     return NextResponse.json(
       {
         success: false,

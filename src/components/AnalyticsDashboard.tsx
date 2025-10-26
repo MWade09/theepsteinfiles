@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import {
   BarChart3,
   TrendingUp,
@@ -9,17 +9,32 @@ import {
   FileText,
   DollarSign,
   MapPin,
-  Plane,
   AlertTriangle,
   Eye,
   Clock,
   Activity,
   Database,
-  Filter,
   Download,
-  Share2,
   Star
 } from 'lucide-react';
+
+interface ApiPerson {
+  id: string;
+  name: string;
+  significance: string;
+}
+
+interface ApiEvent {
+  id: string;
+  date: string;
+  significance: string;
+}
+
+interface ApiOrganization {
+  id: string;
+  name: string;
+  significance: string;
+}
 
 interface AnalyticsData {
   totalPeople: number;
@@ -98,38 +113,37 @@ export default function AnalyticsDashboard() {
         totalTransactions: transData.success ? transData.data.length : 0,
         totalProperties: propsData.success ? propsData.data.length : 0,
         totalFlights: flightsData.success ? flightsData.data.length : 0,
-        criticalEvents: eventsData.success ? eventsData.data.filter((e: any) => e.significance === 'critical').length : 0,
+        criticalEvents: eventsData.success ? (eventsData.data as ApiEvent[]).filter((e: ApiEvent) => e.significance === 'critical').length : 0,
         highSignificanceItems: [
-          ...(peopleData.success ? peopleData.data.filter((p: any) => p.significance === 'critical' || p.significance === 'high') : []),
-          ...(eventsData.success ? eventsData.data.filter((e: any) => e.significance === 'critical' || e.significance === 'high') : []),
-          ...(orgsData.success ? orgsData.data.filter((o: any) => o.significance === 'critical' || o.significance === 'high') : [])
+          ...(peopleData.success ? (peopleData.data as ApiPerson[]).filter((p: ApiPerson) => p.significance === 'critical' || p.significance === 'high') : []),
+          ...(eventsData.success ? (eventsData.data as ApiEvent[]).filter((e: ApiEvent) => e.significance === 'critical' || e.significance === 'high') : []),
+          ...(orgsData.success ? (orgsData.data as ApiOrganization[]).filter((o: ApiOrganization) => o.significance === 'critical' || o.significance === 'high') : [])
         ].length,
         dateRange: {
           earliest: eventsData.success && eventsData.data.length > 0
-            ? eventsData.data.reduce((earliest: any, event: any) => event.date < earliest.date ? event : earliest).date
+            ? (eventsData.data as ApiEvent[]).reduce((earliest: ApiEvent, event: ApiEvent) => event.date < earliest.date ? event : earliest).date
             : 'Unknown',
           latest: eventsData.success && eventsData.data.length > 0
-            ? eventsData.data.reduce((latest: any, event: any) => event.date > latest.date ? event : latest).date
+            ? (eventsData.data as ApiEvent[]).reduce((latest: ApiEvent, event: ApiEvent) => event.date > latest.date ? event : latest).date
             : 'Unknown'
         },
         topEntities: [], // TODO: Calculate based on connections
         activityByYear: [], // TODO: Calculate yearly activity
         significanceDistribution: {
-          critical: (peopleData.success ? peopleData.data.filter((p: any) => p.significance === 'critical').length : 0) +
-                   (eventsData.success ? eventsData.data.filter((e: any) => e.significance === 'critical').length : 0),
-          high: (peopleData.success ? peopleData.data.filter((p: any) => p.significance === 'high').length : 0) +
-                (eventsData.success ? eventsData.data.filter((e: any) => e.significance === 'high').length : 0),
-          medium: (peopleData.success ? peopleData.data.filter((p: any) => p.significance === 'medium').length : 0) +
-                  (eventsData.success ? eventsData.data.filter((e: any) => e.significance === 'medium').length : 0),
-          low: (peopleData.success ? peopleData.data.filter((p: any) => p.significance === 'low').length : 0) +
-               (eventsData.success ? eventsData.data.filter((e: any) => e.significance === 'low').length : 0)
+          critical: (peopleData.success ? (peopleData.data as ApiPerson[]).filter((p: ApiPerson) => p.significance === 'critical').length : 0) +
+                   (eventsData.success ? (eventsData.data as ApiEvent[]).filter((e: ApiEvent) => e.significance === 'critical').length : 0),
+          high: (peopleData.success ? (peopleData.data as ApiPerson[]).filter((p: ApiPerson) => p.significance === 'high').length : 0) +
+                (eventsData.success ? (eventsData.data as ApiEvent[]).filter((e: ApiEvent) => e.significance === 'high').length : 0),
+          medium: (peopleData.success ? (peopleData.data as ApiPerson[]).filter((p: ApiPerson) => p.significance === 'medium').length : 0) +
+                  (eventsData.success ? (eventsData.data as ApiEvent[]).filter((e: ApiEvent) => e.significance === 'medium').length : 0),
+          low: (peopleData.success ? (peopleData.data as ApiPerson[]).filter((p: ApiPerson) => p.significance === 'low').length : 0) +
+               (eventsData.success ? (eventsData.data as ApiEvent[]).filter((e: ApiEvent) => e.significance === 'low').length : 0)
         },
         geographicCoverage: [] // TODO: Calculate geographic distribution
       };
 
       setAnalyticsData(processedData);
     } catch (err) {
-      console.error('Analytics fetch error:', err);
       setError(err instanceof Error ? err.message : 'Failed to load analytics');
     } finally {
       setLoading(false);
@@ -406,7 +420,7 @@ export default function AnalyticsDashboard() {
                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Timeline Span</span>
                       </div>
                       <div className="text-sm text-gray-600 dark:text-gray-400">
-                        {metric.data?.span?.earliest !== 'Unknown' ?
+                        {metric.data?.span?.earliest !== 'Unknown' && metric.data?.span?.earliest ?
                           `${new Date(metric.data.span.earliest).toLocaleDateString()} - ${new Date(metric.data.span.latest).toLocaleDateString()}` :
                           'Calculating...'
                         }
@@ -450,7 +464,7 @@ export default function AnalyticsDashboard() {
                         <div className="flex justify-between">
                           <span>High-Value Targets:</span>
                           <span className="font-medium text-orange-600">
-                            {((metric.data?.significance as any)?.high || 0) + ((metric.data?.significance as any)?.critical || 0)}
+                            {((metric.data?.significance as Record<string, number>)?.high || 0) + ((metric.data?.significance as Record<string, number>)?.critical || 0)}
                           </span>
                         </div>
                       </>
